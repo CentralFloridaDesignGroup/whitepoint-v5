@@ -1,0 +1,27 @@
+{
+  "name": "whitepoint-v5",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.10.1",
+  "engines": {
+    "node": ">=26.10.0"
+  },
+  "scripts": {
+    "build": "pnpm --recursive --if-present run build",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "pnpm --filter @whitepoint/types build && pnpm --filter @whitepoint/utils build && pnpm --filter @whitepoint/ui build && pnpm --recursive --if-present run typecheck",
+    "dev:main": "pnpm --parallel --filter @whitepoint/docs --filter @whitepoint/api dev",
+    "dev:docs": "pnpm --parallel --filter @whitepoint/docs --filter @whitepoint/api dev",
+    "dev:manage": "node scripts/dev.mjs manage",
+    "dev:payment": "node scripts/dev.mjs payment",
+    "dev:api": "pnpm --filter @whitepoint/api dev",
+    "migrate:d1:local": "pnpm --filter @whitepoint/api migrate:d1:local",
+    "migrate:d1:remote": "pnpm --filter @whitepoint/api migrate:d1:remote",
+    "d1:reset": "pnpm --filter @whitepoint/api d1:reset"
+  },
+  "devDependencies": {
+    "eslint": "10.12.0",
+    "typescript": "6.0.2",
+    "typescript-eslint": "8.71.1"
+  }
+}

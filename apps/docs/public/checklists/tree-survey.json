@@ -1,0 +1,157 @@
+{
+    "Meta": {
+        "Category": "Land Development",
+        "Title": "Tree Survey Checklist",
+        "WIP": true
+    },
+    "Sections": [
+        {
+            "title": "General Map and Report Review",
+            "subtitle": "Florida baseline; apply data-related items to the work performed.",
+            "items": [
+                {
+                    "title": "Purpose and Scope",
+                    "statement": "Identify the product type and intended purpose.",
+                    "code": "5J-17.051(3)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Horizontal Control and Accuracy",
+                    "statement": "State the horizontal datum and control; retain independent accuracy checks and methods.",
+                    "code": "5J-17.051(2), (2)(b), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Vertical Control and Accuracy",
+                    "statement": "For elevation data, state datum and control and document accuracy and verification methods.",
+                    "code": "5J-17.051(2)(a), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Assumed Datum Control",
+                    "statement": "If using an assumed datum, distinguish it from published datums and provide reproducible control.",
+                    "code": "5J-17.051(2)(a)-(c), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Dated Supporting Records",
+                    "statement": "Retain dated measurements and computations supporting the product.",
+                    "code": "5J-17.051(2)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Responsible Surveyor and Business",
+                    "statement": "Show responsible surveyor name/license and issuing business name, authorization number, and street/mailing addresses.",
+                    "code": "5J-17.051(3)(c), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Acquisition and Revision Dates",
+                    "statement": "Identify the last acquisition date and subsequent graphic revision dates.",
+                    "code": "5J-17.051(3)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Signature and Seal Statement",
+                    "statement": "Include the required original-signature/seal validity statement unless electronically signed and sealed.",
+                    "code": "5J-17.051(3)(e), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Map Orientation and Legend",
+                    "statement": "Show north, scale, defined survey abbreviations, and the bearing reference to an established monumented line.",
+                    "code": "5J-17.051(3)(f)-(h), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Mapped Feature Responsibility",
+                    "statement": "Identify responsibility for mapped features and integration of others' work.",
+                    "code": "5J-17.051(3)(i), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Final Delivery Review",
+                    "statement": "Confirm signed/sealed deliverables, sheet references, filenames, revision consistency, and contracted formats before release.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Tree Inventory and Field Review",
+            "items": [
+                {
+                    "title": "Tree Survey Limits",
+                    "statement": "Confirm survey limits, adjoining coverage, included tree classes, and inventory date.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Tree Inclusion Criteria",
+                    "statement": "Verify species, size thresholds, protected-tree definitions, and measurement methods with the applicable jurisdiction; record the criteria used.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Unique Tree Identifiers",
+                    "statement": "Check each mapped tree has a unique identifier matching field tags and the inventory; resolve missing or duplicate tags.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Tree Positions",
+                    "statement": "Verify surveyed trunk locations and reconcile closely spaced trees, clusters, and multi-stem trees.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Inventory Attributes",
+                    "statement": "Check required species, diameter units/measurement height, multi-stem convention, and other contracted attributes for completeness.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Specialist-Supplied Attributes",
+                    "statement": "Identify the source and date of arborist-supplied species, condition, or preservation assessments; resolve discrepancies.",
+                    "code": "QA review",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Unobserved or Inaccessible Trees",
+                    "statement": "Document excluded areas, inaccessible trees, missing tags, and assumptions requiring follow-up.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Tree Map and Submission Review",
+            "items": [
+                {
+                    "title": "Inventory-to-Map Reconciliation",
+                    "statement": "Reconcile tree counts and identifiers between observations, map symbols, labels, and tabular inventory.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Canopy and Protection Areas",
+                    "statement": "Distinguish measured canopy data from supplied or calculated protection zones and identify their source.",
+                    "code": "QA review",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Tree Submission Details",
+                    "statement": "Verify required schedules, protected-tree labels, preservation/removal classifications, and supporting specialist documents.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Tree Deliverable Consistency",
+                    "statement": "Compare PDF, CAD, and inventory exports for IDs, units, coordinate locations, and revision agreement.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        }
+    ]
+}

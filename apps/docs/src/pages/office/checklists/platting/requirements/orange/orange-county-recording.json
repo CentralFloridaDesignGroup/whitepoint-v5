@@ -1,0 +1,23 @@
+{
+  "id": "orange-county-recording",
+  "Sections": [
+    {
+      "title": "Orange County Recording Requirements",
+      "subtitle": "Authoring template - local requirements have not been researched.",
+      "items": [
+        {
+          "id": "orange-county-recording-001",
+          "title": "Orange County recording requirements review",
+          "statement": "AUTHORING PLACEHOLDER: Replace this item with sourced requirements after reviewing the applicable official documents. This is not a verified jurisdictional requirement.",
+          "code": "Local requirements - verify",
+          "options": "YesNo",
+          "source": {
+            "label": "Orange County recording - source pending"
+          },
+          "reviewStatus": "draft",
+          "reviewedAt": null
+        }
+      ]
+    }
+  ]
+}

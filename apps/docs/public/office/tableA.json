@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1,
+    "title": "Monuments",
+    "text": "Monuments placed (or a reference monument or witness to the corner) at all major corners of the boundary of the surveyed property, unless already marked or referenced by existing monuments or witnesses in close proximity to the corner.",
+    "explanation": "This item is always required to be included for a survey performed in Florida, pursuant to section 5J-17.051, Florida Administrative Code.",
+    "alwaysRequired": true
+  },
+  {
+    "id": 2,
+    "title": "Property Address",
+    "text": "Address(es) of the surveyed property if disclosed in documents provided to or obtained by the surveyor, or observed while conducting the fieldwork.",
+    "alwaysRequired": false,
+    "explanation": "",
+    "default": true
+  },
+  {
+    "id": 3,
+    "title": "Flood Zone Classification",
+    "text": "Flood zone classification (with proper annotation based on federal Flood Insurance Rate Maps or the state or local equivalent) depicted by scaled map location and graphic plotting only.",
+    "alwaysRequired": false,
+    "explanation": "",
+    "default": true
+  },
+  {
+    "id": 4,
+    "title": "Gross Land Area",
+    "text": "Gross land area (and other areas if specified by the client).",
+    "alwaysRequired": false,
+    "explanation": "",
+    "default": true
+  },
+  {
+    "id": 5,
+    "title": "Vertical Information",
+    "text": "Vertical relief with the source of information (e.g., ground survey, aerial map), contour interval, datum, with originating benchmark, when appropriate.",
+    "alwaysRequired": false,
+    "explanation": ""
+  },
+  {
+    "id": 6,
+    "subitems": [
+      {
+        "id": "A",
+        "title": "Zoning Information Shown",
+        "text": "If the current zoning classification, setback requirements, the height and floor space area restrictions, and parking requirements specific to the surveyed property are set forth in a zoning report or letter provided to the surveyor by the client or the client's designated representative, list the above items on the plat or map and identify the date and source of the report or letter.",
+        "alwaysRequired": false,
+        "explanation": ""
+      },
+      {
+        "id": "B",
+        "title": "Zoning Information Drafted",
+        "text": "If the zoning setback requirements specific to the surveyed property are set forth in a zoning report or letter provided to the surveyor by the client or the client's designated representative, and if those requirements do not require an interpretation by the surveyor, graphically depict those requirements on the plat or map and identify the date and source of the report or letter.",
+        "alwaysRequired": false,
+        "explanation": ""
+      }
+    ],
+    "title": "Zoning Information",
+    "alwaysRequired": false,
+    "explanation": ""
+  },
+  {
+    "id": 7,
+    "subitems": [
+      {
+        "id": "A",
+        "title": "",
+        "text": "Exterior dimensions of all buildings at ground level.",
+        "alwaysRequired": true,
+        "default": true
+      },
+      {
+        "id": "B(1)",
+        "title": "",
+        "text": "Square footage of exterior footprint of all buildings at ground level.",
+        "alwaysRequired": false,
+        "default": true
+      },
+      {
+        "id": "B(2)",
+        "title": "",
+        "text": "Square footage of other areas as specified by the client.",
+        "alwaysRequired": false
+      },
+      {
+        "id": "C",
+        "title": "",
+        "text": "Measured height of all buildings above grade at a location specified by the client. If no location is specified, the point of measurement shall be identified.",
+        "alwaysRequired": false
+      }
+    ],
+    "title": "Dimensions and Areas",
+    "alwaysRequired": false,
+    "explanation": "",
+    "default": true
+  },
+  {
+    "id": 8,
+    "title": "Substantial Features",
+    "text": "Substantial features observed in the process of conducting the fieldwork (in addition to the improvements and features required pursuant to Section 5 above) (e.g., parking lots, billboards, signs, swimming pools, landscaped areas, substantial areas of refuse).",
+    "alwaysRequired": true,
+    "explanation": "",
+    "default": true
+  },
+  {
+    "id": 9,
+    "title": "Parking Spaces",
+    "text": "Number and type (e.g., disabled, motorcycle, regular, and other marked specialized types) of clearly identifiable parking spaces on surface parking areas, lots, and in parking structures. Striping of clearly identifiable parking spaces on surface parking areas and lots.",
+    "alwaysRequired": false,
+    "explanation": ""
+  },
+  {
+    "id": 10,
+    "title": "Division or Party Walls",
+    "text": "As designated by the client, a determination of the relationship and location of certain division or party walls with respect to adjoining properties.",
+    "alwaysRequired": false,
+    "explanation": ""
+  },
+  {
+    "id": 11,
+    "subitems": [
+      {
+        "id": "A",
+        "title": "",
+        "text": "Evidence of underground utilities existing on or serving the surveyed property (in addition to the observed evidence of utilities required pursuant to Section 5.E.iv.) as determined by plans and/or reports provided by client (with reference as to the sources of information).",
+        "alwaysRequired": false
+      },
+      {
+        "id": "B",
+        "title": "",
+        "text": "Evidence of underground utilities existing on or serving the surveyed property (in addition to the observed evidence of utilities required pursuant to Section 5.E.iv.) as determined by markings coordinated by the surveyor or client pursuant to a private utility locate request. Note to the client, insurer, and lender - With regard to Table A, item 11, information from the sources checked above will be combined with observed evidence of utilities pursuant to Section 5.E.iv. to develop a view of the underground utilities. However, lacking excavation, the exact location of underground features cannot be accurately, completely, and reliably depicted. In addition, in some jurisdictions, 811 or other similar utility locate requests from surveyors may be ignored or result in an incomplete response, in which case the surveyor shall note on the plat or map how this affected the surveyor's assessment of the location of the utilities. Where additional or more detailed information is required, the client is advised that excavation may be necessary.",
+        "alwaysRequired": false
+      }
+    ],
+    "title": "Underground Utilities",
+    "alwaysRequired": false,
+    "explanation": ""
+  },
+  {
+    "id": 12,
+    "title": "Governmental Agency Survey-Related Requirements",
+    "alwaysRequired": false,
+    "explanation": "",
+    "text": "As specified by the client, Governmental Agency survey-related requirements (e.g., HUD surveys, surveys for leases on Bureau of Land Management managed lands). The relevant survey requirements are to be provided by the client or client's designated representative."
+  },
+  {
+    "id": 13,
+    "title": "Names of Owners of Adjoining Properties",
+    "alwaysRequired": false,
+    "explanation": "",
+    "text": "Names of owners of adjoining properties according to current tax records. If more than one owner, identify the first owner's name listed in the tax records followed by \u201cet al.\u201d",
+    "default": true
+  },
+  {
+    "id": 14,
+    "title": "Distance to the Nearest Intersecting Street",
+    "alwaysRequired": false,
+    "explanation": "",
+    "text": "Distance to the nearest intersecting street."
+  },
+  {
+    "id": 15,
+    "title": "Use of Imagery to Depict Features",
+    "alwaysRequired": false,
+    "explanation": "",
+    "text": "Features, other than the boundary survey portion of an ALTA/NSPS Land Title Survey and the location of features in close proximity to a boundary or other title or relevant setback line, may be shown using imagery; however, the surveyor must (a) agree with the client in writing on imagery to utilize, including source, date and/or version of imagery, and licensing costs and requirements, (b) discuss the ramifications of such practices (e.g., the potential accuracy, precision and completeness of the imagery gathered thereby) with the insurer, lender, and client prior to the performance of the survey, and (c) place a note on the face of the survey explaining the source, date, precision, and other relevant qualifications of any such imagery."
+  },
+  {
+    "id": 16,
+    "title": "Evidence of Recent Earth Moving Work",
+    "alwaysRequired": false,
+    "explanation": "",
+    "text": "Evidence of recent earth moving work, building construction, or building additions observed in the process of conducting the fieldwork."
+  },
+  {
+    "id": 17,
+    "title": "Proposed Changes in Street Right of Way Lines",
+    "alwaysRequired": false,
+    "explanation": "",
+    "text": "Proposed changes in street right of way lines, if such information is made available to the surveyor by the controlling jurisdiction. Evidence of recent street or sidewalk construction or repairs observed in the process of conducting the fieldwork."
+  },
+  {
+    "id": 18,
+    "title": "Appurtenant Easements",
+    "alwaysRequired": false,
+    "explanation": "",
+    "text": "Pursuant to Sections 5 and 6 (and applicable selected Table A items, excluding Table A item 1), include as part of the survey any plottable offsite (i.e., appurtenant) easements disclosed in documents provided to or obtained by the surveyor."
+  },
+  {
+    "id": 19,
+    "title": "Professional Liability Insurance",
+    "alwaysRequired": false,
+    "explanation": "",
+    "text": "Professional liability insurance policy obtained by the surveyor in the minimum amount of $____________ to be in effect throughout the contract term. Certificate of insurance to be furnished upon request, but this item shall not be addressed on the face of the plat or map, unless required by the jurisdiction.",
+    "default": true
+  },
+  {
+    "id": 20,
+    "title": "Summary of Observed Conditions and Potential Encroachments",
+    "alwaysRequired": true,
+    "explanation": "",
+    "text": "When observed in the process of conducting the fieldwork or otherwise identified in the process of preparing the survey the following conditions and potential encroachments must be summarized in a table and indicated on the face of the plat or map. Without expressing a statement of legal opinion or an opinion as to ownership, the table must identify the physical conditions, and provide a means by which the conditions can be readily located on the face of the plat or map by a reviewer; however, this table may not be a comprehensive list of all concerns shown on the plat or map of the survey.",
+    "listItems": [
+      "Potential encroachments over boundary lines onto the surveyed property from adjoining property and onto adjoining property from the surveyed property.",
+      "Potential encroachments into rights of way and easements for which written documentation of the existence of such rights of way and easements was provided to or obtained by the surveyor pursuant to Section 4.",
+      "Potential encroachments of front, side or rear setbacks, but only when the setback requirements specific to the surveyed property were provided to the surveyor pursuant to Table A item 6(a) or 6(b) or provided in recorded documents.",
+      "Physical access between adjoining parcels without benefit of an easement for which written documentation of the existence of such easement was provided to or obtained by the surveyor pursuant to Section 4.",
+      "Use of adjoining parcels by apparent occupants of the surveyed property without benefit of an easement for which written documentation of the existence of such easement was provided to or obtained by the surveyor pursuant to Section 4."
+    ],
+    "default": true
+  }
+]

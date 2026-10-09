@@ -1,0 +1,24 @@
+{
+  "$schema": "https://www.whitepointsurvey.com/schemas/plattingRequirementSet.json",
+  "id": "white-point",
+  "Sections": [
+    {
+      "title": "White Point S.O.P.",
+      "subtitle": "Existing internal workflow checks - pending White Point review.",
+      "items": [
+        {
+          "title": "Final Delivery Review",
+          "statement": "Confirm signed/sealed deliverables, sheet references, filenames, revision consistency, and contracted formats before release.",
+          "code": "QA review",
+          "options": "YesNo",
+          "id": "white-point-001",
+          "source": {
+            "label": "White Point standards"
+          },
+          "reviewStatus": "draft",
+          "reviewedAt": null
+        }
+      ]
+    }
+  ]
+}

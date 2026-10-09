@@ -1,0 +1,23 @@
+{
+  "id": "orlando",
+  "Sections": [
+    {
+      "title": "Orlando requirements",
+      "subtitle": "Authoring template - local requirements have not been researched.",
+      "items": [
+        {
+          "id": "orlando-001",
+          "title": "Orlando requirements review",
+          "statement": "AUTHORING PLACEHOLDER: Replace this item with sourced requirements after reviewing the applicable official documents. This is not a verified jurisdictional requirement.",
+          "code": "Local requirements - verify",
+          "options": "YesNo",
+          "source": {
+            "label": "Orlando - source pending"
+          },
+          "reviewStatus": "draft",
+          "reviewedAt": null
+        }
+      ]
+    }
+  ]
+}

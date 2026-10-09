@@ -1,0 +1,210 @@
+{
+    "Meta": {
+        "Category": "Land Development",
+        "Title": "Lot Split Checklist",
+        "WIP": true
+    },
+    "Sections": [
+        {
+            "title": "General Map and Report Review",
+            "subtitle": "Florida baseline; apply data-related items to the work performed.",
+            "items": [
+                {
+                    "title": "Purpose and Scope",
+                    "statement": "Identify the product type and intended purpose.",
+                    "code": "5J-17.051(3)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Horizontal Control and Accuracy",
+                    "statement": "State the horizontal datum and control; retain independent accuracy checks and methods.",
+                    "code": "5J-17.051(2), (2)(b), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Vertical Control and Accuracy",
+                    "statement": "For elevation data, state datum and control and document accuracy and verification methods.",
+                    "code": "5J-17.051(2)(a), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Assumed Datum Control",
+                    "statement": "If using an assumed datum, distinguish it from published datums and provide reproducible control.",
+                    "code": "5J-17.051(2)(a)-(c), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Dated Supporting Records",
+                    "statement": "Retain dated measurements and computations supporting the product.",
+                    "code": "5J-17.051(2)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Responsible Surveyor and Business",
+                    "statement": "Show responsible surveyor name/license and issuing business name, authorization number, and street/mailing addresses.",
+                    "code": "5J-17.051(3)(c), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Acquisition and Revision Dates",
+                    "statement": "Identify the last acquisition date and subsequent graphic revision dates.",
+                    "code": "5J-17.051(3)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Signature and Seal Statement",
+                    "statement": "Include the required original-signature/seal validity statement unless electronically signed and sealed.",
+                    "code": "5J-17.051(3)(e), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Map Orientation and Legend",
+                    "statement": "Show north, scale, defined survey abbreviations, and the bearing reference to an established monumented line.",
+                    "code": "5J-17.051(3)(f)-(h), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Mapped Feature Responsibility",
+                    "statement": "Identify responsibility for mapped features and integration of others' work.",
+                    "code": "5J-17.051(3)(i), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Final Delivery Review",
+                    "statement": "Confirm signed/sealed deliverables, sheet references, filenames, revision consistency, and contracted formats before release.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Split Scope and Parcel Review",
+            "items": [
+                {
+                    "title": "Split Eligibility and Process",
+                    "statement": "Verify the local definition, permitted process, parcel-count criteria, and whether platting or other approval is required.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Parent Parcel Records",
+                    "statement": "Reconcile the parent deed, recorded plat, ownership information, parcel identifier, and exceptions.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Resulting Parcels and Remainder",
+                    "statement": "Identify every proposed parcel and any retained remainder; check that their union matches the intended parent land.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Shared Line Agreement",
+                    "statement": "Check adjoining proposed parcel calls agree in reverse direction and create no gaps or overlaps.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Resulting Areas",
+                    "statement": "Independently compute closure and areas for every resulting parcel and reconcile the total with the parent.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Parcel Dimensions and Improvements",
+                    "statement": "Check applicable area, width, frontage, setbacks, and existing-improvement constraints for each resulting parcel.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Access and Easement Review",
+                    "statement": "Check each proposed parcel's access and affected easements; identify new instruments or revisions needing coordination.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Services and Approval Conditions",
+                    "statement": "Verify applicable utility, drainage, access, and other local approval conditions.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNoN/A"
+                }
+            ]
+        },
+        {
+            "title": "Description and Sketch",
+            "items": [
+                {
+                    "title": "Definitive Boundary Calls",
+                    "statement": "Write metes-and-bounds calls that unambiguously identify each boundary line.",
+                    "code": "5J-17.052(6)(a), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Sketch Matches Description",
+                    "statement": "Depict every referenced description element and identify the sketch as not a survey.",
+                    "code": "5J-17.052(6)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Initial Point Tie",
+                    "statement": "Tie the initial description point to a government corner, recorded corner, or established survey point.",
+                    "code": "5J-17.052(6)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Commencement and Beginning",
+                    "statement": "Distinguish commencement from beginning; verify ties, directions, distances, and referenced monuments.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Independent Closure and Area",
+                    "statement": "Independently compute perimeter closure and area; reconcile rounding, curve geometry, exceptions, and stated units.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Record References and Location",
+                    "statement": "Check source instruments, recording references, section/township/range or subdivision identifiers, county, and state.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Curve and Line Agreement",
+                    "statement": "Compare every line and curve call to the sketch, including radial/nonradial relationships and tables.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Intended Estate or Purpose",
+                    "statement": "Confirm the described parcel, easement, or other intended interest matches the client's instructions; resolve ambiguous scope before release.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Split Submission",
+            "items": [
+                {
+                    "title": "Individual Parcel Exhibits",
+                    "statement": "Provide consistent identifiers and matching descriptions/sketches for each parcel and remainder.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Split Application Package",
+                    "statement": "Confirm required applications, owner signatures, supporting documents, and recording/submission instructions.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Split Completion Status",
+                    "statement": "Distinguish proposed parcel geometry from approved/recorded changes and retain approval references when available.",
+                    "code": "QA review",
+                    "options": "YesNoN/A"
+                }
+            ]
+        }
+    ]
+}

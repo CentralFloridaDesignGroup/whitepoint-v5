@@ -1,0 +1,32 @@
+@import "@whitepoint/ui/styles/globals.css";
+@import "@whitepoint/ui/styles/utilities.css";
+
+.document-outlet-scroll {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.document-outlet-scroll::-webkit-scrollbar {
+	display: none;
+}
+
+.leaflet-tooltip.gis-point-label {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	color: #000000;
+	font-size: 0.9rem;
+	font-weight: 600;
+	padding: 0;
+	margin: 0;
+	text-shadow:
+		-1px -1px 0 #ffffff,
+		1px -1px 0 #ffffff,
+		-1px 1px 0 #ffffff,
+		1px 1px 0 #ffffff,
+		0 0 2px #ffffff;
+}
+
+.leaflet-tooltip.gis-point-label::before {
+	display: none;
+}

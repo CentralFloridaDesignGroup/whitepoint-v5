@@ -1,0 +1,157 @@
+{
+    "Meta": {
+        "Category": "Land Development",
+        "Title": "Legal Sketch & Description Checklist",
+        "WIP": true
+    },
+    "Sections": [
+        {
+            "title": "General Map and Report Review",
+            "subtitle": "Florida baseline; apply data-related items to the work performed.",
+            "items": [
+                {
+                    "title": "Purpose and Scope",
+                    "statement": "Identify the product type and intended purpose.",
+                    "code": "5J-17.051(3)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Horizontal Control and Accuracy",
+                    "statement": "State the horizontal datum and control; retain independent accuracy checks and methods.",
+                    "code": "5J-17.051(2), (2)(b), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Vertical Control and Accuracy",
+                    "statement": "For elevation data, state datum and control and document accuracy and verification methods.",
+                    "code": "5J-17.051(2)(a), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Assumed Datum Control",
+                    "statement": "If using an assumed datum, distinguish it from published datums and provide reproducible control.",
+                    "code": "5J-17.051(2)(a)-(c), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Dated Supporting Records",
+                    "statement": "Retain dated measurements and computations supporting the product.",
+                    "code": "5J-17.051(2)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Responsible Surveyor and Business",
+                    "statement": "Show responsible surveyor name/license and issuing business name, authorization number, and street/mailing addresses.",
+                    "code": "5J-17.051(3)(c), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Acquisition and Revision Dates",
+                    "statement": "Identify the last acquisition date and subsequent graphic revision dates.",
+                    "code": "5J-17.051(3)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Signature and Seal Statement",
+                    "statement": "Include the required original-signature/seal validity statement unless electronically signed and sealed.",
+                    "code": "5J-17.051(3)(e), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Map Orientation and Legend",
+                    "statement": "Show north, scale, defined survey abbreviations, and the bearing reference to an established monumented line.",
+                    "code": "5J-17.051(3)(f)-(h), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Mapped Feature Responsibility",
+                    "statement": "Identify responsibility for mapped features and integration of others' work.",
+                    "code": "5J-17.051(3)(i), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Final Delivery Review",
+                    "statement": "Confirm signed/sealed deliverables, sheet references, filenames, revision consistency, and contracted formats before release.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Description and Sketch",
+            "items": [
+                {
+                    "title": "Definitive Boundary Calls",
+                    "statement": "Write metes-and-bounds calls that unambiguously identify each boundary line.",
+                    "code": "5J-17.052(6)(a), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Sketch Matches Description",
+                    "statement": "Depict every referenced description element and identify the sketch as not a survey.",
+                    "code": "5J-17.052(6)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Initial Point Tie",
+                    "statement": "Tie the initial description point to a government corner, recorded corner, or established survey point.",
+                    "code": "5J-17.052(6)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Commencement and Beginning",
+                    "statement": "Distinguish commencement from beginning; verify ties, directions, distances, and referenced monuments.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Independent Closure and Area",
+                    "statement": "Independently compute perimeter closure and area; reconcile rounding, curve geometry, exceptions, and stated units.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Record References and Location",
+                    "statement": "Check source instruments, recording references, section/township/range or subdivision identifiers, county, and state.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Curve and Line Agreement",
+                    "statement": "Compare every line and curve call to the sketch, including radial/nonradial relationships and tables.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Intended Estate or Purpose",
+                    "statement": "Confirm the described parcel, easement, or other intended interest matches the client's instructions; resolve ambiguous scope before release.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Sketch Delivery",
+            "items": [
+                {
+                    "title": "Source and Fieldwork Limitations",
+                    "statement": "Identify record sources and whether fieldwork was performed; avoid implying a sketch is a boundary survey.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Sheet Pairing",
+                    "statement": "Ensure description and sketch sheets share job identifiers, revision dates, and complete cross-references.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Recipient Format",
+                    "statement": "Verify recipient-required exhibit labels, certification wording, file format, and recording/submittal instructions.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNoN/A"
+                }
+            ]
+        }
+    ]
+}

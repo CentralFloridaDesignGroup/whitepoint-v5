@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "lib": ["ES2022"],
+    "exactOptionalPropertyTypes": false,
+    "types": ["@cloudflare/workers-types"]
+  },
+  "include": ["src"]
+}

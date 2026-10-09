@@ -1,0 +1,418 @@
+[
+  {
+    "key": "dashboard",
+    "displayName": "Dashboard",
+    "description": "Permissions related to accessing and viewing the main dashboard and its various sections.",
+    "permissions": [
+      {
+        "key": "dashboard.view",
+        "displayName": "View Dashboard",
+        "description": "Access the main dashboard with operational summaries and activity feeds."
+      },
+      {
+        "key": "dashboard.view.finances",
+        "displayName": "View Financial Section",
+        "description": "Access the financial section of the dashboard with summaries and key metrics."
+      },
+      {
+        "key": "dashboard.view.staff",
+        "displayName": "View Staff Section",
+        "description": "Access the staff section of the dashboard with summaries and key metrics."
+      },
+      {
+        "key": "dashboard.view.operations",
+        "displayName": "View Operations Section",
+        "description": "Access the operations section of the dashboard with summaries and key metrics."
+      }
+    ]
+  },
+  {
+    "key": "projects",
+    "displayName": "Projects",
+    "description": "Permissions related to managing and viewing project records, statuses, and associated details.",
+    "permissions": [
+      {
+        "key": "projects.view",
+        "displayName": "View Projects",
+        "description": "Browse and view project records, statuses, and associated details."
+      },
+      {
+        "key": "projects.view.financials",
+        "displayName": "View Project Financials",
+        "description": "Access financial details for projects including budgets, costs, and profitability."
+      },
+      {
+        "key": "projects.view.staff",
+        "displayName": "View Project Staff",
+        "description": "Access staff details for projects including assignments, roles, and availability."
+      },
+      {
+        "key": "projects.view.clients",
+        "displayName": "View Project Client Details",
+        "description": "Access client details for projects including contact information and associated projects. This does NOT prevent the user from seeing who the primary client and primary contact is for a project, even if they don't have this permission. This permission only controls access to the full client details page for the primary client and contact."
+      },
+      {
+        "key": "projects.manage",
+        "displayName": "Manage Projects",
+        "description": "Create, edit, and delete projects, as well as manage project assignments and phases. NOTE: If a user has this permission, they will be able to see all project details and financials, even if they don't have the more specific view permissions for those sections."
+      },
+      {
+        "key": "projects.create.raw",
+        "displayName": "Create Projects without Proposal",
+        "description": "Allows creating projects directly without going through the proposal process. This is intended for internal use and may bypass certain validations and workflows."
+      },
+      {
+        "key": "projects.create.proposal",
+        "displayName": "Create Project from Proposal",
+        "description": "Allows creating projects from approved proposals. This ensures that projects are created with the necessary financial and scope details defined in the proposal."
+      },
+      {
+        "key": "projects.manage.financials",
+        "displayName": "Manage Project Financials",
+        "description": "Edit financial details for projects including budgets, task pricing, and billing status."
+      },
+      {
+        "key": "projects.manage.status",
+        "displayName": "Manage Project Status",
+        "description": "Change project status and billing status values."
+      },
+      {
+        "key": "projects.create",
+        "displayName": "Create Projects",
+        "description": "Create new project records."
+      },
+      {
+        "key": "projects.delete",
+        "displayName": "Delete Projects",
+        "description": "Permanently remove project records. Reserved for super administrators by default."
+      },
+      {
+        "key": "projects.view.archived",
+        "displayName": "View Archived Projects",
+        "description": "Access projects that have been archived. This allows users to see historical project records that are no longer active."
+      },
+      {
+        "key": "projects.assign.pm",
+        "displayName": "Allow PM Assignment",
+        "description": "Allow user to be assigned as a project manager on projects."
+      }
+    ]
+  },
+  {
+    "key": "tasks",
+    "displayName": "Tasks",
+    "description": "Permissions related to viewing, creating, updating, and deleting task records within projects.",
+    "permissions": [
+      {
+        "key": "tasks.view",
+        "displayName": "View Tasks",
+        "description": "Browse and view task records within projects."
+      },
+      {
+        "key": "tasks.view.financials",
+        "displayName": "View Task Financials",
+        "description": "Access financial details for tasks including price, retainer, hours, and invoice type."
+      },
+      {
+        "key": "tasks.manage",
+        "displayName": "Manage Tasks",
+        "description": "Edit basic task details such as service, manager, and description."
+      },
+      {
+        "key": "tasks.manage.financials",
+        "displayName": "Manage Task Financials",
+        "description": "Edit financial fields on tasks including price, retainer, hours, and invoice type."
+      },
+      {
+        "key": "tasks.manage.status",
+        "displayName": "Manage Task Status",
+        "description": "Change task status and billing status values."
+      },
+      {
+        "key": "tasks.create",
+        "displayName": "Create Tasks",
+        "description": "Create new task records within projects."
+      },
+      {
+        "key": "tasks.delete",
+        "displayName": "Archive Tasks",
+        "description": "Archive task records without permanently deleting them."
+      },
+      {
+        "key": "tasks.view.archived",
+        "displayName": "View Archived Tasks",
+        "description": "Search and view archived task records within accessible projects."
+      }
+    ]
+  },
+  {
+    "key": "crm",
+    "displayName": "Clients & Contacts",
+    "description": "Permissions related to viewing, creating, updating, merging, and deleting client and contact records.",
+    "permissions": [
+      {
+        "key": "clients.view",
+        "displayName": "View Clients",
+        "description": "Browse and view client records and contact information."
+      },
+      {
+        "key": "clients.view.all",
+        "displayName": "View All Clients",
+        "description": "Access client records that have been archived. This allows users to see historical client information that is no longer active. This permission does not grant access to archived contacts - that is controlled by the separate 'contacts.view.all' permission."
+      },
+      {
+        "key": "clients.manage.basic",
+        "displayName": "Manage Client Basic Details",
+        "description": "Update non-status client details such as names, phone numbers, emails, notes, and address information."
+      },
+      {
+        "key": "clients.manage.merge",
+        "displayName": "Merge Clients",
+        "description": "Review duplicate client records, merge them into a master record, and soft-close non-master records."
+      },
+      {
+        "key": "clients.manage.status",
+        "displayName": "Manage Client Status",
+        "description": "Change client statuses including inactive and do-not-engage states."
+      },
+      {
+        "key": "clients.create",
+        "displayName": "Create Clients",
+        "description": "Create new client records."
+      },
+      {
+        "key": "clients.delete",
+        "displayName": "Delete Clients",
+        "description": "Permanently remove client records. Reserved for super administrators by default."
+      },
+      {
+        "key": "contacts.view",
+        "displayName": "View Contacts",
+        "description": "Browse and view individual contact records linked to clients and projects."
+      },
+      {
+        "key": "contacts.manage.basic",
+        "displayName": "Manage Contact Basic Details",
+        "description": "Update non-status contact details such as names, phone numbers, emails, notes, position, and linked address information."
+      },
+      {
+        "key": "contacts.manage.merge",
+        "displayName": "Merge Contacts",
+        "description": "Review duplicate contact records, merge them into a master record, and soft-close non-master records."
+      },
+      {
+        "key": "contacts.manage.status",
+        "displayName": "Manage Contact Status",
+        "description": "Change contact statuses including inactive and do-not-contact states."
+      },
+      {
+        "key": "contacts.create",
+        "displayName": "Create Contacts",
+        "description": "Create new contact records."
+      },
+      {
+        "key": "contacts.delete",
+        "displayName": "Delete Contacts",
+        "description": "Permanently remove contact records. Reserved for super administrators by default."
+      },
+      {
+        "key": "contacts.view.archived",
+        "displayName": "View Archived Contacts",
+        "description": "Access contact records that have been archived. This allows users to see historical contact information that is no longer active."
+      },
+      {
+        "key": "vendors.view",
+        "displayName": "View Vendors",
+        "description": "Browse and view vendor records and associated service information."
+      }
+    ]
+  },
+  {
+    "key": "financials",
+    "displayName": "Financials",
+    "description": "Permissions related to viewing financial records, summaries, and reports.",
+    "permissions": [
+      {
+        "key": "timesheets.view",
+        "displayName": "View Timesheets",
+        "description": "Review all staff timesheets. Employees can always view their own."
+      },
+      {
+        "key": "timesheets.approve",
+        "displayName": "Approve Timesheets",
+        "description": "Approve, reject, or reopen timesheets in the reporting chain."
+      },
+      {
+        "key": "timesheets.rates.view",
+        "displayName": "View Timesheet Rates",
+        "description": "View pay tables, labor costs, charged values, and the invoice pool."
+      },
+      {
+        "key": "timesheets.rates.manage",
+        "displayName": "Manage Timesheet Rates",
+        "description": "Manage billing positions and pay tables."
+      },
+      {
+        "key": "timesheets.hr.notify",
+        "displayName": "Receive Timesheet HR Report",
+        "description": "Receive the Monday report of missing and pending timesheets."
+      },
+      {
+        "key": "expenses.view",
+        "displayName": "View Expenses",
+        "description": "Access expense records and reimbursement submissions."
+      },
+      {
+        "key": "financials.view",
+        "displayName": "View Financials",
+        "description": "Access financial summaries, proposals, invoices, and payment records."
+      },
+      {
+        "key": "financials.email.include",
+        "displayName": "Include User in Financial Emails",
+        "description": "Include the user in financial email notifications."
+      },
+      {
+        "key": "financials.email.include.sensitive",
+        "displayName": "Include User in Sensitive Financial Emails",
+        "description": "Include the user in sensitive financial email notifications."
+      },
+      {
+        "key": "reports.view",
+        "displayName": "View Reports",
+        "description": "Access generated reports including project, financial, and personnel reports."
+      },
+      {
+        "key": "invoices.view",
+        "displayName": "View Invoices",
+        "description": "View invoice records and details."
+      },
+      {
+        "key": "invoices.create",
+        "displayName": "Create Invoices",
+        "description": "Create invoice records."
+      },
+      {
+        "key": "invoices.manage",
+        "displayName": "Manage Invoices",
+        "description": "Update invoice records and status."
+      },
+      {
+        "key": "invoices.email.postupdate",
+        "displayName": "Email Updated Invoices",
+        "description": "Email an invoice after it has been updated."
+      },
+      {
+        "key": "invoices.email.arbitrary",
+        "displayName": "Email Invoices to Additional Recipients",
+        "description": "Send invoice emails to recipients outside the standard billing contacts."
+      }
+    ]
+  },
+  {
+    "key": "users",
+    "displayName": "Users",
+    "description": "Permissions related to managing and viewing user accounts and their details.",
+    "permissions": [
+      {
+        "key": "users.view",
+        "displayName": "View Users",
+        "description": "See the list of user accounts in the system."
+      },
+      {
+        "key": "users.read.basic",
+        "displayName": "Read Basic User Details",
+        "description": "View basic profile details and settings for individual user accounts. Does not include sensitive information."
+      },
+      {
+        "key": "users.read.sensitive",
+        "displayName": "Read Sensitive User Details",
+        "description": "Access sensitive employee information such as compensation and protected staff records."
+      },
+      {
+        "key": "users.manage",
+        "displayName": "Manage Users",
+        "description": "Update existing user accounts including roles, providers, and status."
+      },
+      {
+        "key": "users.create",
+        "displayName": "Create Users",
+        "description": "Provision new user accounts in the system."
+      },
+      {
+        "key": "users.invite",
+        "displayName": "Invite Users",
+        "description": "Send invitations to new users to set up their accounts."
+      },
+      {
+        "key": "users.delete",
+        "displayName": "Delete Users",
+        "description": "Permanently remove user accounts from the system."
+      }
+    ]
+  },
+  {
+    "key": "company",
+    "displayName": "Company Settings",
+    "description": "Permissions related to managing company profile details, settings, and role management.",
+    "permissions": [
+      {
+        "key": "company.view",
+        "displayName": "View Company Settings",
+        "description": "Access company profile details, settings, and role management."
+      },
+      {
+        "key": "company.manage",
+        "displayName": "Manage Company Settings",
+        "description": "Edit company profile details, update settings, and manage roles and permissions."
+      },
+      {
+        "key": "company.roles.view",
+        "displayName": "View Roles & Permissions",
+        "description": "Access the list of roles and their associated permissions."
+      },
+      {
+        "key": "company.roles.manage",
+        "displayName": "Manage Roles & Permissions",
+        "description": "Create, edit, and delete roles, as well as assign permissions to roles."
+      },
+      {
+        "key": "company.roles.create",
+        "displayName": "Create Roles",
+        "description": "Create new role definitions."
+      },
+      {
+        "key": "company.roles.delete",
+        "displayName": "Delete Roles",
+        "description": "Permanently remove role definitions from the system."
+      },
+      {
+        "key": "company.qbo.view",
+        "displayName": "View QuickBooks Settings",
+        "description": "View QuickBooks connection and synchronization status."
+      },
+      {
+        "key": "company.qbo.manage",
+        "displayName": "Manage QuickBooks Settings",
+        "description": "Connect and manage the QuickBooks integration."
+      },
+      {
+        "key": "company.qbo.resync",
+        "displayName": "Retry QuickBooks Sync",
+        "description": "Retry failed QuickBooks record synchronization."
+      }
+    ]
+  },
+  {
+    "key": "system",
+    "displayName": "System",
+    "description": "Permissions related to system-level access and administrative tools.",
+    "permissions": [
+      {
+        "key": "debug.view",
+        "displayName": "View Debug Tools",
+        "description": "Access internal debug tooling and diagnostics. Reserved for super administrators."
+      }
+    ]
+  }
+]

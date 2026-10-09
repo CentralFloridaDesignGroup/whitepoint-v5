@@ -1,0 +1,23 @@
+{
+  "id": "orange-county-unincorporated",
+  "Sections": [
+    {
+      "title": "Orange County Requirements",
+      "subtitle": "Authoring template - local requirements have not been researched.",
+      "items": [
+        {
+          "id": "orange-county-unincorporated-001",
+          "title": "Unincorporated Orange County requirements review",
+          "statement": "AUTHORING PLACEHOLDER: Replace this item with sourced requirements after reviewing the applicable official documents. This is not a verified jurisdictional requirement.",
+          "code": "Local requirements - verify",
+          "options": "YesNo",
+          "source": {
+            "label": "Unincorporated Orange County - source pending"
+          },
+          "reviewStatus": "draft",
+          "reviewedAt": null
+        }
+      ]
+    }
+  ]
+}

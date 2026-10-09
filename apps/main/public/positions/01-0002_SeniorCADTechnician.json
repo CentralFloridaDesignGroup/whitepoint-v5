@@ -1,0 +1,40 @@
+{
+  "id": "01-0002",
+  "displayName": "Senior CAD Technician",
+  "isActive": true,
+  "basicInfo": {
+    "positionOpenDate": "2026-10-22",
+    "positionEndDate": "0",
+    "positionSalaryType": "Full-Time Hourly",
+    "startingSalary": 30,
+    "endingSalary": 35,
+    "positionType": "Hybrid Office / Remote",
+    "positionCity": "Altamonte Springs",
+    "positionState": "FL",
+    "department": "Survey - Operations"
+  },
+  "description": [
+    {
+      "type": "paragraph",
+      "content": "White Point Surveying & Mapping is hiring a Senior CAD Technician to lead the technical drafting work behind accurate land surveying deliverables. This office role calls for someone who can work independently, solve drafting problems, and help other technicians improve their work."
+    },
+    {
+      "type": "paragraph",
+      "content": "You will prepare and review complex boundary, topographic, and construction survey drawings; reconcile field data, records, and redlines; coordinate with field crews and the supervising surveyor; and check deliverables for completeness and consistency. You will help set drafting practices and mentor junior staff. Final professional survey decisions and approvals remain with the supervising surveyor."
+    },
+    {
+      "type": "paragraph",
+      "content": "The pay range is $30-$35 per hour, based on skills and experience. We do not currently offer a standard benefits package, but we are open to discussing an arrangement with the right candidate."
+    }
+  ],
+  "benefits": [],
+  "requirements": [
+    "Substantial experience preparing land surveying drawings and working with survey field data",
+    "Strong CAD proficiency and ability to organize, review, and troubleshoot complex drawings",
+    "Working knowledge of boundary, topographic, and construction survey deliverables",
+    "Ability to communicate with field and office staff and mentor less experienced technicians"
+  ],
+  "meta": {
+    "tags": ["CAD", "Survey", "Senior", "Office"]
+  }
+}

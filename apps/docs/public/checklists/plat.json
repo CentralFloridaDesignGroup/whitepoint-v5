@@ -1,0 +1,491 @@
+{
+    "Meta": {
+        "Title": "Plat Checklist",
+        "Category": "Land Development",
+        "WIP": true
+    },
+    "Sections": [
+        {
+            "title": "Required Documents for Submittal",
+            "items": [
+                {
+                    "title": "Boundary Survey",
+                    "statement": "Provide the boundary survey required for submittal.",
+                    "code": "177.041(1), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-001",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.041(1)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.041"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Title Opinion / Property Information Report",
+                    "statement": "Provide the title opinion or property information report required for submittal.",
+                    "code": "177.041(2), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-002",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.041(2)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.041"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Draft Copy of Plat",
+                    "statement": "Provide the draft copy of the plat required for submittal.",
+                    "code": "177.091, F.S.",
+                    "options": "YesNo",
+                    "id": "florida-003",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Lot Closure Report",
+                    "statement": "Provide the lot closure report required for submittal.",
+                    "code": "Standard Practice",
+                    "options": "YesNo",
+                    "id": "florida-004",
+                    "source": {
+                        "label": "White Point Survey Standard Operating Procedures"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                }
+            ]
+        },
+        {
+            "title": "Chapter 177 Requirement",
+            "items": [
+                {
+                    "title": "Boundary Survey Required",
+                    "statement": "A full boundary survey with legal encumbrances is required for submittal in accordance with Chapter 177 of the Florida Statutes.",
+                    "code": "177.041(1), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-005",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.041(1)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.041"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Title Opinion / Property Information Report Required",
+                    "statement": "A title opinion or property information report is required for submittal in accordance with Chapter 177 of the Florida Statutes. It must show the names of the owner(s) executing the dedication, mortgages not satisfied, encumbrances, and a legal description of the property that matches the boundary survey and plat.",
+                    "code": "177.041(2), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-006",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.041(2)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.041"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Plat Name",
+                    "statement": "The name of the plat is not substantially similar to any existing plat in the County, except if the plat is part of a phased plan. If the plat is part of a phased plan, it must include a phase identifier. The words \"the\", \"replat\", and \"a\" cannot be the first word in the plat name.",
+                    "code": "177.051(1), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-007",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.051(1)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.051"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Replat Name Requirements",
+                    "statement": "Any change in a plat, except as provided in s. 177.141, shall be labeled a \"replat,\" and a replat must conform with this part. The terms \"amended plat,\" \"revised plat,\" \"corrected plat,\" and \"resubdivision\" may not be used to describe the process by which a plat is changed.",
+                    "code": "177.051(2), F.S.",
+                    "options": "YesNoN/A",
+                    "id": "florida-008",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.051(2)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.051"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Qualification of Surveyor",
+                    "statement": "Every plat offered for recording pursuant to the provisions of this part must be prepared by a professional surveyor and mapper. The plat must be signed and sealed by that professional surveyor and mapper, who must state on the plat that the plat was prepared under his or her direction and supervision and that the plat complies with all of the survey requirements of this part. Every plat must also contain the printed name and registration number of the professional surveyor and mapper directly below the statement required by this section, along with the printed name, address, and certificate of authorization number of the legal entity, if any.",
+                    "code": "177.061, F.S.",
+                    "options": "YesNo",
+                    "id": "florida-009",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.061",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.061"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Review of Jurisdiction Surveyor",
+                    "statement": "the plat shall be reviewed for conformity to this chapter by a professional surveyor and mapper either employed by or under contract to the local governing body, the costs of which shall be borne by the legal entity offering the plat for recordation, and evidence of such review must be placed on such plat.",
+                    "code": "177.081(1), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-010",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.081(1)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.081"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Dedication Requirements",
+                    "statement": "Every plat must contain a dedication by the owner or owners of record. The dedication must be executed by all persons, corporations, or entities whose signature would be required to convey record fee simple title. All mortgagees having a record interest in the lands subdivided shall execute, in the same manner in which deeds are required to be executed, either the dedication contained on the plat or a separate instrument joining in and ratifying the plat.",
+                    "code": "177.071(2), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-011",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.071(2)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.071"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Plat Printing Requirements",
+                    "statement": "The plat must be: (a) An original drawing made with black permanent drawing ink; or (b) A nonadhered scaled print on a stable base film made by photographic processes from a film scribing tested for residual hypo testing solution to assure permanency.",
+                    "code": "177.091(1), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-013",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(1)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Page Size and Margin Spaces",
+                    "statement": "Unless otherwise specified by the local governing body, the plat must be drawn on sheets of uniform size and must be surrounded with a border. The border shall be 1/2\" margin on each side and a 3\" margin on the left side.",
+                    "code": "177.091(2), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-014",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(2)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Index or Key Map",
+                    "statement": "When more than one sheet must be used to accurately portray the lands subdivided, an index or key map must be included and each sheet must show the particular number of that sheet and the total number of sheets included, as well as clearly labeled matchlines to show where other sheets match or adjoin.",
+                    "code": "177.091(3), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-015",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(3)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Text Size & Scale Requirements",
+                    "statement": "The letter size and scale used shall be of sufficient size to show all detail. The scale shall be both stated and graphically illustrated by a graphic scale drawn on every sheet showing any portion of the lands subdivided.",
+                    "code": "177.091(4), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-016",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(4)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Name of Plat and Surveyor",
+                    "statement": "The name of the plat shall be shown in bold legible letters, as stated in s. 177.051. The name of the subdivision shall be shown on each sheet included. The name of the professional surveyor and mapper or legal entity, along with the street and mailing address, must be shown on each sheet included.",
+                    "code": "177.091(5), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-017",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(5)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "North Arrow & Bearing Basis",
+                    "statement": "A prominent “north arrow” shall be drawn on every sheet included showing any portion of the lands subdivided. The bearing or azimuth reference shall be clearly stated on the face of the plat in the notes or legend, and, in all cases, the bearings used shall be referenced to some well established and monumented line.",
+                    "code": "177.091(6), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-018",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(6)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Permanent Reference Monuments",
+                    "statement": "Permanent reference monuments shall be placed at all corners of the subdivision and on lines and curves where the length is over 1,400 feet.",
+                    "code": "177.091(7), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-019",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(7)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Permanent Control Points",
+                    "statement": "Permanent control points shall be set on the centerline of the right-of-way at the intersection and terminus of all streets, at each change of direction, and no more than 1,000 feet apart.",
+                    "code": "177.091(8), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-020",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(8)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Lot Monuments",
+                    "statement": "Lot monuments shall be placed at all corners of each lot within the subdivision. A survey note is sufficient in lieu of symbols or markers on the plat.",
+                    "code": "177.091(9), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-021",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(9)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Section, Township, and Range",
+                    "statement": "The section, township, and range shall appear immediately under the name of the plat on each sheet included, along with the name of the city, town, village, county, and state in which the land being platted is situated. All section lines and quarter section lines occurring within the subdivision shall be indicated by lines drawn upon the map or plat.",
+                    "code": "177.091(10) & (14), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-022",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(10) & (14)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Legal Description",
+                    "statement": "Each plat shall show a description of the lands subdivided, and the description shall be the same in the title certification. The description must be so complete that from it, without reference to the plat, the starting point and boundary can be determined.",
+                    "code": "177.091(11), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-023",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(11)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Signature Blocks",
+                    "statement": "The dedications and approvals required by ss. 177.071 and 177.081 must be shown. The circuit court clerk's certificate and the professional surveyor and mapper's seal and statement required by s. 177.061 shall be shown.",
+                    "code": "177.091(12) & (13), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-024",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(12) & (13)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Right-of-way Information",
+                    "statement": "Location, width, and names of all streets, waterways, or other rights-of-way shall be shown, as applicable.",
+                    "code": "177.091(15), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-025",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(15)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Easements",
+                    "statement": "Location and width of proposed easements and existing easements identified in the title opinion must be shown on the plat and their intended use shall be clearly stated. Where easements are not coincident with property lines, they must be labeled with bearings and distances and tied to the principal lot, tract, or right-of-way.",
+                    "code": "177.091(16), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-026",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(16)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Adjacent Property Information",
+                    "statement": "All contiguous properties shall be identified by subdivision title, plat book, and page, or, if unplatted, land shall be so designated. If the subdivision platted is a part or the whole of a previously recorded subdivision, sufficient ties shall be shown to controlling lines appearing on the earlier plat to permit an overlay to be made.",
+                    "code": "177.091(17), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-027",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(17)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Lot Numbering",
+                    "statement": "All lots shall be numbered either by progressive numbers or, if in blocks, progressively numbered in each block, and the blocks progressively numbered or lettered, except that blocks in numbered additions bearing the same name may be numbered consecutively throughout the several additions.",
+                    "code": "177.091(18), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-028",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(18)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Lot Dimensions",
+                    "statement": "Sufficient survey data shall be shown to describe the bounds of every lot, block, street, easement, and all other areas shown on the plat. When any lot or portion of the subdivision is bounded by an irregular line, the major portion of that lot or subdivision shall be enclosed by a witness line showing complete data, with distances along all lines extended beyond the enclosure to the irregular boundary shown with as much certainty as can be determined or as \"more or less,\" if variable. Lot, block, street, and all other dimensions except to irregular boundaries, shall be shown to a minimum of hundredths of feet. All measurements shall refer to horizontal plane and in accordance with the definition of the U.S. Survey foot.",
+                    "code": "177.091(19), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-029",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(19)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Curve Information",
+                    "statement": "Curvilinear lot lines shall show the radii, arc distances, and central angles. Radial lines will be so designated. Direction of nonradial lines shall be indicated. When it is not possible to show line or curve data information on the map, a tabular form may be used. The tabular data must appear on the sheet to which it applies.",
+                    "code": "177.091(20) & (26), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-030",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(20) & (26)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Line Information",
+                    "statement": "Sufficient angles, bearings, or azimuth to show direction of all lines shall be shown, and all bearings, angles, or azimuth shall be shown to the nearest second of arc. When it is not possible to show line or curve data information on the map, a tabular form may be used. The tabular data must appear on the sheet to which it applies.",
+                    "code": "177.091(21) & (26), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-031",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(21) & (26)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Right-of-Way Dimensions",
+                    "statement": "The centerlines of all streets shall be shown as follows: noncurved lines: distances together with either angles, bearings, or azimuths; curved lines: arc distances, central angles, and radii, together with chord and chord bearing or azimuths. When it is not possible to show line or curve data information on the map, a tabular form may be used. The tabular data must appear on the sheet to which it applies.",
+                    "code": "177.091(22) & (26), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-032",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(22) & (26)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Tract Designations",
+                    "statement": "Park and recreation parcels as applicable shall be so designated. All interior excepted parcels as described in the description of the lands being subdivided shall be clearly indicated and labeled \"Not a part of this plat.\" The purpose of all areas dedicated must be clearly indicated or stated on the plat.",
+                    "code": "177.091(23)-(25), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-033",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(23)-(25)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Graphic Depiction Disclaimer",
+                    "statement": "The plat shall include in a prominent place the following statements: \"NOTICE: This plat, as recorded in its graphic form, is the official depiction of the subdivided lands described herein and will in no circumstances be supplanted in authority by any other graphic or digital form of the plat. There may be additional restrictions that are not recorded on this plat that may be found in the public records of this county.\"",
+                    "code": "177.091(27), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-034",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(27)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Cable television easements",
+                    "statement": "The following statement shall be included on the plat: \"All platted utility easements shall provide that such easements shall also be easements for the construction, installation, maintenance, and operation of cable television services; provided, however, no such construction, installation, maintenance, and operation of cable television services shall interfere with the facilities and services of an electric, telephone, gas, or other public utility. In the event a cable television company damages the facilities of a public utility, it shall be solely responsible for the damages. This section shall not apply to those private easements granted to or obtained by a particular electric, telephone, gas, or other public utility. Such construction, installation, maintenance, and operation shall comply with the National Electrical Safety Code as adopted by the Florida Public Service Commission.\"",
+                    "code": "177.091(28), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-035",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(28)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                },
+                {
+                    "title": "Surveyor's Legend",
+                    "statement": "A legend of all symbols and abbreviations shall be shown.",
+                    "code": "177.091(29), F.S.",
+                    "options": "YesNo",
+                    "id": "florida-036",
+                    "source": {
+                        "label": "Florida Statutes Chapter 177.091(29)",
+                        "url": "https://www.flsenate.gov/Laws/Statutes/2023/177.091"
+                    },
+                    "reviewStatus": "reviewed",
+                    "reviewedAt": "2026-09-17"
+                }
+            ]
+        },
+        {
+            "title": "White Point S.O.P.",
+            "subtitle": "Existing internal workflow checks - pending White Point review.",
+            "items": [
+                {
+                    "title": "Final Delivery Review",
+                    "statement": "Confirm signed/sealed deliverables, sheet references, filenames, revision consistency, and contracted formats before release.",
+                    "code": "QA review",
+                    "options": "YesNo",
+                    "id": "white-point-001",
+                    "source": {
+                        "label": "White Point standards"
+                    },
+                    "reviewStatus": "draft",
+                    "reviewedAt": null
+                }
+            ]
+        }
+    ]
+}

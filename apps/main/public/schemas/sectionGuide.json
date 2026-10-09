@@ -1,0 +1,61 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://api.whitepointsurvey.com/schemas/sectionGuide.json",
+    "title": "Section Guide",
+    "type": "object",
+    "properties": {
+        "Sections": {
+            "description": "An array of sections to be displayed in the documentation website.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "description": "A section represents a category links.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The unique name of the section, used as the key."
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "A brief description of the section."
+                    },
+                    "icon": {
+                        "type": "string",
+                        "description": "The name of the icon to represent the section."
+                    },
+                    "requiresAuth": {
+                        "type": "boolean",
+                        "description": "Indicates whether authentication is required to access this section."
+                    },
+                    "links": {
+                        "type": "array",
+                        "description": "An array of links within the section.",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "The unique name of the link, used as the key."
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "description": "A brief description of the link."
+                                },
+                                "path": {
+                                    "type": "string",
+                                    "description": "The URL path to navigate to when the link is clicked."
+                                },
+                                "requiresAuth": {
+                                    "type": "boolean",
+                                    "description": "Indicates whether authentication is required to access this link."}
+                            },
+                            "required": ["name", "path", "requiresAuth"]
+                        }
+                    }
+                },
+                "required": ["name", "description", "icon", "requiresAuth", "links"]
+            }
+        }
+    },
+    "required": ["Sections"]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@whitepoint/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "build": "tsc -p tsconfig.json && wrangler deploy --dry-run --env=\"\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "node --test",
+    "migrate:d1:local": "wrangler d1 migrations apply whitepoint-v5 --local",
+    "migrate:d1:remote": "wrangler d1 migrations apply whitepoint-v5 --remote --env production",
+    "d1:reset": "node ./scripts/reset-local-d1.mjs",
+    "d1:migrate:local": "pnpm migrate:d1:local"
+  },
+  "dependencies": {
+    "@simplewebauthn/server": "^14.0.0",
+    "@whitepoint/types": "workspace:*",
+    "@whitepoint/utils": "workspace:*",
+    "hono": "^4.13.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261009.1",
+    "typescript": "^6.0.2",
+    "wrangler": "^4.149.0"
+  }
+}

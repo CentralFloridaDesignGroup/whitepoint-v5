@@ -1,0 +1,345 @@
+{
+    "Meta": {
+        "Category": "Land Development",
+        "Title": "ALTA/NSPS Land Title Survey Checklist",
+        "WIP": false
+    },
+    "Sections": [
+        {
+            "title": "General Map Requirements",
+            "subtitle": "Chapter 5J-17.051 F.A.C. Requirements",
+            "items": [
+                {
+                    "title": "Vertical Accuracy Statement",
+                    "statement": "All surveying and mapping products with elevation data shall state the datum and a description of the control upon which the surveying and mapping products are based. The data shall be supported with documentation describing the vertical accuracy and the methodology used to determine accuracy. Elevation data may be obtained on an assumed datum provided the base elevation of the assumed datum is obviously different than a publicly published datum and clearly noted.",
+                    "code": "5J-17.051(2)(a)",
+                    "options": "YesNoN/A"
+                    
+                },
+                {
+                    "title": "Horizontal Accuracy Statement",
+                    "statement":"All surveying and mapping products expressing or displaying mapped features shall state the datum and a detailed description of the control upon which the surveying and mapping products are based. The data shall be supported with documentation describing the horizontal accuracy and the methodology used to determine accuracy. Mapped features may be obtained on an assumed datum provided the numerical basis of the datum is obviously different than a publicly published datum.",
+                    "code": "5J-17.051(2)(b)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Assumed Datum Statement",
+                    "statement": "If data is collected on an assumed datum, then adequate control points shall be established and communicated in the surveying and mapping product in order that the survey may be independently reproduced and verified.",
+                    "code": "5J-17.051(2)(c), 5J-17.051(3)(d)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Date of Measurement",
+                    "statement": "Measurement and computation records shall be dated as of the date of acquisition and must contain sufficient data to substantiate the surveying and mapping products.",
+                    "code": "5J-17.051(2)(d)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Statement of Purpose",
+                    "statement": "Each survey map and report shall state the type and/or purpose of the survey it depicts.",
+                    "code": "5J-17.051(3)(b)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Name of Responsible Surveyor / Company",
+                    "statement": "All survey maps and reports must bear the name, certificate of authorization number, and street and mailing address of the business entity issuing the map and report, along with the name and license number of the surveyor and mapper in responsible charge. The name, license number, and street and mailing address of a surveyor and mapper practicing independent of any business entity must be shown on each survey map and report.",
+                    "code": "5J-17.051(3)(c)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Survey Date",
+                    "statement": "All survey maps must reflect a survey date, which is the last date of data acquisition. When the graphics of a map are revised, but the survey date stays the same, the map must list dates for all revisions.",
+                    "code": "5J-17.051(3)(d)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Signature and Seal Statement",
+                    "statement": "The survey map and report and the copies of the survey map and report, except those with electronic signature and electronic seal, must contain a statement indicating that the survey map and report or the copies thereof are not valid without the original signature and seal of a Florida licensed surveyor and mapper.",
+                    "code": "5J-17.051(3)(e)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Abbreviations",
+                    "statement": "Abbreviations related to surveying matters shall be defined on the work product.",
+                    "code": "5J-17.051(3)(f)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Basis of Bearing Declaration",
+                    "statement": "A reference to all bearings shown on a survey map or report must be clearly stated, i.e., whether to \"True North\"; \"Grid North as established by the NOS\"; \"Assumed North based on a bearing for a well defined line, such as the center line of a road or right of way, etc.\"; \"a Deed Call for a particular line\"; or \"the bearing of a particular line shown upon a plat.\" References to Magnetic North should be avoided except in the cases where a comparison is necessitated by a Deed Call. In all cases, the bearings used shall be referenced to some well-established and monumented line.",
+                    "code": "5J-17.051(3)(g)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Scale and Compass",
+                    "statement": "A designated \"north arrow\" and either a stated scale or graphic scale of the map shall be prominently shown upon the survey map.",
+                    "code": "5J-17.051(3)(h)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Clarity of Survey",
+                    "statement": "The responsibility for all mapped features must be clearly stated on any map or report signed by a Florida licensed surveyor and mapper. When mapped features surveyed by the signing surveyor and mapper have been integrated with mapped features surveyed by others, then the map or report shall clearly state the individual primarily responsible for the map or report.",
+                    "code": "5J-17.051(3)(i)",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Boundary Survey Specific Requirements",
+            "subtitle": "Chapter 5J-17.052 F.A.C. Requirements",
+            "items": [
+                {
+                    "title": "Monumentation of Boundary Corners",
+                    "statement": "Monuments shall be set or held as marking the corners after a well-reasoned analysis by the licensee.",
+                    "code": "5J-17.052(1)(b), 5J-17.052(2)(a)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Required Survey Purpose Statement",
+                    "statement": "All boundary surveys shall result in a map (hardcopy and/or digital) and it shall be stated on the map that the survey is a \"Boundary Survey.\"",
+                    "code": "5J-17.052(1)(c)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Boundary Discrepancy Statement",
+                    "statement": "Any discrepancies between the survey map and the real property description shall be shown.",
+                    "code": "5J-17.052(1)(d), 5J-17.052(3)(a)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Survey Data Required",
+                    "statement": "Survey data shall be shown to positively describe the boundaries of the surveyed property. For portions of the property bounded by an irregular line, distances and directions to the irregular boundary shall be shown with as much certainty as can be determined or as \"more or less,\" if variable.",
+                    "code": "5J-17.052(1)(e)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Platted Lot Requirements",
+                    "statement": "Surveys of all or part of a lot(s) which is part of a recorded subdivision shall show the lot(s) and block numbers or other designations, including those of adjoining lots.",
+                    "code": "5J-17.052(1)(f)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Metes and Bounds Requirements",
+                    "statement": "Surveys of parcels described by metes and bounds shall show all information called for in the property description, including point of commencement, course bearings and distances, and point of beginning.",
+                    "code": "5J-17.052(1)(g)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Boundary Difference Note",
+                    "statement": "When the results of the survey differ significantly from the record, or if a fundamental decision related to the boundary resolution is not clearly reflected on the plat or map, the surveyor shall explain this information with notes on the face of the plat or map.",
+                    "code": "5J-17.052(1)(h)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Water Boundaries Required Statements",
+                    "statement": "Surveys of parcels with water boundaries shall describe the feature located including, top of bank, edge of water, mean high water line, ordinary high water line and the method used to locate the water boundary. Water boundaries may be located in their approximate position as long as this is adequately depicted and explained with notes on the face of the plat or map.",
+                    "code": "5J-17.052(1)(i)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Monuments Information Required",
+                    "statement": "All monuments, found or placed, must be described on the survey map. The corner descriptions shall state the size, material, and cap identification of the monument as well as whether the monument was found or set. Offset monuments shall be noted as such on the survey map along with the offset distance to the true corner. Building corners are acceptable as monuments so long as use of the building corners as monumentation is clearly noted on the map.",
+                    "code": "5J-17.052(2)(c)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Irregular Boundary Meander Lines",
+                    "statement": "For irregular boundaries such as a water body or maintained right of way, a dimensioned meander or survey closure line shall be used and monuments shall be set at the meander or survey closure line's terminus points on real property boundary lines.",
+                    "code": "5J-17.052(2)(d)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Ownership Lines",
+                    "statement": "Open and notorious evidence of boundary lines, such as fences, walls, buildings, monuments or otherwise, shall be shown upon the map, together with dimensions sufficient to show their relationship to the boundary line(s).",
+                    "code": "5J-17.052(3)(b)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Apparent Access Points",
+                    "statement": "All apparent physical use onto or from adjoining property must be indicated, with the extent of such use shown or noted upon the map.",
+                    "code": "5J-17.052(3)(c)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Underground Footings Disclaimer",
+                    "statement": "In all cases where foundations may violate deed or easement lines and are beneath the surface, failure to determine their location shall be noted upon the map or report.",
+                    "code": "5J-17.052(3)(d)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Rights-of-Way Shown",
+                    "statement": "All recorded public and private rights-of-way shown on applicable recorded plats adjoining or across the land being surveyed shall be located and shown upon the map.",
+                    "code": "5J-17.052(4)(a)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Easements Shown",
+                    "statement": "Easements shown on applicable record plats or open and notorious evidence of easements or rights-of-way on or across the land being surveyed shall be located and shown upon the map.",
+                    "code": "5J-17.052(4)(b)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Closed Streets / Rights-of-Way",
+                    "statement": "When streets or street rights-of-way abutting the land surveyed are physically closed to travel, a note to this effect shall be shown upon the map.",
+                    "code": "5J-17.052(4)(c)",
+                    "options": "YesNoN/A"
+                }, 
+                {
+                    "title": "Cemeteries Shown",
+                    "statement": "Human cemeteries and burial grounds located within the premises shall be located and shown upon the map when open and notorious, or when knowledge of their existence and location is furnished to the surveyor and mapper.",
+                    "code": "5J-17.052(4)(e)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Fixed Improvements Located",
+                    "statement": "Location of fixed improvements pertinent to the survey shall be graphically shown upon the map and their positions shall be dimensioned in reference to the boundaries, either directly or by offset lines.",
+                    "code": "5J-17.052(5)(a)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Fixed Improvements Not Located Disclaimer",
+                    "statement": "When fixed improvements are not located or do not exist, a note to this effect shall be shown upon the map.",
+                    "code": "5J-17.052(5)(b)",  
+                    "options": "YesNoN/A"
+                }
+            ]
+        },
+        {
+            "title": "ALTA / NSPS Minimum Standard Detail Requirements",
+            "subtitle": "2026 ALTA / NSPS Land Title Survey",
+            "items": [
+                {
+                    "title": "Stated or Assumed Purpose Statement",
+                    "statement": "Where dimensioning is appropriate, dimensions shall be annotated to what is, in the surveyor's professional opinion, the appropriate degree of precision based on (a) the planned use of the surveyed property, if reported in writing to the surveyor by the client, lender, or insurer, or (b) existing use, if the planned use is not so reported.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Water Boundary Additional Requirements",
+                    "statement": "When the surveyed property includes a title line defined by a water boundary, a note on the face of the plat or map noting the date the boundary was measured, which attribute(s) of the water feature was/were located, and the caveat that the boundary is subject to change due to natural causes and that it may or may not represent the actual location of the limit of title. When the surveyor is aware of natural or artificial realignments or changes in such boundaries, the extent of those changes and facts shall be shown or explained.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section B(vi)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Continuity of Boundary Lines",
+                    "statement": "The relationship of the boundaries of the surveyed property to its adjoining properties (e.g., contiguity, gaps, overlaps) where ascertainable from documents provided to or obtained by the surveyor and/or from field evidence gathered during the process of conducting the fieldwork. If the surveyed property is composed of multiple parcels, the extent of any gaps or overlaps between those parcels must be identified. Where gaps or overlaps are identified, the surveyor must, prior to or upon delivery of the final plat or map, disclose this to the insurer and client.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section B(vii)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Building Required Information or Disclaimer",
+                    "statement": "The location of buildings on the surveyed property dimensioned perpendicular to those perimeter boundary lines that the surveyor deems appropriate (i.e., where potentially impacted by a setback line) and/or as requested by the client, lender or insurer. If no buildings were observed on the surveyed property in the process of conducting the fieldwork, a note stating \"No buildings observed.\"",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section B(ix) & Section D(ii)(b).",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Required Title Information",
+                    "statement": "A note on the face of the plat or map identifying the source of the title commitment or other title evidence provided pursuant to Section 4, and the effective date and the name of the insurer of same.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Provided Exceptions Shown",
+                    "statement": "The location, width, and recording information of all plottable rights of way, easements, and servitudes burdening and benefitting (i.e., appurtenant to) the surveyed property, as evidenced by documents provided to or obtained by the surveyor pursuant to Section 4.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section C(i)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Surveyor Review of Exceptions",
+                    "statement": "A summary of all rights of way, easements, and other survey-related matters burdening the surveyed property and identified in the title evidence provided to or obtained by the surveyor pursuant to Section 4. Such summary must include the record information of each such right of way, easement, or other survey-related matter, a statement indicating whether it lies within or crosses the surveyed property, and a related note for each of the following conditions, if present: (a) its location is shown; (b) its location cannot be determined from the record document; (c) there was no observed evidence at the time of the fieldwork; (d) it is a blanket easement; (e)it is not on, does not touch, and/or - based on the description contained in the record document - does not affect, the surveyed property; (f)it limits access to an otherwise abutting right of way; (g) the documents are illegible; or (h) the surveyor has information indicating that it may have been released or otherwise terminated. In cases where the surveyed property is composed of multiple parcels, indicate which of such parcels the various rights of way, easements, and other survey-related matters cross or touch.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section C(ii)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "No Access Disclaimer",
+                    "statement": "A note if no physical access to an abutting street, highway, or other public or private way was observed in the process of conducting the fieldwork.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section C(iii)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Right-of-Way Required Information",
+                    "statement": "The locations and widths of rights of way abutting or crossing the surveyed property and the source of such information (a) where available from the controlling jurisdiction, or (b) where disclosed in documents provided to or obtained by the surveyor pursuant to Section 4.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section C(iv)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Adjacent Property Information Required",
+                    "statement": "The identifying titles of all recorded plats, filed maps, right of way maps, or similar documents that the survey represents, wholly or in part, with their recording or filing data. For non-platted adjoining properties, recording data and tax parcel number, identifying adjoining properties according to current tax records, where available. For platted adjoining properties, the recording data of the subdivision plat.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section C(v-vi)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Vicinity Map",
+                    "statement": "A vicinity map showing the surveyed property in reference to nearby highway(s) or major street intersection(s).",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section D(ii)(e)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Additional Table A - Item 21 List",
+                    "statement": "Notes explaining any modifications to Table A items and the nature of any additional Table A items (e.g., 21(a), 21(b), 21(c)) that were negotiated between the surveyor and client.",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section D(ii)(g)",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Required Survey Title",
+                    "statement": "The caption \"ALTA/NSPS Land Title Survey.\"",
+                    "code": "ALTA Minimum Detail Standard 6 (Map Requirements), Section D(ii)(k)",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Additional Table A Items Listed",
+                    "statement": "A list of any additional Table A items that were negotiated between the surveyor and client and agreed to by contract. Each item is either plainly clear to identify on the map of survey or a note is provided to adequately explain the item.",
+                    "code": "ALTA Minimum Detail Standard",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Surveyor's Preference Requirements",
+            "subtitle": "Surveyor's Best Practices",
+            "items": [
+                {
+                    "title": "Consistent Text Height",
+                    "statement": "All text on the survey map shall use the pre-defined L-series text styles. All held bearings and road names for the property shall be L100 and bold. All other text shall be L80.",
+                    "options": "YesNo",
+                    "code": "Company Standard"
+                },
+                {
+                    "title": "Proper Layer Usage",
+                    "statement": "All map features shall be placed on their proper layers as defined in the company layer standards.",
+                    "options": "YesNo",
+                    "code": "Company Standard"
+                },
+                {
+                    "title": "Minimum Measurement Accuracy",
+                    "statement": "All displayed distances shall be to the nearest hundredth of a foot (0.01 ft). All displayed angles shall be to the nearest second (0° 00' 00\"). All square footages and acreages shall be to the nearest hundredth (0.01 sq ft or 0.01 ac.). When the square footage of a lot is less than 8,712 sq ft (0.20 ac), the square footage is the preferred area measurement, otherwise only acres shall be used.",
+                    "options": "YesNo",
+                    "code": "Company Standard"
+                },
+                {
+                    "title": "Certification Statement",
+                    "statement": "The survey shall be certified to the client by default. Any additional certifications to other parties shall be listed in the certification block.",
+                    "options": "YesNo",
+                    "code": "Company Standard"
+                },
+                {
+                    "title": "Location Information Required",
+                    "statement": "The survey shall include the section, township, range, parcel ID number(s), address and county where the property is located. If the property does not have an assigned address, a note to that effect shall be included.",
+                    "options": "YesNo",
+                    "code": "Company Standard"
+                },
+                {
+                    "title": "Floating Linework and Annotations",
+                    "statement": "There is no floating linework or annotations on the survey map. All linework and annotations are properly snapped to the appropriate features. No text is overlapping other text or linework, or wipeout is properly applied when necessary.",
+                    "options": "YesNo", 
+                    "code": "Company Standard"
+                },
+                {
+                    "title": "Hatched Areas",
+                    "statement": "All buildings have a two-foot inset gray hatch to indicate the building footprint area. All roads, concrete areas, and brick pavers have appropriate hatching.",
+                    "options": "YesNo",
+                    "code": "Company Standard"
+                }
+            ]
+        }
+    ]
+}

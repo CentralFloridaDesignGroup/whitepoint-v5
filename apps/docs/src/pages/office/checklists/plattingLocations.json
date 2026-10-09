@@ -1,0 +1,752 @@
+{
+    "source": "https://en.wikipedia.org/w/index.php?title=List_of_municipalities_in_Florida&action=raw",
+    "generatedAt": "2026-09-18",
+    "locations": [
+        {
+            "county": "Alachua",
+            "municipalities": [
+                "Alachua",
+                "Archer",
+                "Gainesville",
+                "Hawthorne",
+                "High Springs",
+                "LaCrosse",
+                "Micanopy",
+                "Newberry",
+                "Waldo"
+            ]
+        },
+        {
+            "county": "Baker",
+            "municipalities": [
+                "Glen St. Mary",
+                "Macclenny"
+            ]
+        },
+        {
+            "county": "Bay",
+            "municipalities": [
+                "Callaway",
+                "Lynn Haven",
+                "Mexico Beach",
+                "Panama City",
+                "Panama City Beach",
+                "Parker",
+                "Springfield"
+            ]
+        },
+        {
+            "county": "Bradford",
+            "municipalities": [
+                "Brooker",
+                "Hampton",
+                "Lawtey",
+                "Starke"
+            ]
+        },
+        {
+            "county": "Brevard",
+            "municipalities": [
+                "Cape Canaveral",
+                "Cocoa",
+                "Cocoa Beach",
+                "Grant-Valkaria",
+                "Indialantic",
+                "Indian Harbour Beach",
+                "Malabar",
+                "Melbourne",
+                "Melbourne Beach",
+                "Melbourne Village",
+                "Palm Bay",
+                "Palm Shores",
+                "Rockledge",
+                "Satellite Beach",
+                "Titusville",
+                "West Melbourne"
+            ]
+        },
+        {
+            "county": "Broward",
+            "municipalities": [
+                "Coconut Creek",
+                "Cooper City",
+                "Coral Springs",
+                "Dania Beach",
+                "Davie",
+                "Deerfield Beach",
+                "Fort Lauderdale",
+                "Hallandale Beach",
+                "Hillsboro Beach",
+                "Hollywood",
+                "Lauderdale Lakes",
+                "Lauderdale-by-the-Sea",
+                "Lauderhill",
+                "Lazy Lake",
+                "Lighthouse Point",
+                "Margate",
+                "Miramar",
+                "North Lauderdale",
+                "Oakland Park",
+                "Parkland",
+                "Pembroke Park",
+                "Pembroke Pines",
+                "Plantation",
+                "Pompano Beach",
+                "Sea Ranch Lakes",
+                "Southwest Ranches",
+                "Sunrise",
+                "Tamarac",
+                "West Park",
+                "Weston",
+                "Wilton Manors"
+            ]
+        },
+        {
+            "county": "Calhoun",
+            "municipalities": [
+                "Altha",
+                "Blountstown"
+            ]
+        },
+        {
+            "county": "Charlotte",
+            "municipalities": [
+                "Punta Gorda"
+            ]
+        },
+        {
+            "county": "Citrus",
+            "municipalities": [
+                "Crystal River",
+                "Inverness"
+            ]
+        },
+        {
+            "county": "Clay",
+            "municipalities": [
+                "Green Cove Springs",
+                "Keystone Heights",
+                "Orange Park",
+                "Penney Farms"
+            ]
+        },
+        {
+            "county": "Collier",
+            "municipalities": [
+                "Everglades City",
+                "Marco Island",
+                "Naples"
+            ]
+        },
+        {
+            "county": "Columbia",
+            "municipalities": [
+                "Fort White",
+                "Lake City"
+            ]
+        },
+        {
+            "county": "DeSoto",
+            "municipalities": [
+                "Arcadia"
+            ]
+        },
+        {
+            "county": "Dixie",
+            "municipalities": [
+                "Cross City",
+                "Horseshoe Beach"
+            ]
+        },
+        {
+            "county": "Duval",
+            "municipalities": [
+                "Atlantic Beach",
+                "Baldwin",
+                "Jacksonville",
+                "Jacksonville Beach",
+                "Neptune Beach"
+            ]
+        },
+        {
+            "county": "Escambia",
+            "municipalities": [
+                "Century",
+                "Pensacola"
+            ]
+        },
+        {
+            "county": "Flagler",
+            "municipalities": [
+                "Beverly Beach",
+                "Bunnell",
+                "Flagler Beach",
+                "Marineland",
+                "Palm Coast"
+            ]
+        },
+        {
+            "county": "Franklin",
+            "municipalities": [
+                "Apalachicola",
+                "Carrabelle"
+            ]
+        },
+        {
+            "county": "Gadsden",
+            "municipalities": [
+                "Chattahoochee",
+                "Greensboro",
+                "Gretna",
+                "Havana",
+                "Midway",
+                "Quincy"
+            ]
+        },
+        {
+            "county": "Gilchrist",
+            "municipalities": [
+                "Bell",
+                "Trenton"
+            ]
+        },
+        {
+            "county": "Glades",
+            "municipalities": [
+                "Moore Haven"
+            ]
+        },
+        {
+            "county": "Gulf",
+            "municipalities": [
+                "Port St. Joe",
+                "Wewahitchka"
+            ]
+        },
+        {
+            "county": "Hamilton",
+            "municipalities": [
+                "Jasper",
+                "Jennings",
+                "White Springs"
+            ]
+        },
+        {
+            "county": "Hardee",
+            "municipalities": [
+                "Bowling Green",
+                "Wauchula",
+                "Zolfo Springs"
+            ]
+        },
+        {
+            "county": "Hendry",
+            "municipalities": [
+                "Clewiston",
+                "LaBelle"
+            ]
+        },
+        {
+            "county": "Hernando",
+            "municipalities": [
+                "Brooksville"
+            ]
+        },
+        {
+            "county": "Highlands",
+            "municipalities": [
+                "Avon Park",
+                "Lake Placid",
+                "Sebring"
+            ]
+        },
+        {
+            "county": "Hillsborough",
+            "municipalities": [
+                "Plant City",
+                "Tampa",
+                "Temple Terrace"
+            ]
+        },
+        {
+            "county": "Holmes",
+            "municipalities": [
+                "Bonifay",
+                "Esto",
+                "Noma",
+                "Ponce de Leon",
+                "Westville"
+            ]
+        },
+        {
+            "county": "Indian River",
+            "municipalities": [
+                "Fellsmere",
+                "Indian River Shores",
+                "Orchid",
+                "Sebastian",
+                "Vero Beach"
+            ]
+        },
+        {
+            "county": "Jackson",
+            "municipalities": [
+                "Alford",
+                "Bascom",
+                "Campbellton",
+                "Cottondale",
+                "Graceville",
+                "Grand Ridge",
+                "Greenwood",
+                "Jacob City",
+                "Malone",
+                "Marianna",
+                "Sneads"
+            ]
+        },
+        {
+            "county": "Jefferson",
+            "municipalities": [
+                "Monticello"
+            ]
+        },
+        {
+            "county": "Lafayette",
+            "municipalities": [
+                "Mayo"
+            ]
+        },
+        {
+            "county": "Lake",
+            "municipalities": [
+                "Astatula",
+                "Clermont",
+                "Eustis",
+                "Fruitland Park",
+                "Groveland",
+                "Howey-in-the-Hills",
+                "Lady Lake",
+                "Leesburg",
+                "Mascotte",
+                "Minneola",
+                "Montverde",
+                "Mount Dora",
+                "Tavares",
+                "Umatilla"
+            ]
+        },
+        {
+            "county": "Lee",
+            "municipalities": [
+                "Bonita Springs",
+                "Cape Coral",
+                "Estero",
+                "Fort Myers",
+                "Fort Myers Beach",
+                "Sanibel"
+            ]
+        },
+        {
+            "county": "Leon",
+            "municipalities": [
+                "Tallahassee"
+            ]
+        },
+        {
+            "county": "Levy",
+            "municipalities": [
+                "Bronson",
+                "Cedar Key",
+                "Chiefland",
+                "Fanning Springs",
+                "Inglis",
+                "Otter Creek",
+                "Williston",
+                "Yankeetown"
+            ]
+        },
+        {
+            "county": "Liberty",
+            "municipalities": [
+                "Bristol"
+            ]
+        },
+        {
+            "county": "Madison",
+            "municipalities": [
+                "Greenville",
+                "Lee",
+                "Madison"
+            ]
+        },
+        {
+            "county": "Manatee",
+            "municipalities": [
+                "Anna Maria",
+                "Bradenton",
+                "Bradenton Beach",
+                "Holmes Beach",
+                "Longboat Key",
+                "Palmetto"
+            ]
+        },
+        {
+            "county": "Marion",
+            "municipalities": [
+                "Belleview",
+                "Dunnellon",
+                "McIntosh",
+                "Ocala",
+                "Reddick"
+            ]
+        },
+        {
+            "county": "Martin",
+            "municipalities": [
+                "Indiantown",
+                "Jupiter Island",
+                "Ocean Breeze",
+                "Sewall's Point",
+                "Stuart"
+            ]
+        },
+        {
+            "county": "Miami-Dade",
+            "municipalities": [
+                "Aventura",
+                "Bal Harbour",
+                "Bay Harbor Islands",
+                "Biscayne Park",
+                "Coral Gables",
+                "Cutler Bay",
+                "Doral",
+                "El Portal",
+                "Florida City",
+                "Golden Beach",
+                "Hialeah",
+                "Hialeah Gardens",
+                "Homestead",
+                "Indian Creek",
+                "Key Biscayne",
+                "Medley",
+                "Miami",
+                "Miami Beach",
+                "Miami Gardens",
+                "Miami Lakes",
+                "Miami Shores",
+                "Miami Springs",
+                "North Bay Village",
+                "North Miami",
+                "North Miami Beach",
+                "Opa-locka",
+                "Palmetto Bay",
+                "Pinecrest",
+                "South Miami",
+                "Sunny Isles Beach",
+                "Surfside",
+                "Sweetwater",
+                "Virginia Gardens",
+                "West Miami"
+            ]
+        },
+        {
+            "county": "Monroe",
+            "municipalities": [
+                "Islamorada",
+                "Key Colony Beach",
+                "Key West",
+                "Layton",
+                "Marathon"
+            ]
+        },
+        {
+            "county": "Nassau",
+            "municipalities": [
+                "Callahan",
+                "Fernandina Beach",
+                "Hilliard"
+            ]
+        },
+        {
+            "county": "Okaloosa",
+            "municipalities": [
+                "Cinco Bayou",
+                "Crestview",
+                "Destin",
+                "Fort Walton Beach",
+                "Laurel Hill",
+                "Mary Esther",
+                "Niceville",
+                "Shalimar",
+                "Valparaiso"
+            ]
+        },
+        {
+            "county": "Okeechobee",
+            "municipalities": [
+                "Okeechobee"
+            ]
+        },
+        {
+            "county": "Orange",
+            "municipalities": [
+                "Apopka",
+                "Bay Lake",
+                "Belle Isle",
+                "Eatonville",
+                "Edgewood",
+                "Lake Buena Vista",
+                "Maitland",
+                "Oakland",
+                "Ocoee",
+                "Orlando",
+                "Windermere",
+                "Winter Garden",
+                "Winter Park"
+            ]
+        },
+        {
+            "county": "Osceola",
+            "municipalities": [
+                "Kissimmee",
+                "St. Cloud"
+            ]
+        },
+        {
+            "county": "Palm Beach",
+            "municipalities": [
+                "Atlantis",
+                "Belle Glade",
+                "Boca Raton",
+                "Boynton Beach",
+                "Briny Breezes",
+                "Cloud Lake",
+                "Delray Beach",
+                "Glen Ridge",
+                "Golf",
+                "Greenacres",
+                "Gulf Stream",
+                "Haverhill",
+                "Highland Beach",
+                "Hypoluxo",
+                "Juno Beach",
+                "Jupiter",
+                "Jupiter Inlet Colony",
+                "Lake Clarke Shores",
+                "Lake Park",
+                "Lake Worth Beach",
+                "Lantana",
+                "Loxahatchee Groves",
+                "Manalapan",
+                "Mangonia Park",
+                "North Palm Beach",
+                "Ocean Ridge",
+                "Pahokee",
+                "Palm Beach",
+                "Palm Beach Gardens",
+                "Palm Beach Shores",
+                "Palm Springs",
+                "Riviera Beach",
+                "Royal Palm Beach",
+                "South Bay",
+                "South Palm Beach",
+                "Tequesta",
+                "Wellington",
+                "West Palm Beach",
+                "Westlake"
+            ]
+        },
+        {
+            "county": "Pasco",
+            "municipalities": [
+                "Dade City",
+                "New Port Richey",
+                "Port Richey",
+                "San Antonio",
+                "St. Leo",
+                "Zephyrhills"
+            ]
+        },
+        {
+            "county": "Pinellas",
+            "municipalities": [
+                "Belleair",
+                "Belleair Beach",
+                "Belleair Bluffs",
+                "Belleair Shore",
+                "Clearwater",
+                "Dunedin",
+                "Gulfport",
+                "Indian Rocks Beach",
+                "Indian Shores",
+                "Kenneth City",
+                "Largo",
+                "Madeira Beach",
+                "North Redington Beach",
+                "Oldsmar",
+                "Pinellas Park",
+                "Redington Beach",
+                "Redington Shores",
+                "Safety Harbor",
+                "Seminole",
+                "South Pasadena",
+                "St. Pete Beach",
+                "St. Petersburg",
+                "Tarpon Springs",
+                "Treasure Island"
+            ]
+        },
+        {
+            "county": "Polk",
+            "municipalities": [
+                "Auburndale",
+                "Bartow",
+                "Davenport",
+                "Dundee",
+                "Eagle Lake",
+                "Fort Meade",
+                "Frostproof",
+                "Haines City",
+                "Highland Park",
+                "Hillcrest Heights",
+                "Lake Alfred",
+                "Lake Hamilton",
+                "Lake Wales",
+                "Lakeland",
+                "Mulberry",
+                "Polk City",
+                "Winter Haven"
+            ]
+        },
+        {
+            "county": "Putnam",
+            "municipalities": [
+                "Crescent City",
+                "Interlachen",
+                "Palatka",
+                "Pomona Park",
+                "Welaka"
+            ]
+        },
+        {
+            "county": "Santa Rosa",
+            "municipalities": [
+                "Gulf Breeze",
+                "Jay",
+                "Milton"
+            ]
+        },
+        {
+            "county": "Sarasota",
+            "municipalities": [
+                "North Port",
+                "Sarasota",
+                "Venice"
+            ]
+        },
+        {
+            "county": "Seminole",
+            "municipalities": [
+                "Altamonte Springs",
+                "Casselberry",
+                "Lake Mary",
+                "Longwood",
+                "Oviedo",
+                "Sanford",
+                "Winter Springs"
+            ]
+        },
+        {
+            "county": "St. Johns",
+            "municipalities": [
+                "St. Augustine",
+                "St. Augustine Beach"
+            ]
+        },
+        {
+            "county": "St. Lucie",
+            "municipalities": [
+                "Fort Pierce",
+                "Port St. Lucie",
+                "St. Lucie Village"
+            ]
+        },
+        {
+            "county": "Sumter",
+            "municipalities": [
+                "Bushnell",
+                "Center Hill",
+                "Coleman",
+                "Webster",
+                "Wildwood"
+            ]
+        },
+        {
+            "county": "Suwannee",
+            "municipalities": [
+                "Branford",
+                "Live Oak"
+            ]
+        },
+        {
+            "county": "Taylor",
+            "municipalities": [
+                "Perry"
+            ]
+        },
+        {
+            "county": "Union",
+            "municipalities": [
+                "Lake Butler",
+                "Raiford",
+                "Worthington Springs"
+            ]
+        },
+        {
+            "county": "Volusia",
+            "municipalities": [
+                "Daytona Beach",
+                "Daytona Beach Shores",
+                "DeBary",
+                "DeLand",
+                "Deltona",
+                "Edgewater",
+                "Holly Hill",
+                "Lake Helen",
+                "New Smyrna Beach",
+                "Oak Hill",
+                "Orange City",
+                "Ormond Beach",
+                "Pierson",
+                "Ponce Inlet",
+                "Port Orange",
+                "South Daytona"
+            ]
+        },
+        {
+            "county": "Wakulla",
+            "municipalities": [
+                "Sopchoppy",
+                "St. Marks"
+            ]
+        },
+        {
+            "county": "Walton",
+            "municipalities": [
+                "DeFuniak Springs",
+                "Freeport",
+                "Paxton"
+            ]
+        },
+        {
+            "county": "Washington",
+            "municipalities": [
+                "Caryville",
+                "Chipley",
+                "Ebro",
+                "Vernon",
+                "Wausau"
+            ]
+        }
+    ]
+}

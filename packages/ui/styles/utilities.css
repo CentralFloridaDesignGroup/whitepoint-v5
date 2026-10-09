@@ -1,0 +1,37 @@
+/* Print utilities */
+@media print {
+  .screen-only {
+    display: none !important;
+  }
+}
+
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
+@layer base {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Style date input placeholder text in Chrome */
+  input[type="date"]::placeholder {
+    color: #d1d5db;
+    opacity: 1;
+  }
+
+  input[type="date"]::-webkit-input-placeholder {
+    color: #d1d5db;
+    opacity: 1;
+  }
+
+  /* Style the calendar icon color */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    color: #d1d5db;
+    cursor: pointer;
+  }
+}

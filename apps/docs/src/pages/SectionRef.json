@@ -1,0 +1,213 @@
+{
+  "$schema": "https://www.whitepointsurvey.com/schemas/sectionGuide.json",
+  "Sections": [
+    {
+      "name": "Company Documents",
+      "description": "Important documents related to company policies, procedures, and operations.",
+      "icon": "Files",
+      "requiresAuth": true,
+      "links": [
+        {
+          "name": "Employee Handbook",
+          "description": "Comprehensive guide to company policies, procedures, and employee benefits.",
+          "path": "/documents/employee-handbook",
+          "tags": [
+            "Company Policies",
+            "Employee Benefits",
+            "Guidelines"
+          ],
+          "requiresAuth": true
+        }
+      ]
+    },
+    {
+      "name": "Office Tools",
+      "description": "Tools and resources for office use.",
+      "icon": "Monitor",
+      "requiresAuth": false,
+      "links": [
+        {
+          "name": "Surveyor Notes Tool",
+          "description": "A tool to help drafters create and manage surveyor notes efficiently.",
+          "path": "/tools/survey-notes",
+          "tags": [
+            "Surveyor Notes",
+            "Drafting",
+            "Data Management"
+          ],
+          "requiresAuth": true
+        }
+      ]
+    },
+    {
+      "name": "Field Tools",
+      "description": "Tools and resources for field use.",
+      "icon": "Hammer",
+      "requiresAuth": false,
+      "links": [
+        {
+          "name": "Field Data Parser",
+          "description": "A tool to parse and analyze field data collected during surveys.",
+          "path": "/tools/field-data-parser",
+          "tags": [
+            "Field Data",
+            "Data Analysis",
+            "Surveying"
+          ],
+          "requiresAuth": false
+        }
+      ]
+    },
+    {
+      "name": "Platting",
+      "description": "County and municipality platting checklists with local requirements placeholders.",
+      "icon": "Map",
+      "requiresAuth": false,
+      "links": [
+        {
+          "name": "Platting Checklists",
+          "description": "Browse county and municipality platting checklists.",
+          "path": "/platting",
+          "tags": [
+            "Platting",
+            "Checklist",
+            "Florida"
+          ],
+          "requiresAuth": false
+        }
+      ]
+    },
+    {
+      "name": "Checklists",
+      "description": "Checklists to ensure all necessary steps are followed in various processes.",
+      "icon": "Checklist",
+      "requiresAuth": false,
+      "links": [
+        {
+          "name": "Boundary Survey Checklist",
+          "description": "Checklist to ensure required information for a Florida boundary survey.",
+          "path": "/checklists/boundary-survey",
+          "tags": [
+            "Boundary Survey",
+            "Checklist",
+            "Florida"
+          ],
+          "requiresAuth": false
+        },
+        {
+          "name": "ALTA Survey Checklist",
+          "description": "Checklist to ensure required information for an ALTA/NSPS land title survey.",
+          "path": "/checklists/alta-survey",
+          "tags": [
+            "ALTA Survey",
+            "Checklist",
+            "Land Title"
+          ],
+          "requiresAuth": false
+        },
+        {
+          "name": "Topographic Survey Checklist",
+          "description": "Draft Florida requirements and QA review for topographic survey.",
+          "path": "/checklists/topographic-survey",
+          "tags": [
+            "Topographic Survey",
+            "Checklist",
+            "Florida",
+            "Draft"
+          ],
+          "requiresAuth": false
+        },
+        {
+          "name": "Tree Survey Checklist",
+          "description": "Draft Florida requirements and QA review for tree survey.",
+          "path": "/checklists/tree-survey",
+          "tags": [
+            "Tree Survey",
+            "Checklist",
+            "Florida",
+            "Draft"
+          ],
+          "requiresAuth": false
+        },
+        {
+          "name": "Wetland Survey Checklist",
+          "description": "Draft Florida requirements and QA review for wetland survey.",
+          "path": "/checklists/wetland-survey",
+          "tags": [
+            "Wetland Survey",
+            "Checklist",
+            "Florida",
+            "Draft"
+          ],
+          "requiresAuth": false
+        },
+        {
+          "name": "Legal Sketch & Description Checklist",
+          "description": "Draft Florida requirements and QA review for legal sketch & description.",
+          "path": "/checklists/legal-sketch-description",
+          "tags": [
+            "Legal Sketch & Description",
+            "Checklist",
+            "Florida",
+            "Draft"
+          ],
+          "requiresAuth": false
+        },
+        {
+          "name": "Lot Combination Checklist",
+          "description": "Draft Florida requirements and QA review for lot combination.",
+          "path": "/checklists/lot-combination",
+          "tags": [
+            "Lot Combination",
+            "Checklist",
+            "Florida",
+            "Draft"
+          ],
+          "requiresAuth": false
+        },
+        {
+          "name": "Lot Split Checklist",
+          "description": "Draft Florida requirements and QA review for lot split.",
+          "path": "/checklists/lot-split",
+          "tags": [
+            "Lot Split",
+            "Checklist",
+            "Florida",
+            "Draft"
+          ],
+          "requiresAuth": false
+        },
+        {
+          "name": "Platting Checklists",
+          "description": "Browse county and municipality platting checklists.",
+          "path": "/platting",
+          "tags": [
+            "Platting",
+            "Checklist",
+            "Florida"
+          ],
+          "requiresAuth": false
+        }
+      ]
+    },
+    {
+      "name": "Reference Materials",
+      "description": "Important reference materials for surveyors and drafters.",
+      "icon": "Book",
+      "requiresAuth": false,
+      "links": [
+        {
+          "name": "ALTA Table A Requirements",
+          "description": "A reference guide to the ALTA Table A requirements for land title surveys.",
+          "path": "/reference/alta-tablea",
+          "tags": [
+            "ALTA Table A",
+            "Reference",
+            "Land Title"
+          ],
+          "requiresAuth": false
+        }
+      ]
+    }
+  ]
+}

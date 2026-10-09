@@ -1,0 +1,54 @@
+name = "wps-api-v5"
+main = "src/index.ts"
+compatibility_date = "2026-07-29"
+workers_dev = true
+preview_urls = true
+
+[triggers]
+crons = ["0 13,14,20,21 * * 1", "0 13,14 10 * *"]
+
+[vars]
+AUTH_ORIGINS = "http://localhost:5100,http://localhost:5200,http://localhost:5300,http://localhost:5400,https://whitepointsurvey.com,https://www.whitepointsurvey.com,https://app.whitepointsurvey.com,https://docs.whitepointsurvey.com,https://payment.whitepointsurvey.com"
+STAFF_APP_URL = "http://localhost:5300"
+PAYMENT_APP_URL = "http://localhost:5400"
+WEBAUTHN_RP_ID = "localhost"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "whitepoint-v5"
+database_id = "7e433223-c2bf-45af-be19-60434f4df5d8"
+
+[[r2_buckets]]
+binding = "BRAND_ASSETS"
+bucket_name = "whitepoint-v5-brand-assets"
+
+[[r2_buckets]]
+binding = "RECORD_DOCUMENTS"
+bucket_name = "whitepoint-v5-record-documents"
+
+[env.production]
+name = "wps-api-v5"
+routes = [{ pattern = "api.whitepointsurvey.com", zone_name = "whitepointsurvey.com", custom_domain = true }]
+
+[env.production.triggers]
+crons = ["0 13,14,20,21 * * 1", "0 13,14 10 * *"]
+
+[env.production.vars]
+AUTH_ORIGINS = "https://whitepointsurvey.com,https://www.whitepointsurvey.com,https://app.whitepointsurvey.com,https://docs.whitepointsurvey.com,https://payment.whitepointsurvey.com"
+STAFF_APP_URL = "https://app.whitepointsurvey.com"
+PAYMENT_APP_URL = "https://payment.whitepointsurvey.com"
+WEBAUTHN_RP_ID = "whitepointsurvey.com"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "whitepoint-v5"
+database_id = "7e433223-c2bf-45af-be19-60434f4df5d8"
+
+[[env.production.r2_buckets]]
+binding = "BRAND_ASSETS"
+bucket_name = "whitepoint-v5-brand-assets"
+
+[[env.production.r2_buckets]]
+binding = "RECORD_DOCUMENTS"
+bucket_name = "whitepoint-v5-record-documents"
+

@@ -1,0 +1,830 @@
+{
+    "$schema": "https://www.whitepointsurvey.com/schemas/surveyNotes.json",
+    "notes": [
+        {
+            "title": "Surveyor's Signature and Seal Disclaimer",
+            "description": "All surveys must be signed and sealed by the surveyor to be considered valid pursuant to Florida Statutes. This statement is required on all surveys.",
+            "content": "This {survey_type} is not valid without the surveyor's signature and seal. In print, only the raised surveyor's seal is valid. In electronic form, only a digital signature is valid."
+        },
+        {
+            "title": "Purpose of Survey",
+            "description": "If the purpose of the survey is not clearly assumed from the title (such as 'boundary survey' or 'topographic survey'), a brief statement of the purpose of the survey should be included.",
+            "content": "The purpose of this {survey_type} is to {survey_purpose}."
+        },
+        {
+            "title": "Bearing Basis Statement",
+            "description": "All surveys must include a statement of the basis of bearing used for the survey pursuant to Florida Statutes. This statement is required on all surveys.",
+            "content": "This survey uses a basis of bearing of {bearing_basis} derived from {bearing_description}. North is based on {north_reference} and uses {bearing_source}."
+        },
+        {
+            "title": "Horizontal Datum Statement",
+            "description": "All surveys that show horizontal information or distances must include a statement as to the horizontal datum used for the survey pursuant to Florida Statutes. This statement is required on all surveys.",
+            "content": "This survey was based on {horizontal_datum} and was established {horizontal_datum_source}"
+        },
+        {
+            "title": "Vertical Datum Statement",
+            "description": "All surveys that show vertical information or elevations must include a statement as to the vertical datum used for the survey pursuant to Florida Statutes. This statement is only required on surveys that include vertical information.",
+            "content": "The vertical datum for this survey is {vertical_datum} and was established {vertical_datum_source}"
+        },
+        {
+            "title": "FEMA Flood Zone Statement",
+            "description": "All surveys that include flood zone information must include a statement regarding the FEMA flood zone designation pursuant to Florida Statutes. This statement is required on all surveys that include flood zone information.",
+            "content": "According to the FEMA FIRM Panel {fema_firm_panel}, effective date {fema_effective_date}, for the community of {community}, the subject property is located in flood zone(s): {fema_flood_zone}. {fema_LOMR_affects}of flood zone information shown hereon was taken from public FEMA GIS data and is not a substitute for an official flood zone determination."
+        },
+        {
+            "title": "Source of Legal Description",
+            "description": "The surveyor must define where the legal description used for the survey was obtained pursuant to Florida Statutes. This statement is required on all surveys.",
+            "content": "The \"Legal Description\" shown hereon {legal_description_source}."
+        },
+        {
+            "title": "Title Document Information",
+            "description": "All surveys must include information about the title document used as a reference for the survey pursuant to Florida Statutes. This statement is required on all surveys that reference a title document.",
+            "content": "This survey was prepared with reference to the {title_document} prepared by {title_company}, document number {title_document_number}, with an effective date of {title_document_effective_date}."
+        },
+        {
+            "title": "Abstraction of Land Disclaimer",
+            "description": "All surveys must include a disclaimer stating that the survey is an abstraction of the land and does not represent a title search or opinion of title pursuant to Florida Statutes. This statement is required on all surveys that DO NOT reference a title document.",
+            "content": "This survey is an abstraction of the land and does not represent a title search or opinion of title. No attempt has been made to locate or identify easements, rights-of-way, covenants, restrictions, or other encumbrances that may affect the subject property."
+        },
+        {
+            "title": "Property Access Disclaimer",
+            "description": "In boundary and ALTA surveys, we must state if the property has access to a right-of-way (either public or private) and if there is established water access to the property. This statement is required on all boundary and ALTA surveys.",
+            "content": "The subject property {has_access} access to {right_of_way_name} ({access_type} right-of-way){has_water_access}"
+        },
+        {
+            "title": "Non-Boundary Survey Disclaimer",
+            "description": "All surveys that are not boundary surveys must include a disclaimer stating that the survey is not a boundary survey and should not be relied upon for determining property boundaries pursuant to Florida Statutes. This statement is required on all surveys that are not boundary surveys.",
+            "content": "This {survey_type} is not a boundary survey and should not be relied upon for determining property boundaries."
+        },
+        {
+            "title": "Possible Encroachments Disclaimer",
+            "description": "All surveys must include a disclaimer stating that the survey shows possible above-ground encroachments only and does not guarantee the absence of underground utilities or encroachments pursuant to Florida Statutes. This statement is required on all surveys.",
+            "content": "This survey shows possible above-ground encroachments only. No attempt has been made to locate underground utilities or encroachments. No guarantee is made that the subject property is free from encroachments, easements, or other matters that a title search would disclose."
+        },
+        {
+            "title": "Corner Offset Disclaimer",
+            "description": "All surveys must include a disclaimer stating that north-south and east-west ties to recovered monumentation near specific land boundary corners shown hereon are by coordinate difference pursuant to Florida Statutes. This statement is required on all boundary surveys.",
+            "content": "North-south and east-west ties to recovered monumentation near specific land boundary corners shown hereon are by coordinate difference."
+        },
+        {
+            "title": "Scaling and Measurement Disclaimer",
+            "description": "All surveys must include a disclaimer stating that the map may have been reduced in size from the original survey drawing and that it is the responsibility of the user to verify all dimensions and distances by scaling or measurement prior to use pursuant to Florida Statutes. This statement is required on all surveys.",
+            "content": "Attention is directed to that fact that this map may have been reduced in size from the original survey drawing. Therefore, it is the responsibility of the user to verify all dimensions and distances by scaling or measurement prior to use."
+        },
+        {
+            "title": "Block Size Disclaimer",
+            "description": "All surveys must include a disclaimer stating that symbols depicted on the survey do not reflect actual size and that published dimensions take precedence over map scaling pursuant to Florida Statutes. This statement is required on all surveys.",
+            "content": "Symbols depicted hereon do not reflect actual size. Published dimensions precede map scaling."
+        },
+        {
+            "title": "No Improvements Located Disclaimer",
+            "description": "If a boundary survey does not include improvements under Chapter 5J-17, Florida Administrative Code, a disclaimer stating that no improvements were located must be included pursuant to Florida Statutes. This statement is required on all boundary surveys that do not include improvements.",
+            "content": "No improvements were located as part of this survey pursuant to 5J-17.052(5)(B), Florida Administrative Code."
+        },
+        {
+            "title": "Jurisdictional Authority Disclaimer",
+            "description": "All surveys must include a statement indicating that the survey was conducted in accordance with the minimum requirements under Chapter 5J-17, Florida Administrative Code and may be subject to additional jurisdictional requirements pursuant to Florida Statutes. This statement is required on all surveys.",
+            "content": "This survey was conducted in accordance with the minimum requirements under Chapter 5J-17, Florida Administrative Code and may be subject to additional jurisdictional requirements."
+        },
+        {
+            "title": "Heavy Underbrush Disclaimer",
+            "description": "If the land has thick vegetation or heavy underbrush that may have concealed evidence of encroachments, easements, property corners, or other matters, a disclaimer to this effect must be included on the survey pursuant to Florida Statutes. This statement is required on all surveys with thick vegetation or heavy underbrush.",
+            "content": "The land surveyed has thick vegetation or heavy underbrush that may have concealed evidence of encroachments, easements, property corners, or other matters that are relevant to the survey. The limits of this vegetation or underbrush are shown hereon where observed, but the absence of such limits does not indicate the absence of thick vegetation or heavy underbrush."
+        },
+        {
+            "title": "Subsurface Utility Engineering (SUE) Statement",
+            "description": "All surveys that include Subsurface Utility Engineering (SUE) information must include a statement indicating the level of SUE performed, the provider of the SUE information, and a disclaimer regarding the accuracy and completeness of the SUE information pursuant to Florida Statutes. This statement is required on all surveys that include SUE information.",
+            "content": "This survey includes Subsurface Utility Engineering (SUE) information in accordance with ASCE 38-22 standards. The level of SUE performed is Level {sue_level}, and was performed by {sue_provider}. This firm makes no guarantees regarding the accuracy or completeness of the SUE information provided and, unless otherwise noted, has not physically located or exposed any subsurface utilities."
+        },
+        {
+            "title": "Aerial LiDAR Data Statement",
+            "description": "All surveys that include Aerial LiDAR data must include a statement indicating the scope of the LiDAR data, the type of data collected, the date of data collection, and the accuracy of the data based on conventional survey methods pursuant to Florida Statutes. This statement is required on all surveys that include Aerial LiDAR data.",
+            "content": "The {lidar_scope} shown hereon includes {data_type} collected on {lidar_date} with an accuracy of {lidar_accuracy} feet based on conventional survey methods. This data has been processed and classified to represent ground elevations only per ASPRS Standards. A quality control report has been provided to the client as part of the submittal package."
+        }
+    ],
+    "parameters": [
+        {
+            "name": "General Information",
+            "columns": 3,
+            "content": [
+                {
+                    "key": "survey_type",
+                    "displayName": "Survey Type",
+                    "type": "textSuggestion",
+                    "options": {
+                        "placeholder": "Survey Type",
+                        "options": [
+                            {
+                                "key": "Boundary Survey",
+                                "value": "Boundary Survey"
+                            },
+                            {
+                                "key": "Topographic Survey",
+                                "value": "Topographic Survey"
+                            },
+                            {
+                                "key": "Boundary & Topographic Survey",
+                                "value": "Boundary & Topographic Survey"
+                            },
+                            {
+                                "key": "ALTA/NSPS Land Title Survey",
+                                "value": "ALTA/NSPS Land Title Survey"
+                            },
+                            {
+                                "key": "As-Built Survey",
+                                "value": "As-Built Survey"
+                            },
+                            {
+                                "key": "Construction Staking Survey",
+                                "value": "Construction Staking Survey"
+                            },
+                            {
+                                "key": "Right-of-Way Survey",
+                                "value": "Right-of-Way Survey"
+                            },
+                            {
+                                "key": "Subdivision (Plat) Survey",
+                                "value": "Subdivision (Plat) Survey"
+                            },
+                            {
+                                "key": "Control Survey",
+                                "value": "Control Survey"
+                            },
+                            {
+                                "key": "Elevation Certificate Survey",
+                                "value": "Elevation Certificate Survey"
+                            },
+                            {
+                                "key": "FEMA Floodplain Survey",
+                                "value": "FEMA Floodplain Survey"
+                            },
+                            {
+                                "key": "Route Survey",
+                                "value": "Route Survey"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "survey_purpose",
+                    "displayName": "Survey Purpose",
+                    "type": "text",
+                    "options": {
+                        "placeholder": "Brief description of survey."
+                    }
+                },
+                {
+                    "key": "legal_description_source",
+                    "displayName": "Source of Legal Description",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "Property Appraiser's Office",
+                                "value": "was obtained from the latest public deed listed on the Property Appraiser's website"
+                            },
+                            {
+                                "key": "Client Provided Copy",
+                                "value": "was provided directly by the Client from a copy of a deed or prior survey"
+                            },
+                            {
+                                "key": "Title Document",
+                                "value": "was provided in the stated title document"
+                            },
+                            {
+                                "key": "Prepared by Surveyor",
+                                "value": "was prepared by a licensed surveyor based on the surveyor's research and findings"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Property Access Parameters",
+            "columns": 3,
+            "content": [
+                {
+                    "key": "has_access",
+                    "displayName": "Property has access to right-of-way",
+                    "type": "toggle",
+                    "options": {
+                        "defaultValue": true,
+                        "trueValue": "has",
+                        "falseValue": "does not have"
+                    }
+                },
+                {
+                    "key": "access_type",
+                    "displayName": "Access Type",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "Public Right-of-Way",
+                                "value": "a public"
+                            },
+                            {
+                                "key": "Assumed Public Right-of-Way",
+                                "value": "an assumed public"
+                            },
+                            {
+                                "key": "Private Right-of-Way",
+                                "value": "a private"
+                            },
+                            {
+                                "key": "Assumed Private Right-of-Way",
+                                "value": "an assumed private"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "right_of_way_name",
+                    "displayName": "Right-of-Way Name",
+                    "type": "text",
+                    "options": {
+                        "format": "text",
+                        "placeholder": "Name of right-of-way"
+                    }
+                },
+                {
+                    "key": "has_water_access",
+                    "displayName": "Property has water access",
+                    "type": "toggle",
+                    "options": {
+                        "defaultValue": false,
+                        "trueValue": " and has established water access to {water_right_of_way_name} ({water_right_of_way_type}).",
+                        "falseValue": "."
+                    }
+                },
+                {
+                    "key": "water_right_of_way_name",
+                    "displayName": "Water Right-of-Way Name",
+                    "type": "text",
+                    "options": {
+                        "format": "text",
+                        "placeholder": "Name of water right-of-way"
+                    }
+                },
+                {
+                    "key": "water_right_of_way_type",
+                    "displayName": "Water Right-of-Way Type",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "Navigable Waterway",
+                                "value": "a navigable waterway"
+                            },
+                            {
+                                "key": "Non-Navigable Waterway",
+                                "value": "a non-navigable waterway"
+                            },
+                            {
+                                "key": "Drainage Canal",
+                                "value": "a drainage canal"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Basis of Bearing Parameters",
+            "columns": 4,
+            "content": [
+                {
+                    "key": "bearing_basis",
+                    "displayName": "Bearing Basis Angle",
+                    "type": "bearing",
+                    "options": {}
+                },
+                {
+                    "key": "bearing_description",
+                    "displayName": "Bearing Description",
+                    "type": "text",
+                    "options": {
+                        "placeholder": "Description of line being held."
+                    }
+                },
+                {
+                    "key": "bearing_source",
+                    "displayName": "Bearing Source",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "Recovered Monumentation",
+                                "value": "recovered existing monumentation found on the subject property or adjacent properties"
+                            },
+                            {
+                                "key": "Recorded Plat",
+                                "value": "bearing of said line from a recorded plat"
+                            },
+                            {
+                                "key": "Prior Survey",
+                                "value": "bearing of said line from a prior survey"
+                            },
+                            {
+                                "key": "Title Document",
+                                "value": "the bearing stated in the title document referenced herein"
+                            },
+                            {
+                                "key": "Assumed Bearing",
+                                "value": "an assumed bearing for the purpose of this survey"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "north_reference",
+                    "displayName": "North Reference",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "Grid North",
+                                "value": "grid north derived from the horizontal datum"
+                            },
+                            {
+                                "key": "Magnetic North",
+                                "value": "magnetic north as determined by a compass or other magnetic north referencing device"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Datum Parameters",
+            "columns": 4,
+            "content": [
+                {
+                    "key": "horizontal_datum",
+                    "displayName": "Horizontal Datum",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "NAD83 (2011) - Florida East",
+                                "value": "the North American Datum of 1983, 2011 adjustment, Florida State Planes, East Zone (0901)"
+                            },
+                            {
+                                "key": "NAD83 (2011) - Florida North",
+                                "value": "the North American Datum of 1983, 2011 adjustment, Florida State Planes, North Zone (0902)"
+                            },
+                            {
+                                "key": "NAD83 (2011) - Florida West",
+                                "value": "the North American Datum of 1983, 2011 adjustment, Florida State Planes, West Zone (0903)"
+                            },
+                            {
+                                "key": "Arbitrary Datum",
+                                "value": "an arbitrary datum not aligned with any public datums"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "horizontal_datum_source",
+                    "displayName": "Horizontal Datum Source",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "RTK GPS Observations",
+                                "value": "using RTK GPS corrections from public CORS to establish the benchmarks stated hereon. Said benchmarks were checked against local benchmarks for accuracy."
+                            },
+                            {
+                                "key": "Static GPS Observations",
+                                "value": "using static GPS corrections on the benchmarks stated herein and processing the data though the NGS OPUS application."
+                            },
+                            {
+                                "key": "Total Station Traverse",
+                                "value": "performing a closed-loop traverse between the benchmarks and published local benchmarks."
+                            },
+                            {
+                                "key": "Assumed Values",
+                                "value": "by holding a coordinate of 10,000 and 10,000 for the origina of the survey."
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "vertical_datum",
+                    "displayName": "Vertical Datum",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "NAVD88",
+                                "value": "the North American Vertical Datum of 1988 (NAVD88)"
+                            },
+                            {
+                                "key": "NGVD29",
+                                "value": "the National Geodetic Vertical Datum of 1929 (NGVD29)"
+                            },
+                            {
+                                "key": "Mean Sea Level",
+                                "value": "mean sea level as determined by local tidal observations."
+                            },
+                            {
+                                "key": "Assumed Values",
+                                "value": "by holding a vertical datum of 0.00 for the benchmarks stated herein."
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "vertical_datum_source",
+                    "displayName": "Vertical Datum Source",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "RTK GPS Observations",
+                                "value": "using RTK GPS corrections from public CORS to establish the benchmarks stated hereon. Said benchmarks were checked against local benchmarks for accuracy."
+                            },
+                            {
+                                "key": "Static GPS Observations",
+                                "value": "using static GPS corrections on the benchmarks stated herein and processing the data though the NGS OPUS application."
+                            },
+                            {
+                                "key": "Leveling Traverse",
+                                "value": "performing a closed-loop leveling traverse between the benchmarks and published local benchmarks."
+                            },
+                            {
+                                "key": "Assumed Values",
+                                "value": "by holding a vertical datum of 0.00 for the benchmarks stated herein."
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "FEMA Flood Zone Parameters",
+            "columns": 3,
+            "content": [
+                {
+                    "key": "community",
+                    "displayName": "Community",
+                    "type": "text",
+                    "options": {
+                        "format": "text",
+                        "placeholder": "Community Name and Number",
+                        "errorMessage": "Please provide a valid Community Name and Number.",
+                        "required": true
+                    }
+                },
+                {
+                    "key": "fema_firm_panel",
+                    "displayName": "FEMA FIRM Panel",
+                    "type": "text",
+                    "options": {
+                        "format": "text",
+                        "regex": "^[0-9]{5}[A-Za-z][0-9]{4}[A-Za-z]$",
+                        "placeholder": "12345A1234B",
+                        "errorMessage": "Please provide a valid FEMA FIRM Panel Number.",
+                        "required": true
+                    }
+                },
+                {
+                    "key": "fema_effective_date",
+                    "displayName": "FEMA Effective Date",
+                    "type": "text",
+                    "options": {
+                        "format": "date",
+                        "placeholder": "MM.DD.YYYY",
+                        "errorMessage": "Please provide a valid date.",
+                        "required": true
+                    }
+                },
+                {
+                    "key": "fema_flood_zone",
+                    "displayName": "FEMA Flood Zone",
+                    "type": "multiSelection",
+                    "options": {
+                        "columnSpan": 3,
+                        "options": [
+                            {
+                                "key": "Zone X",
+                                "value": "Areas determined to be outside the 0.2% annual chance floodplain"
+                            },
+                            {
+                                "key": "Zone X (shaded)",
+                                "value": "Areas of 0.2% annual chance flood; areas of 1% annual chance flood with average depths of less than 1 foot or with drainage areas less than 1 square mile; and areas protected by levees from 1% annual chance flood"
+                            },
+                            {
+                                "key": "Zone A",
+                                "value": "Areas inside the 1% annual chance of flood; No base flood elevation determined"
+                            },
+                            {
+                                "key": "Zone AE ({fema_bfe_elevation})",
+                                "value": "Areas inside the 1% annual chance of flood; Base Flood Elevations determined at a specific elevation shown on the FIRM panel"
+                            },
+                            {
+                                "key": "Zone V",
+                                "value": "Coastal areas subject to high velocity wave action from storms or seismic sources; No base flood elevation determined"
+                            },
+                            {
+                                "key": "Zone VE ({fema_bfe_elevation})",
+                                "value": "Coastal areas subject to high velocity wave action from storms or seismic sources; Base Flood Elevations determined at a specific elevation shown on the FIRM panel"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "",
+            "columns": 4,
+            "content": [
+                {
+                    "key": "fema_bfe_elevation",
+                    "displayName": "FEMA BFE Elevation (feet)",
+                    "type": "textSuggestion",
+                    "options": {
+                        "placeholder": "Base Flood Elevation in feet",
+                        "options": [
+                            {
+                                "key": "No Elevation Specified",
+                                "value": "No Elevation Specified"
+                            },
+                            {
+                                "key": "Rolling BFE",
+                                "value": "Rolling BFE"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "toggle",
+                    "key": "fema_LOMR_affects",
+                    "displayName": "LOMR Affects Property",
+                    "options": {
+                        "defaultValue": false,
+                        "trueValue": "Said map is affected by a Letter of Map Revision (LOMR), document number {fema_LOMR_id}, dated {fema_LOMR_date}, and the information shown hereon is based in GIS data of such letter. the abstraction ",
+                        "falseValue": "The abstraction "
+                    }
+                },
+                {
+                    "type": "text",
+                    "key": "fema_LOMR_id",
+                    "displayName": "LOMR Document ID",
+                    "options": {
+                        "format": "text",
+                        "placeholder": "LOMR Document ID",
+                        "errorMessage": "Please provide a valid LOMR Document ID."
+                    }
+                },
+                {
+                    "type": "text",
+                    "key": "fema_LOMR_date",
+                    "displayName": "LOMR Date",
+                    "options": {
+                        "format": "date",
+                        "placeholder": "LOMR Date",
+                        "errorMessage": "Please provide a valid LOMR Date."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Title Document Information",
+            "columns": 4,
+            "content": [
+                {
+                    "key": "title_document",
+                    "displayName": "Title Document Type",
+                    "type": "textSuggestion",
+                    "options": {
+                        "required": false,
+                        "placeholder": "Title Document Type",
+                        "errorMessage": "Please select the type of title document referenced in the survey.",
+                        "options": [
+                            {
+                                "key": "Title Commitment",
+                                "value": "Title Commitment"
+                            },
+                            {
+                                "key": "Title Insurance Policy",
+                                "value": "Title Insurance Policy"
+                            },
+                            {
+                                "key": "Abstract of Title",
+                                "value": "Abstract of Title"
+                            },
+                            {
+                                "key": "Property Information Report",
+                                "value": "Property Information Report"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "title_company",
+                    "displayName": "Title Company",
+                    "type": "textSuggestion",
+                    "options": {
+                        "required": false,
+                        "placeholder": "Title Company",
+                        "errorMessage": "Please select the title company referenced in the title document.",
+                        "options": [
+                            {
+                                "key": "First American Title Insurance Company",
+                                "value": "First American Title Insurance Company"
+                            },
+                            {
+                                "key": "Fidelity National Title Insurance Company",
+                                "value": "Fidelity National Title Insurance Company"
+                            },
+                            {
+                                "key": "Old Republic Title Insurance Company",
+                                "value": "Old Republic Title Insurance Company"
+                            },
+                            {
+                                "key": "Chicago Title Insurance Company",
+                                "value": "Chicago Title Insurance Company"
+                            },
+                            {
+                                "key": "Stewart Title Guaranty Company",
+                                "value": "Stewart Title Guaranty Company"
+                            },
+                            {
+                                "key": "Westcor Land Title Insurance Company",
+                                "value": "Westcor Land Title Insurance Company"
+                            },
+                            {
+                                "key": "WFG National Title Insurance Company",
+                                "value": "WFG National Title Insurance Company"
+                            },
+                            {
+                                "key": "Commonwealth Land Title Insurance Company",
+                                "value": "Commonwealth Land Title Insurance Company"
+                            },
+                            {
+                                "key": "Ticor Title Insurance Company",
+                                "value": "Ticor Title Insurance Company"
+                            },
+                            {
+                                "key": "Lawyers Title Insurance Corporation",
+                                "value": "Lawyers Title Insurance Corporation"
+                            },
+                            {
+                                "key": "Nations Title Insurance Company",
+                                "value": "Nations Title Insurance Company"
+                            },
+                            {
+                                "key": "Alliant National Title Insurance Company",
+                                "value": "Alliant National Title Insurance Company"
+                            },
+                            {
+                                "key": "Amrock Title Insurance Company",
+                                "value": "Amrock Title Insurance Company"
+                            },
+                            {
+                                "key": "North American Title Insurance Company",
+                                "value": "North American Title Insurance Company"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "title_document_number",
+                    "displayName": "Title Document Number",
+                    "type": "text",
+                    "options": {
+                        "format": "text",
+                        "placeholder": "Enter document number",
+                        "errorMessage": "Please provide a valid document number.",
+                        "required": true
+                    }
+                },
+                {
+                    "key": "title_document_effective_date",
+                    "displayName": "Title Document Effective Date",
+                    "type": "text",
+                    "options": {
+                        "format": "date",
+                        "placeholder": "MM/DD/YYYY",
+                        "errorMessage": "Please provide a valid date.",
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Subsurface Utility Engineering (SUE) Parameters",
+            "columns": 2,
+            "content": [
+                {
+                    "key": "sue_level",
+                    "displayName": "SUE Level",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "Level A",
+                                "value": "A - Non-destructive test holes to determine the location, direction, and depth of subsurface utilities."
+                            },
+                            {
+                                "key": "Level B",
+                                "value": "B - Non-destructive surface geophysical methods to detect and approximate horizontal position of subsurface utilities, combined with the use of existing above-ground utility appurtenances to improve horizontal position accuracy."
+                            },
+                            {
+                                "key": "Level C",
+                                "value": "C - Surveying and plotting visible above-ground utility appurtenances, combined with the use of existing records to improve horizontal position accuracy."
+                            },
+                            {
+                                "key": "Level D",
+                                "value": "D - Mapping of existing utility records or oral recollections without field verification."
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "sue_provider",
+                    "displayName": "SUE Provider",
+                    "type": "text",
+                    "options": {
+                        "format": "text",
+                        "placeholder": "Name of SUE Provider",
+                        "errorMessage": "Please provide the name of the SUE provider.",
+                        "required": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "LiDAR Data Parameters",
+            "columns": 2,
+            "content": [
+                {
+                    "key": "data_type",
+                    "displayName": "LiDAR Data Type",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "aerial photogrammetry",
+                                "value": "aerial photogrammetry"
+                            },
+                            {
+                                "key": "aerial lidar",
+                                "value": "aerial lidar"
+                            },
+                            {
+                                "key": "terrestrial lidar",
+                                "value": "terrestrial lidar"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "lidar_scope",
+                    "displayName": "LiDAR Data Scope",
+                    "type": "list",
+                    "options": {
+                        "options": [
+                            {
+                                "key": "horizontal data",
+                                "value": "horizontal data"
+                            },
+                            {
+                                "key": "vertical data",
+                                "value": "vertical data"
+                            },
+                            {
+                                "key": "horizontal and vertical data",
+                                "value": "horizontal and vertical data"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "key": "lidar_date",
+                    "displayName": "LiDAR Data Collection Date",
+                    "type": "text",
+                    "options": {
+                        "format": "date",
+                        "placeholder": "MM.DD.YYYY",
+                        "errorMessage": "Please provide a valid date.",
+                        "required": true
+                    }
+                },
+                {
+                    "key": "lidar_accuracy",
+                    "displayName": "LiDAR Data Accuracy (feet)",
+                    "type": "text",
+                    "options": {
+                        "format": "number",
+                        "placeholder": "e.g., 0.5",
+                        "errorMessage": "Please provide a valid number for LiDAR data accuracy.",
+                        "required": true
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,204 @@
+{
+    "Meta": {
+        "Category": "Land Development",
+        "Title": "Lot Combination Checklist",
+        "WIP": true
+    },
+    "Sections": [
+        {
+            "title": "General Map and Report Review",
+            "subtitle": "Florida baseline; apply data-related items to the work performed.",
+            "items": [
+                {
+                    "title": "Purpose and Scope",
+                    "statement": "Identify the product type and intended purpose.",
+                    "code": "5J-17.051(3)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Horizontal Control and Accuracy",
+                    "statement": "State the horizontal datum and control; retain independent accuracy checks and methods.",
+                    "code": "5J-17.051(2), (2)(b), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Vertical Control and Accuracy",
+                    "statement": "For elevation data, state datum and control and document accuracy and verification methods.",
+                    "code": "5J-17.051(2)(a), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Assumed Datum Control",
+                    "statement": "If using an assumed datum, distinguish it from published datums and provide reproducible control.",
+                    "code": "5J-17.051(2)(a)-(c), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Dated Supporting Records",
+                    "statement": "Retain dated measurements and computations supporting the product.",
+                    "code": "5J-17.051(2)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Responsible Surveyor and Business",
+                    "statement": "Show responsible surveyor name/license and issuing business name, authorization number, and street/mailing addresses.",
+                    "code": "5J-17.051(3)(c), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Acquisition and Revision Dates",
+                    "statement": "Identify the last acquisition date and subsequent graphic revision dates.",
+                    "code": "5J-17.051(3)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Signature and Seal Statement",
+                    "statement": "Include the required original-signature/seal validity statement unless electronically signed and sealed.",
+                    "code": "5J-17.051(3)(e), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Map Orientation and Legend",
+                    "statement": "Show north, scale, defined survey abbreviations, and the bearing reference to an established monumented line.",
+                    "code": "5J-17.051(3)(f)-(h), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Mapped Feature Responsibility",
+                    "statement": "Identify responsibility for mapped features and integration of others' work.",
+                    "code": "5J-17.051(3)(i), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Final Delivery Review",
+                    "statement": "Confirm signed/sealed deliverables, sheet references, filenames, revision consistency, and contracted formats before release.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Combination Scope and Records",
+            "items": [
+                {
+                    "title": "Combination Process",
+                    "statement": "Confirm the jurisdiction's lot-combination process and whether a replat, unity instrument, or other approval is required; distinguish tax parcel changes from legal lot changes.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Source Parcel Reconciliation",
+                    "statement": "Compare deeds, plats, ownership information, parcel identifiers, and exceptions for every source parcel.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Combined Perimeter",
+                    "statement": "Verify the proposed outside perimeter includes the intended land and resolves gaps, overlaps, and retained exceptions.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Removed Interior Lines",
+                    "statement": "Clearly distinguish existing interior lot lines from the proposed combined perimeter.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Combined Area Check",
+                    "statement": "Independently reconcile combined area with source parcel areas and documented differences.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Continuing Rights and Access",
+                    "statement": "Review access, easements, restrictions, and rights-of-way; do not imply combining parcels extinguishes existing interests.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Combination Eligibility",
+                    "statement": "Verify applicable ownership, zoning, frontage, dimensional, and existing-improvement criteria.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Description and Sketch",
+            "items": [
+                {
+                    "title": "Definitive Boundary Calls",
+                    "statement": "Write metes-and-bounds calls that unambiguously identify each boundary line.",
+                    "code": "5J-17.052(6)(a), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Sketch Matches Description",
+                    "statement": "Depict every referenced description element and identify the sketch as not a survey.",
+                    "code": "5J-17.052(6)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Initial Point Tie",
+                    "statement": "Tie the initial description point to a government corner, recorded corner, or established survey point.",
+                    "code": "5J-17.052(6)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Commencement and Beginning",
+                    "statement": "Distinguish commencement from beginning; verify ties, directions, distances, and referenced monuments.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Independent Closure and Area",
+                    "statement": "Independently compute perimeter closure and area; reconcile rounding, curve geometry, exceptions, and stated units.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Record References and Location",
+                    "statement": "Check source instruments, recording references, section/township/range or subdivision identifiers, county, and state.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Curve and Line Agreement",
+                    "statement": "Compare every line and curve call to the sketch, including radial/nonradial relationships and tables.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Intended Estate or Purpose",
+                    "statement": "Confirm the described parcel, easement, or other intended interest matches the client's instructions; resolve ambiguous scope before release.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Combination Submission",
+            "items": [
+                {
+                    "title": "Required Instruments and Signatures",
+                    "statement": "Confirm required applications, owner authorizations, supporting instruments, fees, and submission formats.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Final Combination Package",
+                    "statement": "Check consistent parcel labels and descriptions across the sketch, application, and proposed instruments.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Approval and Recording Follow-Up",
+                    "statement": "Record approval/recording status and references when available; keep proposed and completed changes distinguishable.",
+                    "code": "QA review",
+                    "options": "YesNoN/A"
+                }
+            ]
+        }
+    ]
+}

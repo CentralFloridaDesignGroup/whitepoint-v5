@@ -1,0 +1,419 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://api.whitepointsurvey.com/schemas/surveyNotes.json",
+    "title": "Survey Notes",
+    "type": "object",
+    "properties": {
+        "notes": {
+            "type": "array",
+            "description": "A survey note object. Contains title, description, and content.",
+            "items": {
+                "type": "object",
+                "description": "A survey note object, containing the title, description, and content.",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "The title of the survey note."
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "A explainatory note for the user to understand why the note may be needed."
+                    },
+                    "content": {
+                        "type": "string",
+                        "description": "The actual survey note. Use curly brackets around parameter names ({Sampleparameter}) to replace that value with the selected value of the parameter."
+                    }
+                },
+                "required": [
+                    "title",
+                    "description",
+                    "content"
+                ]
+            },
+            "properties": {}
+        },
+        "parameters": {
+            "type": "array",
+            "description": "An array of parameter groups. Groups have no purpose beyond organization.",
+            "items": {
+                "type": "object",
+                "description": "A parameter group, containing some meta data and 'content' array",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The name of the parameter group."
+                    },
+                    "columns": {
+                        "type": "integer",
+                        "description": "The number of columns the display should show at full size.",
+                        "default": 3,
+                        "minimum": 1,
+                        "maximum": 6
+                    },
+                    "content": {
+                        "type": "array",
+                        "description": "An array of content under the category",
+                        "items": {
+                            "type": "object",
+                            "description": "A content object.",
+                            "properties": {
+                                "key": {
+                                    "type": "string",
+                                    "description": "The key of the parameter object. This should match the name in the curly brackets in the survey note.",
+                                    "pattern": "^[A-Za-z\\d_]+$"
+                                },
+                                "displayName": {
+                                    "type": "string",
+                                    "description": "The display name (pretty name) of the parameter."
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "description": "The type of parameter.",
+                                    "enum": [
+                                        "text",
+                                        "textSuggestion",
+                                        "list",
+                                        "bearing",
+                                        "multiSelection",
+                                        "toggle"
+                                    ]
+                                },
+                                "options": {
+                                    "type": "object",
+                                    "description": "properties for each type."
+                                }
+                            },
+                            "allOf": [
+                                {
+                                    "if": {
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "const": "text"
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "options": {
+                                                "type": "object",
+                                                "description": "properties for a text parameter.",
+                                                "properties": {
+                                                    "placeholder": {
+                                                        "type": "string",
+                                                        "description": "The placeholder to show in the textbox."
+                                                    },
+                                                    "format": {
+                                                        "type": "string",
+                                                        "description": "the format for the textbox",
+                                                        "enum": [
+                                                            "text",
+                                                            "number",
+                                                            "date",
+                                                            "email",
+                                                            "tel"
+                                                        ],
+                                                        "default": "text"
+                                                    },
+                                                    "regex": {
+                                                        "type": "string",
+                                                        "description": "A Regex format to check against the value."
+                                                    },
+                                                    "errorMessage": {
+                                                        "type": "string",
+                                                        "description": "A custom error message."
+                                                    },
+                                                    "required": {
+                                                        "type": "boolean",
+                                                        "description": "parameter is required to have a value before processing.",
+                                                        "default": false
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "const": "textSuggestion"
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "options": {
+                                                "type": "object",
+                                                "description": "properties for a textSuggestion parameter.",
+                                                "properties": {
+                                                    "placeholder": {
+                                                        "type": "string",
+                                                        "description": "The placeholder to show in the textbox."
+                                                    },
+                                                    "format": {
+                                                        "type": "string",
+                                                        "description": "the format for the textbox",
+                                                        "enum": [
+                                                            "text",
+                                                            "number",
+                                                            "date",
+                                                            "email",
+                                                            "tel"
+                                                        ],
+                                                        "default": "text"
+                                                    },
+                                                    "regex": {
+                                                        "type": "string",
+                                                        "description": "A Regex format to check against the value."
+                                                    },
+                                                    "errorMessage": {
+                                                        "type": "string",
+                                                        "description": "A custom error message."
+                                                    },
+                                                    "required": {
+                                                        "type": "boolean",
+                                                        "description": "parameter is required to have a value before processing.",
+                                                        "default": false
+                                                    },
+                                                    "options": {
+                                                        "type": "array",
+                                                        "description": "An array of key-value strings",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "description": "An entry for suggestion. 'key' is the display value, 'value' is the value passed to the note.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "type": "string",
+                                                                    "description": "The display value of the entry."
+                                                                },
+                                                                "value": {
+                                                                    "type": "string",
+                                                                    "description": "the value passed to the notes."
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "key",
+                                                                "value"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "options"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "const": "list"
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "options": {
+                                                "type": "object",
+                                                "description": "properties for a list parameter.",
+                                                "properties": {
+                                                    "errorMessage": {
+                                                        "type": "string",
+                                                        "description": "A custom error message."
+                                                    },
+                                                    "required": {
+                                                        "type": "boolean",
+                                                        "description": "parameter is required to have a value before processing.",
+                                                        "default": false
+                                                    },
+                                                    "defaultIndex": {
+                                                        "type": "integer",
+                                                        "description": "The default selected index. If nothing is provided, nothing is selected by default. If this number is higher than the options array, it will default to index 0",
+                                                        "default": 0,
+                                                        "minimum": 0
+                                                    },
+                                                    "options": {
+                                                        "type": "array",
+                                                        "description": "An array of key-value strings",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "description": "An entry for suggestion. 'key' is the display value, 'value' is the value passed to the note.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "type": "string",
+                                                                    "description": "The display value of the entry."
+                                                                },
+                                                                "value": {
+                                                                    "type": "string",
+                                                                    "description": "the value passed to the notes."
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "key",
+                                                                "value"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "options"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "const": "multiSelection"
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "columnSpan": {
+                                                "type": "integer",
+                                                "description": "The number of columns the parameter should span in the display. Defaults to 1. Must be between 1 and the total number of columns for the parameter group.",
+                                                "default": 1,
+                                                "minimum": 3,
+                                                "maximum": 6
+                                            },
+                                            "options": {
+                                                "type": "object",
+                                                "description": "properties for a multiSelection parameter.",
+                                                "properties": {
+                                                    "options": {
+                                                        "type": "array",
+                                                        "description": "An array of key-value strings",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "description": "An entry for suggestion. 'key' is the display value, 'value' is the value passed to the note.",
+                                                            "properties": {
+                                                                "key": {
+                                                                    "type": "string",
+                                                                    "description": "The display value of the entry."
+                                                                },
+                                                                "value": {
+                                                                    "type": "string",
+                                                                    "description": "the value passed to the notes."
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "key",
+                                                                "value"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "columnSpan",
+                                                    "options"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "const": "bearing"
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "options": {
+                                                "type": "object",
+                                                "description": "properties for a bearing parameter.",
+                                                "properties": {
+                                                    "required": {
+                                                        "type": "boolean",
+                                                        "description": "parameter is required to have a value before processing.",
+                                                        "default": false
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "if": {
+                                        "required": [
+                                            "type"
+                                        ],
+                                        "properties": {
+                                            "type": {
+                                                "const": "toggle"
+                                            }
+                                        }
+                                    },
+                                    "then": {
+                                        "properties": {
+                                            "options": {
+                                                "type": "object",
+                                                "description": "properties for a toggle parameter.",
+                                                "properties": {
+                                                    "defaultValue": {
+                                                        "type": "boolean",
+                                                        "description": "The default value of the toggle. Defaults to false."
+                                                    },
+                                                    "falseValue": {
+                                                        "type": "string",
+                                                        "description": "the value passed to the notes when the toggle is off. If not provided, it will pass 'false'."
+                                                    },
+                                                    "trueValue": {
+                                                        "type": "string",
+                                                        "description": "the value passed to the notes when the toggle is on. If not provided, it will pass 'true'."
+                                                    }
+                                                },
+                                                "required": [
+                                                    "defaultValue",
+                                                    "falseValue",
+                                                    "trueValue"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "required": [
+                                "key",
+                                "displayName",
+                                "type",
+                                "options"
+                            ]
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "columns",
+                    "content"
+                ]
+            }
+        }
+    },
+    "required": [
+        "notes",
+        "parameters"
+    ]
+}

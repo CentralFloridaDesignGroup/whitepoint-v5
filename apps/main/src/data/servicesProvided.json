@@ -1,0 +1,742 @@
+{
+    "timeframes": {
+        "short": "1-2 weeks",
+        "medium": "3-5 weeks",
+        "long": "6+ weeks",
+        "variable": "Variable",
+        "ongoing": "Ongoing",
+        "constructionShort": "next day",
+        "constructionMedium": "2-3 days",
+        "constructionLong": "4+ days"
+    },
+    "services": [
+        {
+            "categoryName": "Residential Services",
+            "description": "A category of survey services tailored for residential properties, ensuring compliance with zoning regulations and property boundaries.",
+            "services": [
+                {
+                    "title": "Boundary Survey (Mortgage)",
+                    "description": "A survey conducted to determine the boundaries of a property for mortgage purposes. It typically includes a site visit, measurement of property lines, and preparation of a survey report.",
+                    "timeframe": "medium",
+                    "costLow": 450,
+                    "costHigh": 1000,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Boundary Re-establishment",
+                    "description": "A survey conducted to re-establish the boundaries of a property. This service is often required when property lines are unclear or disputed. It involves researching historical records, conducting fieldwork, and preparing a survey report.",
+                    "timeframe": "short",
+                    "costLow": 850,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Corner Recovery & Monumentation",
+                    "description": "A survey service focused on locating and marking the corners of a property. This is essential for defining property boundaries and ensuring accurate land division.",
+                    "timeframe": "short",
+                    "costLow": 175,
+                    "costHigh": 250,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Property Line Stake-Out",
+                    "description": "A survey service that involves marking the property lines on the ground. This is often required for construction projects, property disputes, or when installing fences or other structures.",
+                    "timeframe": "short",
+                    "costLow": 200,
+                    "costHigh": 600,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Legal Description",
+                    "description": "A survey service that provides a legal description of a property using metes and bounds. This description includes the measurements and directions of the property boundaries, which is essential for legal documents and property transactions.",
+                    "timeframe": "short",
+                    "costLow": 550,
+                    "costHigh": 850,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Easement & Right-of-Way Survey",
+                    "description": "A survey service that involves identifying and mapping easements and rights-of-way on a property. This is important for understanding property access, utility placements, and legal boundaries.",
+                    "timeframe": "medium",
+                    "costLow": 250,
+                    "costHigh": 500,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Topographic Survey",
+                    "description": "A survey service that involves mapping the contours and features of a property. This is often required for construction projects, land development, and environmental assessments.",
+                    "timeframe": "medium",
+                    "costLow": 650,
+                    "costHigh": 1500,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Design Survey",
+                    "description": "A survey service that involves creating detailed plans and designs for construction projects. This includes site analysis, layout planning, and preparation of design documents.",
+                    "timeframe": "short",
+                    "costLow": 275,
+                    "costHigh": 500,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Tree Location Survey",
+                    "description": "A survey service that involves locating and mapping trees on a property. This is often required for construction projects, land development, and environmental assessments.",
+                    "timeframe": "medium",
+                    "costLow": 150,
+                    "costHigh": 800,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Wetland Delineation Survey",
+                    "description": "A survey service that involves identifying and mapping wetlands on a property. This is important for environmental assessments, land development, and regulatory compliance.",
+                    "timeframe": "medium",
+                    "costLow": 500,
+                    "costHigh": 1500,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Survey Control Survey",
+                    "description": "A survey service that involves establishing control points for horizontal and vertical measurements. This is essential for accurate mapping, construction, and engineering projects.",
+                    "timeframe": "medium",
+                    "costLow": 250,
+                    "costHigh": 450,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Construction Layout / Staking",
+                    "description": "A survey service that involves marking the locations of structures, utilities, and other features on a construction site. This ensures that construction is carried out according to the design plans.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 400,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Formboard Survey",
+                    "description": "A survey showing the installed locations of formboards for foundation construction. This ensures that the foundation is built according to design specifications.",
+                    "timeframe": "constructionShort",
+                    "costLow": 300,
+                    "costHigh": 600,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Foundation Survey",
+                    "description": "A survey showing the installed locations of foundations. This verifies that the foundation is built according to design specifications.",
+                    "timeframe": "constructionShort",
+                    "costLow": 300,
+                    "costHigh": 600,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Subdivision Plats",
+                    "description": "A survey service that involves creating subdivision plats for land development projects. This includes surveying the property, preparing the plat map, and coordinating with local authorities for approval and recording.",
+                    "timeframe": "long",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Re-Plats",
+                    "description": "A survey service that involves creating re-plats for existing subdivisions. This may be required when there are changes to property boundaries, lot configurations, or when correcting errors in the original plat.",
+                    "timeframe": "long",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Minor Plats & Lot Splits",
+                    "description": "A survey service that involves creating minor plats and lot splits for land development projects. This includes surveying the property, preparing the plat map, and coordinating with local authorities for approval and recording.",
+                    "timeframe": "long",
+                    "costLow": 1000,
+                    "costHigh": null,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "FEMA Elevation Certificates",
+                    "description": "A survey service that involves obtaining FEMA elevation certificates for properties. This is often required for floodplain management, insurance, and regulatory compliance.",
+                    "timeframe": "short",
+                    "costLow": 450,
+                    "costHigh": 550,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Finished Floor Elevation Verification",
+                    "description": "A survey service that involves verifying the finished floor elevation of a building. This ensures compliance with design plans and regulatory requirements.",
+                    "timeframe": "constructionShort",
+                    "costLow": 400,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Tidal Boundary Survey",
+                    "description": "A survey service that involves determining the tidal boundaries of a property. This is important for properties located near bodies of water, as it helps establish the limits of private property and public access.",
+                    "timeframe": "medium",
+                    "costLow": 550,
+                    "costHigh": 1100,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Mean High Water Line Determination",
+                    "description": "A survey service that involves determining the mean high water line of a property. This is important for properties located near bodies of water, as it helps establish the limits of private property and public access.",
+                    "timeframe": "medium",
+                    "costLow": 1500,
+                    "costHigh": 2500,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Riparian Boundary Survey",
+                    "description": "A survey service that involves determining the boundaries of riparian properties. This is important for properties adjacent to rivers, streams, or other bodies of water, as it helps establish the limits of private property and public access.",
+                    "timeframe": "medium",
+                    "costLow": 450,
+                    "costHigh": 650,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Dock & Marine Structure As-Builts",
+                    "description": "A survey service that involves creating as-built surveys for docks and marine structures. This ensures that the structures are built according to design plans and regulatory requirements.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 600,
+                    "costHigh": 1200,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Lot Line Reconfigurations",
+                    "description": "A survey service that involves reconfiguring lot lines. This ensures compliance with zoning regulations and property boundaries.",
+                    "timeframe": "medium",
+                    "costLow": 1000,
+                    "costHigh": null,
+                    "serviceDiscount": true
+                },
+                {
+                    "title": "Sketch & Legal for Parcel Creation",
+                    "description": "A survey service that involves creating sketches and legal descriptions for parcel creation. This ensures compliance with zoning regulations and property boundaries.",
+                    "timeframe": "short",
+                    "costLow": 550,
+                    "costHigh": 850,
+                    "serviceDiscount": false
+                }
+            ]
+        },
+        {
+            "categoryName": "Commercial Services",
+            "description": "A category of survey services tailored for commercial properties, ensuring compliance with zoning regulations and property boundaries.",
+            "services": [
+                {
+                    "title": "Boundary Survey",
+                    "description": "A survey conducted to determine the boundaries of a property. It typically includes a site visit, measurement of property lines, and preparation of a survey report.",
+                    "timeframe": "medium",
+                    "costLow": 750,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Boundary Re-establishment",
+                    "description": "A survey service that involves re-establishing the boundaries of a property. This ensures compliance with zoning regulations and property boundaries.",
+                    "timeframe": "short",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Corner Recovery & Monumentation",
+                    "description": "A survey service that involves recovering and setting monuments at property corners. This ensures accurate boundary identification and compliance with zoning regulations.",
+                    "timeframe": "short",
+                    "costLow": 250,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Property Line Stake-Out",
+                    "description": "A survey service that involves staking out property lines. This ensures accurate boundary identification and compliance with zoning regulations.",
+                    "timeframe": "short",
+                    "costLow": 400,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Legal Descriptions",
+                    "description": "A survey service that involves creating legal descriptions using metes and bounds. This ensures compliance with zoning regulations and property boundaries.",
+                    "timeframe": "short",
+                    "costLow": 750,
+                    "costHigh": 1250,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Easement & Right-of-Way Survey",
+                    "description": "A survey service that involves identifying and mapping easements and rights-of-way. This ensures compliance with zoning regulations and property boundaries.",
+                    "timeframe": "medium",
+                    "costLow": 400,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "ALTA/NSPS Land Title Survey",
+                    "description": "A survey service that involves conducting ALTA/NSPS land title surveys. This ensures compliance with zoning regulations and property boundaries.",
+                    "timeframe": "medium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Condominium Survey",
+                    "description": "A survey service that involves conducting surveys for condominium properties. This ensures compliance with zoning regulations and property boundaries.",
+                    "timeframe": "medium",
+                    "costLow": 2000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Topographic Survey",
+                    "description": "A survey service that involves creating detailed maps of the natural and man-made features of a property. This ensures accurate representation of the terrain and compliance with zoning regulations.",
+                    "timeframe": "medium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Tree Location Survey",
+                    "description": "A survey service that involves locating and mapping trees on a property. This ensures accurate representation of the terrain and compliance with zoning regulations.",
+                    "timeframe": "variable",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Wetland Delineation Survey",
+                    "description": "A survey service that involves identifying and mapping wetlands on a property. This is important for environmental assessments, land development, and regulatory compliance.",
+                    "timeframe": "medium",
+                    "costLow": 500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Utility Location & Mapping (Surface Features)",
+                    "description": "A survey service that involves locating and mapping utility lines and other surface features on a property. This ensures accurate representation of the terrain and compliance with zoning regulations.",
+                    "timeframe": "short",
+                    "costLow": 1200,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Survey Control Survey",
+                    "description": "A survey service that involves establishing control points for horizontal and vertical measurements. This ensures accurate mapping and compliance with zoning regulations.",
+                    "timeframe": "short",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "GPS / GNSS Control Networks",
+                    "description": "A survey service that involves establishing control networks using GPS or GNSS technology. This ensures accurate mapping and compliance with zoning regulations.",
+                    "timeframe": "short",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Photogrammetric Survey",
+                    "description": "A survey service that involves using photogrammetry techniques to create accurate maps and models of a property. This ensures precise measurements and compliance with zoning regulations.",
+                    "timeframe": "short",
+                    "costLow": 2000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Orthophotography Mapping",
+                    "description": "A survey service that involves creating orthophotos, which are geometrically corrected aerial photographs. This ensures accurate representation of the terrain and compliance with zoning regulations.",
+                    "timeframe": "short",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Subdivision Plats",
+                    "description": "A survey service that involves creating subdivision plats for land development projects. This includes surveying the property, preparing the plat map, and coordinating with local authorities for approval and recording.",
+                    "timeframe": "long",
+                    "costLow": 3000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Re-Plats",
+                    "description": "A survey service that involves creating revised plats for land development projects. This includes surveying the property, preparing the revised plat map, and coordinating with local authorities for approval and recording.",
+                    "timeframe": "long",
+                    "costLow": 3000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Minor Plats & Lot Splits",
+                    "description": "A survey service that involves creating minor plats and lot splits for land development projects. This includes surveying the property, preparing the plat map, and coordinating with local authorities for approval and recording.",
+                    "timeframe": "long",
+                    "costLow": 2000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "FEMA Elevation Certificates",
+                    "description": "A survey service that involves preparing FEMA elevation certificates to determine floodplain compliance. This includes field measurements, data analysis, and certificate preparation.",
+                    "timeframe": "short",
+                    "costLow": 450,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Finished Floor Elevation Verification",
+                    "description": "A survey service that involves verifying the finished floor elevation of a building to ensure compliance with design specifications and floodplain regulations.",
+                    "timeframe": "constructionShort",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "LOMA Support Survey",
+                    "description": "A survey service that provides support for Letter of Map Amendment (LOMA) applications. This includes field surveys, data analysis, and preparation of documentation to support the LOMA process.",
+                    "timeframe": "medium",
+                    "costLow": 2500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Tidal Boundary Survey",
+                    "description": "A survey service that involves determining the boundaries of tidal areas. This includes field measurements, data analysis, and preparation of documentation to support tidal boundary determinations.",
+                    "timeframe": "medium",
+                    "costLow": 1000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Mean High Water Line Determination",
+                    "description": "A survey service that involves determining the mean high water line for coastal properties. This includes field measurements, data analysis, and preparation of documentation to support coastal boundary determinations.",
+                    "timeframe": "medium",
+                    "costLow": 5000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Riparian Boundary Survey",
+                    "description": "A survey service that involves determining the boundaries of riparian areas. This includes field measurements, data analysis, and preparation of documentation to support riparian boundary determinations.",
+                    "timeframe": "medium",
+                    "costLow": 1250,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Lot Line Reconfigurations",
+                    "description": "A survey service that involves reconfiguring lot lines for land development projects. This includes surveying the property, preparing the revised plat map, and coordinating with local authorities for approval and recording.",
+                    "timeframe": "medium",
+                    "costLow": 2500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Condominium Mapping",
+                    "description": "A survey service that involves creating detailed maps for condominium developments. This includes surveying the property, preparing the condominium plat map, and coordinating with local authorities for approval and recording.",
+                    "timeframe": "medium",
+                    "costLow": 5000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Sketch & Legal for Parcel Creation",
+                    "description": "A survey service that involves creating sketches and legal descriptions for parcel creation. This includes surveying the property, preparing the necessary documentation, and coordinating with local authorities for approval and recording.",
+                    "timeframe": "short",
+                    "costLow": 750,
+                    "costHigh": 1250,
+                    "serviceDiscount": false
+                }
+            ]
+        },
+        {
+            "categoryName": "Construction Services",
+            "description": "A category of survey services tailored for construction projects, ensuring compliance with design plans and regulatory requirements.",
+            "services": [
+                {
+                    "title": "Boundary Survey",
+                    "description": "A survey service that involves establishing the boundaries of a property. This includes field measurements, data analysis, and preparation of documentation to support boundary determinations.",
+                    "timeframe": "medium",
+                    "costLow": 500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Boundary Re-establishment",
+                    "description": "A survey service that involves re-establishing the boundaries of a property. This includes field measurements, data analysis, and preparation of documentation to support boundary determinations.",
+                    "timeframe": "short",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Corner Recovery & Monumentation",
+                    "description": "A survey service that involves recovering and monumenting property corners. This includes field measurements, data analysis, and preparation of documentation to support corner recovery and monumentation.",
+                    "timeframe": "short",
+                    "costLow": 250,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Property Line Stake-Out",
+                    "description": "A survey service that involves staking out property lines for construction projects. This includes field measurements, data analysis, and preparation of documentation to support property line stake-out.",
+                    "timeframe": "short",
+                    "costLow": 250,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Legal Descriptions",
+                    "description": "A survey service that involves creating legal descriptions for construction projects. This includes field measurements, data analysis, and preparation of documentation to support legal descriptions.",
+                    "timeframe": "short",
+                    "costLow": 750,
+                    "costHigh": 1250,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Easement & Right-of-Way Survey",
+                    "description": "A survey service that involves surveying easements and rights-of-way for construction projects. This includes field measurements, data analysis, and preparation of documentation to support easement and right-of-way determinations.",
+                    "timeframe": "medium",
+                    "costLow": 400,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "ALTA/NSPS Land Title Survey",
+                    "description": "A survey service that involves conducting ALTA/NSPS land title surveys for construction projects. This includes field measurements, data analysis, and preparation of documentation to support land title determinations.",
+                    "timeframe": "medium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Topographic Survey",
+                    "description": "A survey service that involves creating topographic maps for construction projects. This includes field measurements, data analysis, and preparation of documentation to support topographic mapping.",
+                    "timeframe": "medium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Tree Location Survey",
+                    "description": "A survey service that involves locating and mapping trees for construction projects. This includes field measurements, data analysis, and preparation of documentation to support tree location determinations.",
+                    "timeframe": "variable",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Utility Location & Mapping (Surface Features)",
+                    "description": "A survey service that involves locating and mapping utility features on the surface for construction projects. This includes field measurements, data analysis, and preparation of documentation to support utility location determinations.",
+                    "timeframe": "short",
+                    "costLow": 1200,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "GPS / GNSS Control Networks",
+                    "description": "A survey service that involves establishing GPS/GNSS control networks for construction projects. This includes field measurements, data analysis, and preparation of documentation to support control network determinations.",
+                    "timeframe": "short",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Photogrammetric Survey",
+                    "description": "A survey service that involves using photogrammetry techniques to create maps and models for construction projects. This includes aerial photography, data analysis, and preparation of documentation to support photogrammetric determinations.",
+                    "timeframe": "short",
+                    "costLow": 2000,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Orthophotography Mapping",
+                    "description": "A survey service that involves creating orthophotos for construction projects. This includes aerial photography, data analysis, and preparation of documentation to support orthophotography determinations.",
+                    "timeframe": "short",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Site Layout & Building Stake-Out",
+                    "description": "A survey service that involves laying out sites and staking out buildings for construction projects. This includes field measurements, data analysis, and preparation of documentation to support site layout and building stake-out determinations.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Formboard Survey",
+                    "description": "A survey showing the installed locations of formboards for foundation construction. This ensures that the foundation is built according to design specifications.",
+                    "timeframe": "constructionShort",
+                    "costLow": 550,
+                    "costHigh": 1500,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Foundation Survey",
+                    "description": "A survey showing the installed locations of foundations. This verifies that the foundation is built according to design specifications.",
+                    "timeframe": "constructionShort",
+                    "costLow": 550,
+                    "costHigh": 1500,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Roadway & Infrastructure Layout",
+                    "description": "A survey service that involves laying out roadways and infrastructure for construction projects. This includes field measurements, data analysis, and preparation of documentation to support roadway and infrastructure layout determinations.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Utility Layout",
+                    "description": "A survey service that involves laying out utilities for construction projects. This includes field measurements, data analysis, and preparation of documentation to support utility layout determinations.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Construction Control Survey",
+                    "description": "A survey service that involves monitoring and controlling construction activities for projects. This includes field measurements, data analysis, and preparation of documentation to support construction control determinations.",
+                    "timeframe": "constructionShort",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "As-Built / Record Survey",
+                    "description": "A survey service that involves creating as-built or record surveys for construction projects. This includes field measurements, data analysis, and preparation of documentation to support as-built or record survey determinations.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Earthwork Quantity Survey",
+                    "description": "A survey service that involves calculating earthwork quantities for construction projects. This includes field measurements, data analysis, and preparation of documentation to support earthwork quantity determinations.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Stockpile Volume Calculations",
+                    "description": "A survey service that involves calculating stockpile volumes for construction projects. This includes field measurements, data analysis, and preparation of documentation to support stockpile volume determinations.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "FEMA Elevation Certificates",
+                    "description": "A survey service that involves creating FEMA elevation certificates for construction projects. This includes field measurements, data analysis, and preparation of documentation to support FEMA elevation certificate determinations.",
+                    "timeframe": "short",
+                    "costLow": 450,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Finished Floor Elevation Verification",
+                    "description": "A survey service that involves verifying finished floor elevations for construction projects. This includes field measurements, data analysis, and preparation of documentation to support finished floor elevation determinations.",
+                    "timeframe": "constructionShort",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "LOMA Support Survey",
+                    "description": "A survey service that involves providing support for Letter of Map Amendment (LOMA) applications. This includes field measurements, data analysis, and preparation of documentation to support LOMA determinations.",
+                    "timeframe": "medium",
+                    "costLow": 2500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Dock & Marine Structure As-Builts",
+                    "description": "A survey service that involves creating as-built surveys for dock and marine structures. This includes field measurements, data analysis, and preparation of documentation to support as-built determinations.",
+                    "timeframe": "constructionMedium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                }
+            ]
+        },
+        {
+            "categoryName": "Specialty Services",
+            "description": "A category of survey services that includes specialized surveying techniques and support for construction projects.",
+            "services": [
+                {
+                    "title": "Earthwork Quantity Survey",
+                    "description": "A survey service that involves calculating earthwork quantities for construction projects. This includes field measurements, data analysis, and preparation of documentation to support earthwork quantity determinations.",
+                    "timeframe": "short",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Stockpile Volume Calculations",
+                    "description": "A survey service that involves calculating stockpile volumes for construction projects. This includes field measurements, data analysis, and preparation of documentation to support stockpile volume determinations.",
+                    "timeframe": "short",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Drone / UAV Mapping",
+                    "description": "A survey service that involves using drones or unmanned aerial vehicles (UAVs) to capture aerial imagery and data for construction projects. This includes flight planning, data collection, and processing to support mapping and analysis.",
+                    "timeframe": "short",
+                    "costLow": 1200,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "3D Laser Scanning",
+                    "description": "A survey service that involves using 3D laser scanning technology to capture detailed spatial data for construction projects. This includes data collection, processing, and analysis to support design and construction decisions.",
+                    "timeframe": "short",
+                    "costLow": 1600,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Reality Capture & Point Clouds",
+                    "description": "A survey service that involves capturing reality data and generating point clouds for construction projects. This includes data collection, processing, and analysis to support design and construction decisions.",
+                    "timeframe": "short",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Alignment Survey",
+                    "description": "A survey service that involves conducting alignment surveys for construction projects. This includes field measurements, data analysis, and preparation of documentation to support alignment determinations.",
+                    "timeframe": "medium",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Subdivision Planning Support",
+                    "description": "A survey service that involves providing support for subdivision planning. This includes field measurements, data analysis, and preparation of documentation to support subdivision planning decisions.",
+                    "timeframe": "variable",
+                    "costLow": 800,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Platting & Recording Coordination",
+                    "description": "A survey service that involves coordinating platting and recording activities for subdivision projects. This includes preparing and reviewing plats, coordinating with relevant authorities, and ensuring compliance with regulations.",
+                    "timeframe": "variable",
+                    "costLow": 2500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                },
+                {
+                    "title": "Annexation Exhibits",
+                    "description": "A survey service that involves preparing annexation exhibits for construction projects. This includes field measurements, data analysis, and preparation of documentation to support annexation decisions.",
+                    "timeframe": "short",
+                    "costLow": 1500,
+                    "costHigh": null,
+                    "serviceDiscount": false
+                }
+            ]
+        }
+    ]
+}

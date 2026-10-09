@@ -1,0 +1,60 @@
+{
+  "definitions": [
+    {
+      "name": "boundarySurvey",
+      "label": "Boundary Survey",
+      "description": [
+        {
+          "type": "text",
+          "content": "A boundary survey is a type of land survey that establishes the boundaries of a property. It involves measuring and mapping the land to determine the exact location of property lines, corners, and any encroachments. Boundary surveys are typically conducted for legal purposes, such as resolving disputes, selling or purchasing property, or obtaining permits for construction."
+        }
+      ],
+      "references": [
+        {
+          "type": "link",
+          "label": "Section 5J-17.051, Florida Administrative Code",
+          "url": "https://www.law.cornell.edu/regulations/florida/Fla-Admin-Code-Ann-R-5J-17-051"
+        },
+        {
+          "type": "link",
+          "label": "Section 5J-17.052, Florida Administrative Code",
+          "url": "https://www.law.cornell.edu/regulations/florida/Fla-Admin-Code-Ann-R-5J-17-052"
+        }
+      ]
+    },
+    {
+      "name": "altaSurvey",
+      "label": "ALTA/NSPS Land Title Survey",
+      "description": [
+        {
+          "type": "text",
+          "content": "An ALTA/NSPS land title survey is a specific type of land survey that adheres to the standards set by the American Land Title Association (ALTA) and the National Society of Professional Surveyors (NSPS). This survey is typically required for commercial real estate transactions and provides detailed information about the property, including boundaries, easements, encroachments, and other relevant features. The ALTA/NSPS land title survey is often used by title companies, lenders, and attorneys to assess the risks associated with a property."
+        }
+      ],
+      "references": [
+        {
+          "type": "link",
+          "label": "ALTA/NSPS Land Title Survey Standards",
+          "url": "https://www.nsps.us.com/page/alta"
+        }
+      ]
+    },
+    {
+      "name": "topographicSurvey",
+      "label": "Topographic Survey",
+      "description": [
+        {
+          "type": "text",
+          "content": "A topographic survey is a type of land survey that focuses on mapping the natural and man-made features of a property, including elevation changes, contours, and the location of structures, trees, and other significant features. Topographic surveys are often used for engineering, construction, and land development projects to provide detailed information about the terrain and help with design and planning."
+        }
+      ],
+      "references": [
+        {
+          "type": "link",
+          "label": "Section 5J-17.051, Florida Administrative Code",
+          "url": "https://www.law.cornell.edu/regulations/florida/Fla-Admin-Code-Ann-R-5J-17-051"
+        }
+      ]
+    }
+  ]
+}

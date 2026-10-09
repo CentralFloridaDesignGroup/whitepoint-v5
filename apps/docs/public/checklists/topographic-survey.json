@@ -1,0 +1,163 @@
+{
+    "Meta": {
+        "Category": "Land Development",
+        "Title": "Topographic Survey Checklist",
+        "WIP": true
+    },
+    "Sections": [
+        {
+            "title": "General Map and Report Review",
+            "subtitle": "Florida baseline; apply data-related items to the work performed.",
+            "items": [
+                {
+                    "title": "Purpose and Scope",
+                    "statement": "Identify the product type and intended purpose.",
+                    "code": "5J-17.051(3)(b), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Horizontal Control and Accuracy",
+                    "statement": "State the horizontal datum and control; retain independent accuracy checks and methods.",
+                    "code": "5J-17.051(2), (2)(b), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Vertical Control and Accuracy",
+                    "statement": "For elevation data, state datum and control and document accuracy and verification methods.",
+                    "code": "5J-17.051(2)(a), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Assumed Datum Control",
+                    "statement": "If using an assumed datum, distinguish it from published datums and provide reproducible control.",
+                    "code": "5J-17.051(2)(a)-(c), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Dated Supporting Records",
+                    "statement": "Retain dated measurements and computations supporting the product.",
+                    "code": "5J-17.051(2)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Responsible Surveyor and Business",
+                    "statement": "Show responsible surveyor name/license and issuing business name, authorization number, and street/mailing addresses.",
+                    "code": "5J-17.051(3)(c), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Acquisition and Revision Dates",
+                    "statement": "Identify the last acquisition date and subsequent graphic revision dates.",
+                    "code": "5J-17.051(3)(d), F.A.C.",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Signature and Seal Statement",
+                    "statement": "Include the required original-signature/seal validity statement unless electronically signed and sealed.",
+                    "code": "5J-17.051(3)(e), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Map Orientation and Legend",
+                    "statement": "Show north, scale, defined survey abbreviations, and the bearing reference to an established monumented line.",
+                    "code": "5J-17.051(3)(f)-(h), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Mapped Feature Responsibility",
+                    "statement": "Identify responsibility for mapped features and integration of others' work.",
+                    "code": "5J-17.051(3)(i), F.A.C.",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Final Delivery Review",
+                    "statement": "Confirm signed/sealed deliverables, sheet references, filenames, revision consistency, and contracted formats before release.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Topographic Scope and Field Coverage",
+            "items": [
+                {
+                    "title": "Survey Limits and Intended Use",
+                    "statement": "Confirm limits, off-site coverage, expected design use, feature list, and required accuracy against the agreed scope.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Benchmark Verification",
+                    "statement": "Recheck benchmark elevations and control ties; record units, datum realization, and any conversions.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Terrain Breaklines and Coverage",
+                    "statement": "Check sufficient observations at grade changes, ridges, swales, banks, walls, pavement edges, and other terrain breaks.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Drainage Features",
+                    "statement": "Review accessible structures, rims, inverts, pipe sizes/directions, and flow features within scope; identify inaccessible observations.",
+                    "code": "QA review",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Improvements and Utilities",
+                    "statement": "Confirm scoped visible improvements and utility evidence; distinguish measured, supplied, and inferred locations.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Coverage Gaps",
+                    "statement": "Identify inaccessible areas, vegetation obstructions, omitted features, and limits of interpolation.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                }
+            ]
+        },
+        {
+            "title": "Surface and Deliverables",
+            "items": [
+                {
+                    "title": "Surface Model Checks",
+                    "statement": "Inspect triangulation, breaklines, boundaries, spikes, voids, and unintended interpolation across walls or water.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Contours and Spot Elevations",
+                    "statement": "Verify contour interval, index labels, spot elevations, and consistency with independently checked observations.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Water Observations",
+                    "statement": "Label the observed water feature and observation date; distinguish an observed water edge from a resolved property boundary.",
+                    "code": "QA review",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Boundary Context",
+                    "statement": "Identify the source and limitations of displayed boundary information; complete boundary review when a boundary survey is included.",
+                    "code": "QA review",
+                    "options": "YesNo"
+                },
+                {
+                    "title": "Digital Surface Agreement",
+                    "statement": "Confirm CAD/surface exports agree with the map in coordinates, units, elevations, extent, and revisions.",
+                    "code": "QA review",
+                    "options": "YesNoN/A"
+                },
+                {
+                    "title": "Topographic Submission Criteria",
+                    "statement": "Check recipient-specific datum, contour interval, feature coverage, accuracy, and digital submission requirements.",
+                    "code": "Local requirements—verify",
+                    "options": "YesNoN/A"
+                }
+            ]
+        }
+    ]
+}

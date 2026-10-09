@@ -1,0 +1,34 @@
+{
+    "definitions": [
+        {
+            "unit": "meter",
+            "conversions": [
+                { "to": "usFoot", "factor": 3.280833 },
+                { "to": "inch", "factor": 39.37, "definition": "U.S. Survey Foot" }
+            ]
+        },
+        {
+            "unit": "centimeter",
+            "conversions": [
+                { "to": "inch", "factor": 0.3937 },
+                { "to": "foot", "factor": 0.03280833 }
+            ]
+        },
+        {
+            "unit": "kilometer",
+            "conversions": [
+                { "to": "mile", "factor": 0.621371 },
+                { "to": "foot", "factor": 3280.833 }
+            ]
+        },
+        {
+            "unit": "InternationalFoot",
+            "conversions": [
+                { "to": "meter", "factor": 0.3048, "definition": "International Foot" },
+
+                { "to": "inch", "factor": 12 },
+                { "to": "vara", "factor": 0.36 }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "orange-county",
+  "output": "platting/orange",
+  "Meta": {
+    "Title": "Orange County Platting Checklist",
+    "Category": "Land Development - Platting",
+    "WIP": true
+  },
+  "include": [
+    "florida",
+    "white-point",
+    "orange-county-recording",
+    "orange-county-unincorporated"
+  ]
+}
