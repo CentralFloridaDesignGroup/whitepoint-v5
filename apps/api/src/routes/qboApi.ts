@@ -3,6 +3,7 @@ import {
   startQboConnection,
   completeQboConnection,
   fetchQboChoices,
+  revokeQboConnection,
 } from "../services/qboSync";
 import { jsonResponse, type ApiContext, type HonoEnv } from "../types/apiTypes";
 
@@ -47,6 +48,17 @@ export function createQboApi() {
       );
     }
   });
+  api.post("/disconnect", async (c) => {
+    try {
+      await revokeQboConnection(c.env.DB, c.env);
+      return jsonResponse({ disconnected: true });
+    } catch (error) {
+      return jsonResponse(
+        { error: error instanceof Error ? error.message : "QuickBooks disconnect failed." },
+        { status: 502 },
+      );
+    }
+  });
   api.get("/callback", async (c) => {
     const state = c.req.query("state") || "",
       code = c.req.query("code") || "",
@@ -54,13 +66,11 @@ export function createQboApi() {
     if (!state || !code || !realmId)
       return returnToManage(c, "authorization-failed");
     const saved = await c.env.DB.prepare(
-      "SELECT state FROM qbo_oauth_states WHERE state=? AND created_at >= datetime('now','-10 minutes')",
+      "DELETE FROM qbo_oauth_states WHERE state=? AND created_at >= datetime('now','-10 minutes') RETURNING state",
     )
       .bind(state)
       .first();
-    await c.env.DB.prepare("DELETE FROM qbo_oauth_states WHERE state=?")
-      .bind(state)
-      .run();
+    if (!saved) await c.env.DB.prepare("DELETE FROM qbo_oauth_states WHERE state=?").bind(state).run();
     if (!saved) return returnToManage(c, "state-expired");
     try {
       await completeQboConnection(c.env.DB, c.env, code, realmId);
@@ -72,7 +82,7 @@ export function createQboApi() {
   });
   api.get("/status", async (c) => {
     const connection = await c.env.DB.prepare(
-      "SELECT realm_id,environment,token_expires_at,default_service_item_id,default_service_item_name,default_deposit_account_id,default_deposit_account_name,stripe_fee_expense_account_id,stripe_fee_expense_account_name FROM qbo_connection WHERE id=1",
+      "SELECT realm_id,environment,token_expires_at,default_service_item_id,default_service_item_name,default_deposit_account_id,default_deposit_account_name,stripe_fee_expense_account_id,stripe_fee_expense_account_name,stripe_clearing_account_id,stripe_clearing_account_name,stripe_payout_bank_account_id,stripe_payout_bank_account_name FROM qbo_connection WHERE id=1",
     ).first<{
       realm_id: string;
       environment: string;
@@ -83,6 +93,10 @@ export function createQboApi() {
       default_deposit_account_name: string | null;
       stripe_fee_expense_account_id: string | null;
       stripe_fee_expense_account_name: string | null;
+      stripe_clearing_account_id: string | null;
+      stripe_clearing_account_name: string | null;
+      stripe_payout_bank_account_id: string | null;
+      stripe_payout_bank_account_name: string | null;
     }>();
     return jsonResponse({
       status: {
@@ -99,6 +113,10 @@ export function createQboApi() {
         defaultDepositAccountName: connection?.default_deposit_account_name || "",
         stripeFeeExpenseAccountId: connection?.stripe_fee_expense_account_id || "",
         stripeFeeExpenseAccountName: connection?.stripe_fee_expense_account_name || "",
+        stripeClearingAccountId: connection?.stripe_clearing_account_id || "",
+        stripeClearingAccountName: connection?.stripe_clearing_account_name || "",
+        stripePayoutBankAccountId: connection?.stripe_payout_bank_account_id || "",
+        stripePayoutBankAccountName: connection?.stripe_payout_bank_account_name || "",
       },
     });
   });
@@ -109,16 +127,18 @@ export function createQboApi() {
   api.put('/settings', async c => {
     const body = await c.req.json<Record<string, unknown>>().catch(() => null);
     if (!body) return c.json({ error: 'Expected settings JSON.' }, 400);
-    const ids = ['defaultServiceItemId', 'defaultDepositAccountId', 'stripeFeeExpenseAccountId'] as const;
-    if (ids.some(key => typeof body[key] !== 'string' || !body[key])) return c.json({ error: 'Choose all three QuickBooks fields.' }, 400);
+    const ids = ['defaultServiceItemId', 'defaultDepositAccountId', 'stripeFeeExpenseAccountId','stripeClearingAccountId','stripePayoutBankAccountId'] as const;
+    if (ids.some(key => typeof body[key] !== 'string' || !body[key])) return c.json({ error: 'Choose all five QuickBooks fields.' }, 400);
     try {
       const choices = await fetchQboChoices(c.env.DB, c.env);
       const item = choices.items.find(value => value.id === body.defaultServiceItemId);
       const deposit = choices.accounts.find(value => value.id === body.defaultDepositAccountId && ['Bank', 'Other Current Asset'].includes(value.accountType));
-      const fee = choices.accounts.find(value => value.id === body.stripeFeeExpenseAccountId && ['Expense', 'Other Expense', 'Cost of Goods Sold'].includes(value.accountType));
-      if (!item || !deposit || !fee) return c.json({ error: 'One or more selections are no longer valid in QuickBooks. Refresh and try again.' }, 400);
-      await c.env.DB.prepare(`UPDATE qbo_connection SET default_service_item_id=?,default_service_item_name=?,default_deposit_account_id=?,default_deposit_account_name=?,stripe_fee_expense_account_id=?,stripe_fee_expense_account_name=?,updated_at=CURRENT_TIMESTAMP WHERE id=1`)
-        .bind(item.id, item.name, deposit.id, deposit.name, fee.id, fee.name).run();
+      const fee = choices.accounts.find(value => value.id === body.stripeFeeExpenseAccountId && ['Expense', 'Other Expense', 'Cost of Goods Sold', 'Finance Costs'].includes(value.accountType));
+      const clearing=choices.accounts.find(value=>value.id===body.stripeClearingAccountId&&['Bank','Other Current Asset'].includes(value.accountType));
+      const bank=choices.accounts.find(value=>value.id===body.stripePayoutBankAccountId&&value.accountType==='Bank');
+      if (!item || !deposit || !fee || !clearing || !bank || clearing.id===bank.id) return c.json({ error: 'One or more selections are invalid. Use separate Stripe clearing and bank accounts.' }, 400);
+      await c.env.DB.prepare(`UPDATE qbo_connection SET default_service_item_id=?,default_service_item_name=?,default_deposit_account_id=?,default_deposit_account_name=?,stripe_fee_expense_account_id=?,stripe_fee_expense_account_name=?,stripe_clearing_account_id=?,stripe_clearing_account_name=?,stripe_payout_bank_account_id=?,stripe_payout_bank_account_name=?,updated_at=CURRENT_TIMESTAMP WHERE id=1`)
+        .bind(item.id, item.name, deposit.id, deposit.name, fee.id, fee.name,clearing.id,clearing.name,bank.id,bank.name).run();
       return c.json({ saved: true });
     } catch (error) { return c.json({ error: error instanceof Error ? error.message : 'QuickBooks save failed.' }, 502); }
   });

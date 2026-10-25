@@ -99,21 +99,17 @@ export function Modal({
                     <div className="flex justify-end space-x-2">
                         {showCloseButton && (
                             <Button
-                                label={closeText}
                                 onClick={() => { onClose?.(); }}
-                                style="secondary"
+                                variant="secondary"
                                 size="medium"
-                                colorMode={colorMode}
-                            />
+                            >{closeText}</Button>
                         )}
                         <Button
-                            label={acceptText}
                             onClick={() => { onAccept(); }}
-                            style="primary"
+                            variant="primary"
                             size="medium"
-                            colorMode={colorMode}
-                            properties={{ disabled: acceptDisabled }}
-                        />
+                            disabled={acceptDisabled}
+                        >{acceptText}</Button>
                     </div>
                 </div>
             </div>

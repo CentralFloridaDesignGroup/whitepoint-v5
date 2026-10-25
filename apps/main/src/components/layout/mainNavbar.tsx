@@ -20,7 +20,7 @@ export function Navbar() {
 	const activePath = location.pathname;
 
 	return (
-		<nav className="w-full border-b border-gray-200 bg-white/90 backdrop-blur">
+		<nav className="relative z-20 w-full border-b border-gray-200 bg-white/90 backdrop-blur">
 			<div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 				<a href="/" className="flex items-center gap-2 text-lg font-semibold text-gray-900">
 					<img src={White_Point_Logo_Name} alt="White Point Logo" className="h-12 w-auto" />

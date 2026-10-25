@@ -1,4 +1,5 @@
 import { generateAuthoredChecklists } from './composePlattingChecklists.mjs';
+import { plattingSlug } from '../src/plattingSlug.mjs';
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,16 +16,6 @@ const countyNames = [
 ];
 
 const municipalitySource = "https://en.wikipedia.org/w/index.php?title=List_of_municipalities_in_Florida&action=raw";
-
-function slug(value) {
-    return value
-        .normalize("NFKD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/&/g, " and ")
-        .replace(/[^a-zA-Z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-        .toLowerCase();
-}
 
 function linkText(value) {
     const withoutMarkup = value.replace(/<[^>]+>/g, "").trim();
@@ -114,7 +105,7 @@ function makeChecklist(baseline, county, municipality) {
 
 function makeLink(county, municipality) {
     const locationLabel = municipality ? `${municipality}, ${county} County` : `${county} County`;
-    const locationSlug = municipality ? `${slug(county)}/${slug(municipality)}` : `${slug(county)}`;
+    const locationSlug = municipality ? `${plattingSlug(county)}/${plattingSlug(municipality)}` : `${plattingSlug(county)}`;
     return {
         name: `${locationLabel} Platting Checklist`,
         description: `Draft platting requirements and local placeholder review for ${locationLabel}.`,
@@ -153,12 +144,12 @@ async function main() {
     await mkdir(publicChecklistDirectory, { recursive: true });
     const links = [];
     for (const location of locations) {
-        const countySlug = slug(location.county);
+        const countySlug = plattingSlug(location.county);
         await writeFile(join(publicChecklistDirectory, `${countySlug}.json`), `${JSON.stringify(makeChecklist(baseline, location.county), null, 4)}\n`);
         links.push(makeLink(location.county));
 
         for (const municipality of location.municipalities) {
-            const municipalitySlug = slug(municipality);
+            const municipalitySlug = plattingSlug(municipality);
             const outputPath = join(publicChecklistDirectory, countySlug, `${municipalitySlug}.json`);
             await mkdir(dirname(outputPath), { recursive: true });
             await writeFile(outputPath, `${JSON.stringify(makeChecklist(baseline, location.county, municipality), null, 4)}\n`);

@@ -8,6 +8,7 @@
     "build": "tsc -p tsconfig.json && wrangler deploy --dry-run --env=\"\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "node --test",
+    "deploy": "wrangler deploy --env production",
     "migrate:d1:local": "wrangler d1 migrations apply whitepoint-v5 --local",
     "migrate:d1:remote": "wrangler d1 migrations apply whitepoint-v5 --remote --env production",
     "d1:reset": "node ./scripts/reset-local-d1.mjs",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261009.1",
+    "pdf-lib": "1.17.1",
     "typescript": "^6.0.2",
     "wrangler": "^4.149.0"
   }

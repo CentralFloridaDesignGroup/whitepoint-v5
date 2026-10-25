@@ -2,8 +2,9 @@ import { Hono } from 'hono';
 import type { Project, ProjectContact, ProjectInput, ProjectStage, RecordTask } from '@whitepoint/types';
 import { businessDate, formatNumber, nextNumber } from '../services/numbering';
 import { projectTimeEntries } from './projectTimeEntries';
+import { validatePoPdf } from '@whitepoint/utils/invoice-pdf';
 import type { HonoEnv } from '../types/apiTypes';
-import { actor, audit, auditInsert, bad, bool, conflict, deny, guard, json, money, permitted, qboSave, str, uid, type C, type Row } from './recordSupport';
+import { actor, audit, auditInsert, bad, bool, conflict, deny, guard, isEligibleProjectManager, json, money, permitted, qboSave, str, uid, type C, type Row } from './recordSupport';
 
 const stageValues: ProjectStage[] = ['opportunity','proposal','shortlisted','negotiating','withdrawn','active','completed','holdExternal','holdInternal','cancelled'];
 const taskBillTypes = ['fixed-fee','time-and-materials','time-and-materials-nte','direct-expense','non-billable'];
@@ -12,11 +13,12 @@ const contactRoles = ['busDevManager','clientBillingPoc','clientStakeholder','ex
 async function projectDetail(c: C, id: string): Promise<Project | null> {
   const row = await c.env.DB.prepare('SELECT p.*,c.name AS client_name FROM projects p JOIN clients c ON c.id=p.client_id WHERE p.id=?').bind(id).first<Row>();
   if (!row) return null;
-  const [roles, tasks, invoices, timeCosts] = await Promise.all([
+  const [roles, tasks, invoices, timeCosts, poDocuments] = await Promise.all([
     c.env.DB.prepare('SELECT role,user_id,contact_id FROM project_contacts WHERE project_id=?').bind(id).all<Row>(),
     c.env.DB.prepare('SELECT * FROM project_tasks WHERE project_id=? AND archived_at IS NULL ORDER BY sequence').bind(id).all<Row>(),
-    c.env.DB.prepare(`SELECT i.id,i.invoice_number,i.due_date,i.status,COALESCE((SELECT SUM(amount_cents) FROM invoice_lines WHERE invoice_id=i.id),0) AS amount_cents,COALESCE((SELECT SUM(amount_cents) FROM invoice_payments WHERE invoice_id=i.id AND status='succeeded'),0) AS paid_cents FROM invoices i WHERE i.project_id=? ORDER BY i.due_date DESC`).bind(id).all<Row>(),
+    c.env.DB.prepare(`SELECT i.id,i.invoice_number,i.due_date,i.status,COALESCE((SELECT SUM(amount_cents) FROM invoice_lines WHERE invoice_id=i.id),0) AS amount_cents,COALESCE((SELECT SUM(MAX(0,amount_cents-refunded_cents-disputed_cents)) FROM invoice_payments WHERE invoice_id=i.id AND status='succeeded'),0) AS paid_cents FROM invoices i WHERE i.project_id=? ORDER BY i.due_date DESC`).bind(id).all<Row>(),
     c.env.DB.prepare("SELECT COALESCE(SUM(e.cost_cents),0) AS total,COALESCE(SUM(e.charge_cents),0) AS charged FROM user_timesheet_entries e JOIN user_timesheets w ON w.id=e.timesheet_id WHERE e.project_id=? AND w.status='approved'").bind(id).first<{total:number;charged:number}>(),
+    c.env.DB.prepare('SELECT id,name,size_bytes,created_at FROM project_po_documents WHERE project_id=? AND archived_at IS NULL ORDER BY created_at,id').bind(id).all<Row>(),
   ]);
   const pm = String(row.manager_user_id || '');
   const edit = !row.archived_at && (permitted(c,'projects.manage') || actor(c) === pm);
@@ -30,7 +32,7 @@ async function projectDetail(c: C, id: string): Promise<Project | null> {
   const recordTasks: RecordTask[] = (tasks.results || []).map(r => ({ id:String(r.id), taskId:String(r.task_id), sequence:Number(r.sequence), taskName:String(r.task_name), shortDescription:String(r.short_description), longDescription:json(r.long_description_json, []), taskManagerId:r.task_manager_id ? String(r.task_manager_id) : null, dueDate:r.due_date ? String(r.due_date) : null, status:r.status as RecordTask['status'], isUnderContract:bool(r.is_under_contract), isCompleted:bool(r.is_completed), contractAmountCents:financials ? Number(r.contract_amount_cents) : 0, billType:r.bill_type as RecordTask['billType'], billNotes:financials ? String(r.bill_notes) : '' }));
   const invoicesValue = financials ? (invoices.results || []).map(r => ({ id:String(r.id), invoiceNumber:String(r.invoice_number), amountCents:Number(r.amount_cents), paidCents:Number(r.paid_cents), dueDate:r.due_date ? String(r.due_date) : null, status:r.status==='draft'?'draft':r.status==='paid'?'paid':r.status==='void'?'void':String(r.due_date)<new Date().toISOString().slice(0,10)?'overdue':'unpaid' as Project['accounting']['invoices'][number]['status'] })) : [];
   const budget = financials ? Number(row.budget_cents) : 0, actual = financials ? Number(timeCosts?.total||0) : 0;
-  return { id, projectNumber:String(row.project_number), clientId:String(row.client_id), clientName:String(row.client_name), name:String(row.name), description:String(row.description), managerUserId:pm || null, startDate:row.start_date ? String(row.start_date) : null, dueDate:row.due_date ? String(row.due_date) : null, qboCustomerId:row.qbo_customer_id ? String(row.qbo_customer_id) : null, qboSyncStatus:row.qbo_sync_status as Project['qboSyncStatus'], qboSyncError:row.qbo_sync_error ? String(row.qbo_sync_error) : null, revision:Number(row.revision), createdAt:String(row.created_at), updatedAt:String(row.updated_at), stage:row.stage as ProjectStage, active:bool(row.active), contactId:String(row.contact_id || ''), address:json(row.address_json,{line1:'',city:'',state:'',postalCode:'',county:'',parcelId:'',isUnincorporated:false,latitude:null,longitude:null}), contacts, payTableId:row.pay_table_id ? String(row.pay_table_id) : null, tasks:recordTasks, accounting:{contractPriceCents:financials ? Number(row.contract_price_cents) : 0,budgetCents:budget,actualCostCents:actual,timeChargeCents:financials ? Number(timeCosts?.charged||0) : 0,remainingBudgetCents:budget-actual,invoices:invoicesValue}, archivedAt:row.archived_at ? String(row.archived_at) : null, capabilities:{edit,status,financials:permitted(c,'projects.manage.financials'),archive:permitted(c,'projects.manage')} };
+  return { id, projectNumber:String(row.project_number), clientId:String(row.client_id), clientName:String(row.client_name), name:String(row.name), description:String(row.description), managerUserId:pm || null, startDate:row.start_date ? String(row.start_date) : null, dueDate:row.due_date ? String(row.due_date) : null, qboCustomerId:row.qbo_customer_id ? String(row.qbo_customer_id) : null, qboSyncStatus:row.qbo_sync_status as Project['qboSyncStatus'], qboSyncError:row.qbo_sync_error ? String(row.qbo_sync_error) : null, revision:Number(row.revision), createdAt:String(row.created_at), updatedAt:String(row.updated_at), stage:row.stage as ProjectStage, active:bool(row.active), contactId:String(row.contact_id || ''), address:json(row.address_json,{line1:'',city:'',state:'',postalCode:'',county:'',parcelId:'',isUnincorporated:false,latitude:null,longitude:null}), contacts, payTableId:row.pay_table_id ? String(row.pay_table_id) : null, poNumber:String(row.po_number||''),poDocuments:(poDocuments.results||[]).map(x=>({id:String(x.id),name:String(x.name),sizeBytes:Number(x.size_bytes),createdAt:String(x.created_at)})), tasks:recordTasks, accounting:{contractPriceCents:financials ? Number(row.contract_price_cents) : 0,budgetCents:budget,actualCostCents:actual,timeChargeCents:financials ? Number(timeCosts?.charged||0) : 0,remainingBudgetCents:budget-actual,invoices:invoicesValue}, archivedAt:row.archived_at ? String(row.archived_at) : null, capabilities:{edit,status,financials:permitted(c,'projects.manage.financials'),archive:permitted(c,'projects.manage')} };
 }
 
 function taskLetters(index:number){let n=index,result='';do{result=String.fromCharCode(65+(n-1)%26)+result;n=Math.floor((n-1)/26);}while(n>0);return result;}
@@ -54,8 +56,7 @@ async function projectSave(c:C, existingId?:string){
   if(stage==='active'&&old?.stage!=='active'&&body.confirmContractSigned!==true)return bad(c,'Confirm that the contract has been signed before activation.');
   const client=await c.env.DB.prepare("SELECT id,qbo_customer_id FROM clients WHERE id=? AND archived_at IS NULL AND status='active'").bind(clientId).first<Row>();
   if(!client)return bad(c,'Select an active client.');
-  const pm=await c.env.DB.prepare("SELECT id FROM users WHERE id=? AND active=1 AND archived_at IS NULL AND user_type='internal'").bind(managerId).first();
-  if(!pm)return bad(c,'Select an active internal project manager.');
+  if(!await isEligibleProjectManager(c.env.DB,managerId))return bad(c,'Select an active user with project manager assignment permission.');
   const poc=await c.env.DB.prepare('SELECT id FROM contacts WHERE id=? AND client_id=? AND is_poc=1 AND archived_at IS NULL').bind(contactId,clientId).first();
   if(!poc)return bad(c,'Select a point of contact belonging to the client.');
   const address={line1:str(body.address?.line1,200),city:str(body.address?.city,100),state:str(body.address?.state,100),postalCode:str(body.address?.postalCode,30),county:str(body.address?.county,100),parcelId:str(body.address?.parcelId,100),isUnincorporated:bool(body.address?.isUnincorporated),latitude:body.address?.latitude??null,longitude:body.address?.longitude??null};
@@ -93,8 +94,8 @@ async function projectSave(c:C, existingId?:string){
     const active=body.active===undefined?!['withdrawn','completed','cancelled'].includes(stage):bool(body.active);
     const statements:D1PreparedStatement[]=[];
     const guardId=uid();
-    if(old){statements.push(c.env.DB.prepare('UPDATE projects SET project_number=?,client_id=?,name=?,stage=?,active=?,description=?,manager_user_id=?,contact_id=?,start_date=?,due_date=?,address_json=?,contract_price_cents=?,budget_cents=?,qbo_customer_id=?,qbo_sync_token=?,qbo_sync_status=?,qbo_sync_error=?,revision=revision+1,updated_by=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND revision=? AND archived_at IS NULL').bind(projectNumber,clientId,name,stage,Number(active),description,managerId,contactId,str(body.startDate,10)||null,str(body.dueDate,10)||null,JSON.stringify(address),contractPrice,budget,moved?null:old.qbo_customer_id,moved?null:old.qbo_sync_token,moved?'pending':old.qbo_sync_status,moved?null:old.qbo_sync_error,actor(c),projectId,body.revision));statements.push(guard(c,guardId));}
-    else statements.push(c.env.DB.prepare('INSERT INTO projects(id,project_number,client_id,name,stage,active,description,manager_user_id,contact_id,start_date,due_date,address_json,contract_price_cents,budget_cents,created_by,updated_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').bind(projectId,projectNumber,clientId,name,stage,Number(active),description,managerId,contactId,str(body.startDate,10)||null,str(body.dueDate,10)||null,JSON.stringify(address),contractPrice,budget,actor(c),actor(c)));
+    if(old){statements.push(c.env.DB.prepare('UPDATE projects SET project_number=?,client_id=?,name=?,stage=?,active=?,description=?,manager_user_id=?,contact_id=?,start_date=?,due_date=?,address_json=?,contract_price_cents=?,budget_cents=?,po_number=?,qbo_customer_id=?,qbo_sync_token=?,qbo_sync_status=?,qbo_sync_error=?,revision=revision+1,updated_by=?,updated_at=CURRENT_TIMESTAMP WHERE id=? AND revision=? AND archived_at IS NULL').bind(projectNumber,clientId,name,stage,Number(active),description,managerId,contactId,str(body.startDate,10)||null,str(body.dueDate,10)||null,JSON.stringify(address),contractPrice,budget,str(body.poNumber,100),moved?null:old.qbo_customer_id,moved?null:old.qbo_sync_token,moved?'pending':old.qbo_sync_status,moved?null:old.qbo_sync_error,actor(c),projectId,body.revision));statements.push(guard(c,guardId));}
+    else statements.push(c.env.DB.prepare('INSERT INTO projects(id,project_number,client_id,name,stage,active,description,manager_user_id,contact_id,start_date,due_date,address_json,contract_price_cents,budget_cents,po_number,created_by,updated_by) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').bind(projectId,projectNumber,clientId,name,stage,Number(active),description,managerId,contactId,str(body.startDate,10)||null,str(body.dueDate,10)||null,JSON.stringify(address),contractPrice,budget,str(body.poNumber,100),actor(c),actor(c)));
     statements.push(c.env.DB.prepare('UPDATE projects SET pay_table_id=? WHERE id=?').bind(payTableId,projectId));
     if(moved&&old?.qbo_customer_id)statements.push(c.env.DB.prepare('INSERT INTO project_qbo_history(id,project_id,client_id,qbo_customer_id,qbo_sync_token,moved_by) VALUES(?,?,?,?,?,?)').bind(uid(),projectId,old.client_id,old.qbo_customer_id,old.qbo_sync_token,actor(c)));
     if(old)statements.push(c.env.DB.prepare('DELETE FROM project_contacts WHERE project_id=?').bind(projectId));
@@ -113,12 +114,37 @@ async function projectSave(c:C, existingId?:string){
 
 export function createProjectApi() {
   const api = new Hono<HonoEnv>();
-  api.get('/projects', async c => c.json((await c.env.DB.prepare('SELECT p.id,p.project_number,p.name,p.stage,p.qbo_sync_status,p.qbo_sync_error,c.name AS client_name FROM projects p JOIN clients c ON c.id=p.client_id WHERE p.archived_at IS NULL ORDER BY p.project_number DESC').all()).results || []));
   api.post('/projects', c => projectSave(c));
   api.put('/projects/:id', c => projectSave(c,c.req.param('id')));
   api.get('/projects/next-number', async c => { const row=await c.env.DB.prepare('SELECT project_number_template,project_reset_yearly FROM app_settings WHERE id=1').first<Row>(); if(!row)return c.json({error:'Project numbering is not configured.'},503); const seq=await c.env.DB.prepare('SELECT last_value FROM number_sequences WHERE kind=? AND period=?').bind('project',bool(row.project_reset_yearly)?businessDate().year:'all').first<{last_value:number}>(); return c.json({nextProjectNumber:formatNumber(String(row.project_number_template),(seq?.last_value||0)+1)}); });
   api.get('/projects/:id/time-entries', projectTimeEntries);
   api.get('/projects/:id', async c => { const value=await projectDetail(c,c.req.param('id')); return value ? c.json(value) : c.json({error:'Project not found.'},404); });
+  api.post('/projects/:id/po-documents', async c => {
+    const projectId=c.req.param('id');
+    const project=await c.env.DB.prepare('SELECT manager_user_id FROM projects WHERE id=? AND archived_at IS NULL').bind(projectId).first<{manager_user_id:string|null}>();
+    if(!project)return c.json({error:'Project not found.'},404);
+    if(!permitted(c,'projects.manage')&&project.manager_user_id!==actor(c))return deny(c);
+    const form=await c.req.formData();const file=form.get('file');
+    if(!(file instanceof File)||file.type!=='application/pdf'||file.size<1||file.size>15_000_000)return bad(c,'Choose a PDF under 15 MB.');
+    const bytes=new Uint8Array(await file.arrayBuffer());
+    const header=bytes.subarray(0,5);
+    if(new TextDecoder().decode(header)!=='%PDF-')return bad(c,'The file is not a PDF.');
+    try{await validatePoPdf(bytes)}catch{return bad(c,'The PO PDF could not be read.');}
+    const id=uid(),key=`projects/${projectId}/po/${id}`;
+    await c.env.RECORD_DOCUMENTS.put(key,bytes,{httpMetadata:{contentType:'application/pdf'}});
+    try{await c.env.DB.batch([c.env.DB.prepare('INSERT INTO project_po_documents(id,project_id,name,size_bytes,r2_key) VALUES(?,?,?,?,?)').bind(id,projectId,str(file.name,255),file.size,key),auditInsert(c,'project',projectId,'po-document-added',null,{documentId:id,name:str(file.name,255)})])}
+    catch(error){await c.env.RECORD_DOCUMENTS.delete(key);throw error}
+    return c.json({id,name:file.name},201);
+  });
+  api.delete('/projects/:id/po-documents/:documentId', async c => {
+    const projectId=c.req.param('id');const project=await c.env.DB.prepare('SELECT manager_user_id FROM projects WHERE id=? AND archived_at IS NULL').bind(projectId).first<{manager_user_id:string|null}>();
+    if(!project)return c.json({error:'Project not found.'},404);
+    if(!permitted(c,'projects.manage')&&project.manager_user_id!==actor(c))return deny(c);
+    const document=await c.env.DB.prepare('SELECT id,name FROM project_po_documents WHERE id=? AND project_id=? AND archived_at IS NULL').bind(c.req.param('documentId'),projectId).first<{id:string;name:string}>();
+    if(!document)return c.notFound();
+    await c.env.DB.batch([c.env.DB.prepare('UPDATE project_po_documents SET archived_at=CURRENT_TIMESTAMP WHERE id=? AND project_id=?').bind(document.id,projectId),auditInsert(c,'project',projectId,'po-document-archived',document,null)]);
+    return c.json({deleted:true});
+  });
   api.put('/projects/:id/stage', async c => {
     const id=c.req.param('id'),body=await c.req.json<{stage:ProjectStage;revision:number;active:boolean;confirmContractSigned?:boolean}>().catch(()=>null);
     if(!body||!stageValues.includes(body.stage)||!Number.isInteger(body.revision)||typeof body.active!=='boolean')return bad(c,'Stage, active state, and revision are required.');

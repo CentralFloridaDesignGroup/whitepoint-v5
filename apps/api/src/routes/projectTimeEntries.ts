@@ -12,7 +12,7 @@ export async function projectTimeEntries(c: Context<HonoEnv>) {
     c.env.DB.prepare(`SELECT e.id,e.entry_date,e.hours,e.note,e.cost_cents,e.charge_cents,w.week_start,w.status AS week_status,u.display_name AS employee_name,t.task_name
       FROM user_timesheet_entries e
       JOIN user_timesheets w ON w.id=e.timesheet_id
-      JOIN users u ON u.id=w.user_id
+      JOIN users_named u ON u.id=w.user_id
       LEFT JOIN project_tasks t ON t.id=e.project_task_id
       WHERE e.project_id=? ORDER BY e.entry_date DESC,e.id DESC LIMIT 101 OFFSET ?`).bind(projectId,page*100).all<Row>(),
     c.env.DB.prepare('SELECT COUNT(*) AS entry_count,COALESCE(SUM(hours),0) AS total_hours FROM user_timesheet_entries WHERE project_id=?').bind(projectId).first<{entry_count:number;total_hours:number}>(),

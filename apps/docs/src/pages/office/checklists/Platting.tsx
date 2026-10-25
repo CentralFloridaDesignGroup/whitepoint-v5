@@ -2,6 +2,7 @@ import { ChevronDown, ChevronRight, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import locationsData from "./plattingLocations.json" with { type: "json" };
+import { plattingSlug } from "../../../plattingSlug.mjs";
 
 type PlattingLocation = {
   county: string;
@@ -14,20 +15,10 @@ type PlattingLocations = {
 
 const locations = (locationsData as PlattingLocations).locations;
 
-function slug(value: string) {
-  return value
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/&/g, " and ")
-    .replace(/[^a-zA-Z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .toLowerCase();
-}
-
 function checklistPath(county: string, municipality?: string) {
   return municipality
-    ? `/checklists/platting/${slug(county)}/${slug(municipality)}`
-    : `/checklists/platting/${slug(county)}`;
+    ? `/checklists/platting/${plattingSlug(county)}/${plattingSlug(municipality)}`
+    : `/checklists/platting/${plattingSlug(county)}`;
 }
 
 export default function Platting() {

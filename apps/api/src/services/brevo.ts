@@ -1,9 +1,9 @@
 import type { ApiEnv } from '../types/apiTypes'
+import type { EmailContent } from '../emails/layout.ts'
 
-type Email = {
+type Email = EmailContent & {
   to: { email: string; name?: string }[]
   subject: string
-  text: string
   replyTo?: { email: string; name?: string }
   attachments?: { name: string; content: string }[]
 }
@@ -18,13 +18,10 @@ export async function sendEmail(env: ApiEnv, message: Email): Promise<void> {
       to: message.to,
       subject: message.subject,
       textContent: message.text,
+      htmlContent: message.html,
       ...(message.replyTo ? { replyTo: message.replyTo } : {}),
       ...(message.attachments ? { attachment: message.attachments } : {}),
     }),
   })
   if (!response.ok) throw new Error(`Brevo returned ${response.status}`)
-}
-
-export function sendTimesheetEmail(env: ApiEnv, email: string, name: string, subject: string, text: string) {
-  return sendEmail(env, { to: [{ email, name }], subject, text })
 }

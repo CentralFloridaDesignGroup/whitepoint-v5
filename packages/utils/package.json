@@ -11,11 +11,44 @@
     "./invoice-allocation": {
       "types": "./dist/invoiceAllocation.d.ts",
       "import": "./dist/invoiceAllocation.js"
+    },
+    "./invoice-terms": {
+      "types": "./dist/invoiceTerms.d.ts",
+      "import": "./dist/invoiceTerms.js"
+    },
+    "./invoice-pdf": {
+      "types": "./dist/invoicePdf.d.ts",
+      "import": "./dist/invoicePdf.js"
+    },
+    "./api-client": {
+      "types": "./dist/apiClient.d.ts",
+      "import": "./dist/apiClient.js"
+    },
+    "./page-metadata": {
+      "types": "./dist/pageMetadata.d.ts",
+      "import": "./dist/pageMetadata.js"
+    },
+    "./browser-files": {
+      "types": "./dist/browserFiles.d.ts",
+      "import": "./dist/browserFiles.js"
+    },
+    "./currency": {
+      "types": "./dist/currency.d.ts",
+      "import": "./dist/currency.js"
+    },
+    "./favorites": {
+      "types": "./dist/favorites.d.ts",
+      "import": "./dist/favorites.js"
+    },
+    "./dates": {
+      "types": "./dist/dates.d.ts",
+      "import": "./dist/dates.js"
     }
   },
   "dependencies": {
     "@whitepoint/types": "workspace:*",
-    "jspdf": "4.2.0"
+    "jspdf": "4.2.1",
+    "pdf-lib": "1.17.1"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

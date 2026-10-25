@@ -14,6 +14,7 @@ export { WorkInProgressComponent } from "./workInProgressComponent";
 export { GisDisclaimer } from './gisDisclaimer'
 export { OutletProvider, useSidebarContext } from './outletContext'
 export { StaffAuthProvider, StaffProtectedRoutes, StaffLogin, useStaffAuth } from './staffAuth'
+export { AuthenticatorQRCode, createPasskey } from './accountSecurity'
 export { AuthPrompt } from './authPrompt'
 export type { AuthPromptProps } from './authPrompt'
 export { NotFoundPage, RouteErrorPage } from './errorPages'

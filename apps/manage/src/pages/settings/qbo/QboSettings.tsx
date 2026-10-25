@@ -4,11 +4,12 @@ import { Button, Dropdown } from "@whitepoint/ui/input";
 import { LoadingSpinner } from "@whitepoint/ui/layout";
 import type { QboConnectionStatus } from "@whitepoint/types";
 import { requestJson } from "../../../api/client";
-import { fetchQboStatus, startQboConnection } from "./api";
+import { disconnectQboConnection, fetchQboStatus, startQboConnection } from "./api";
 import { SettingsFrame } from "../SettingsFrame";
 import { useUnsavedChanges } from "../useUnsavedChanges";
 import { useAuth } from "../../../auth/AuthContext";
 import { showNotification } from "@whitepoint/ui/layout";
+import { QboTransactionFlow } from "./QboTransactionFlow";
 
 type Choices = {
   items: Array<{ id: string; name: string }>;
@@ -19,6 +20,8 @@ type Selection = {
   defaultServiceItemId: string;
   defaultDepositAccountId: string;
   stripeFeeExpenseAccountId: string;
+  stripeClearingAccountId: string;
+  stripePayoutBankAccountId: string;
 };
 
 function selection(status: QboConnectionStatus): Selection {
@@ -26,8 +29,20 @@ function selection(status: QboConnectionStatus): Selection {
     defaultServiceItemId: status.defaultServiceItemId,
     defaultDepositAccountId: status.defaultDepositAccountId,
     stripeFeeExpenseAccountId: status.stripeFeeExpenseAccountId,
+    stripeClearingAccountId: status.stripeClearingAccountId,
+    stripePayoutBankAccountId: status.stripePayoutBankAccountId,
   };
 }
+
+function withSavedChoice(
+  options: Array<{ value: string; label: string }>,
+  id: string,
+  name: string,
+) {
+  if (!id || options.some((option) => option.value === id)) return options;
+  return [{ value: id, label: name || `Saved selection (${id})` }, ...options];
+}
+
 export function QboSettings() {
   const canManage = useAuth().hasPermission("company.qbo.manage");
   const navigate = useNavigate(),
@@ -39,7 +54,7 @@ export function QboSettings() {
     [editing, setEditing] = useState(false),
     [busy, setBusy] = useState(false),
     [busyStatus, setBusyStatus] = useState<
-      "connecting" | "editing" | "saving" | null
+      "connecting" | "disconnecting" | "editing" | "saving" | null
     >(null);
   const dirty = Boolean(
     draft &&
@@ -98,6 +113,37 @@ export function QboSettings() {
     }
   }
 
+  async function disconnect() {
+    if (!canManage || !status?.connected || busy) return;
+    if (!window.confirm("Disconnect QuickBooks? Invoice and payment syncing will stop until you reconnect.")) return;
+    setBusy(true);
+    setBusyStatus("disconnecting");
+    try {
+      await disconnectQboConnection();
+      const value = await fetchQboStatus();
+      setStatus(value);
+      setSaved(selection(value));
+      setDraft(selection(value));
+      setChoices(null);
+      setEditing(false);
+      showNotification({
+        title: "QBO Disconnected",
+        body: "QuickBooks has been disconnected.",
+        style: "success",
+      });
+    } catch (e) {
+      showNotification({
+        title: "QBO Disconnect Error",
+        body: String(e),
+        style: "danger",
+        duration: 0,
+      });
+    } finally {
+      setBusy(false);
+      setBusyStatus(null);
+    }
+  }
+
   async function edit() {
     setBusy(true);
     setBusyStatus("editing");
@@ -123,7 +169,7 @@ export function QboSettings() {
   }
 
   async function save() {
-    if (!draft || !canManage) return;
+    if (!draft || !canManage) return false;
     setBusy(true);
     setBusyStatus("saving");
     try {
@@ -141,6 +187,7 @@ export function QboSettings() {
         body: "QuickBooks settings have been successfully saved.",
         style: "success",
       });
+      return true;
     } catch (e) {
       showNotification({
         title: "QBO Connection Error",
@@ -148,6 +195,7 @@ export function QboSettings() {
         style: "danger",
         duration: 0,
       });
+      return false;
     } finally {
       setBusy(false);
       setBusyStatus(null);
@@ -160,7 +208,7 @@ export function QboSettings() {
 
   const deposit =
     choices?.accounts.filter((account) =>
-      ["Bank", "Other Current Asset"].includes(account.accountType),
+      ["Bank", "Accounts receivable (A/R)", "Other Current Asset"].includes(account.accountType),
     ) || [];
 
   const fee =
@@ -174,9 +222,12 @@ export function QboSettings() {
     ) || [];
 
   return (
-    <SettingsFrame title="QBO settings">
+    <SettingsFrame>
       {busyStatus === "connecting" && (
         <LoadingSpinner size="medium" title="Connecting to QuickBooks Online" />
+      )}
+      {busyStatus === "disconnecting" && (
+        <LoadingSpinner size="medium" title="Disconnecting QuickBooks Online" />
       )}
       {busyStatus === "editing" && (
         <LoadingSpinner size="medium" title="Loading QBO Selections" />
@@ -214,9 +265,13 @@ export function QboSettings() {
                 </span>
               )}
             </div>
-            <div className="flex-0 gap-4 min-w-[125px]">
+            <div className="flex flex-wrap gap-2">
               {!status.connected && canManage && (
-                <Button onClick={() => void connect()} disabled={busy} size="small">
+                <Button
+                  onClick={() => void connect()}
+                  disabled={busy}
+                  size="small"
+                >
                   Connect QuickBooks
                 </Button>
               )}
@@ -226,12 +281,14 @@ export function QboSettings() {
                   onClick={() => {
                     if (editing) {
                       if (dirty) {
-                        save();
+                        void save().then((didSave) => {
+                          if (didSave) setEditing(false);
+                        });
+                      } else {
+                        setEditing(false);
                       }
-                      setEditing(false);
                     } else {
-                      edit();
-                      setEditing(true);
+                      void edit();
                     }
                   }}
                   disabled={busy}
@@ -244,6 +301,16 @@ export function QboSettings() {
                     : "Edit Selections"}
                 </Button>
               )}
+              {status.connected && canManage && (
+                <Button
+                  variant="danger"
+                  onClick={() => void disconnect()}
+                  disabled={busy}
+                  size="small"
+                >
+                  Disconnect QuickBooks
+                </Button>
+              )}
             </div>
           </section>
 
@@ -251,10 +318,15 @@ export function QboSettings() {
             <div className="grid md:grid-cols-3 gap-4">
               <Dropdown
                 label="Invoice Service Item"
-                options={(choices?.items || []).map((item) => ({
-                  value: item.id,
-                  label: item.name,
-                }))}
+                description="Select the default service item for invoices."
+                options={withSavedChoice(
+                  (choices?.items || []).map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  })),
+                  status.defaultServiceItemId,
+                  status.defaultServiceItemName,
+                )}
                 disabled={!canManage || !editing}
                 value={
                   draft
@@ -265,10 +337,15 @@ export function QboSettings() {
               />
               <Dropdown
                 label="Payment Deposit Account"
-                options={deposit.map((account) => ({
-                  value: account.id,
-                  label: account.name,
-                }))}
+                description="Select the default deposit account for direct payments (checks or cash)."
+                options={withSavedChoice(
+                  deposit.map((account) => ({
+                    value: account.id,
+                    label: account.name,
+                  })),
+                  status.defaultDepositAccountId,
+                  status.defaultDepositAccountName,
+                )}
                 disabled={!canManage || !editing}
                 value={
                   draft
@@ -277,12 +354,59 @@ export function QboSettings() {
                 }
                 onChange={(value) => change("defaultDepositAccountId", value)}
               />
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              <Dropdown
+                label="Stripe Clearing Account"
+                description="Select the clearing account for Stripe transactions (gross amount before fees). Links to invoices as payment."
+                options={withSavedChoice(
+                  deposit.map((account) => ({
+                    value: account.id,
+                    label: account.name,
+                  })),
+                  status.stripeClearingAccountId,
+                  status.stripeClearingAccountName,
+                )}
+                disabled={!canManage || !editing}
+                value={
+                  draft
+                    ? draft.stripeClearingAccountId
+                    : saved?.stripeClearingAccountId
+                }
+                onChange={(value) => change("stripeClearingAccountId", value)}
+              />
+              <Dropdown
+                label="Stripe Payout Bank Account"
+                description="Select the bank account for Stripe payouts (net amount after fees). Will match with bank deposits once provided."
+                options={withSavedChoice(
+                  (choices?.accounts || [])
+                    .filter((account) => account.accountType === "Bank")
+                    .map((account) => ({
+                      value: account.id,
+                      label: account.name,
+                    })),
+                  status.stripePayoutBankAccountId,
+                  status.stripePayoutBankAccountName,
+                )}
+                disabled={!canManage || !editing}
+                value={
+                  draft
+                    ? draft.stripePayoutBankAccountId
+                    : saved?.stripePayoutBankAccountId
+                }
+                onChange={(value) => change("stripePayoutBankAccountId", value)}
+              />
               <Dropdown
                 label="Stripe Fee Expense Account"
-                options={fee.map((account) => ({
-                  value: account.id,
-                  label: account.name,
-                }))}
+                description="Select the expense account for Stripe fees (transaction fees charged by Stripe). These act as cost of doing business."
+                options={withSavedChoice(
+                  fee.map((account) => ({
+                    value: account.id,
+                    label: account.name,
+                  })),
+                  status.stripeFeeExpenseAccountId,
+                  status.stripeFeeExpenseAccountName,
+                )}
                 disabled={!canManage || !editing}
                 value={
                   draft
@@ -293,6 +417,7 @@ export function QboSettings() {
               />
             </div>
           </section>
+          <QboTransactionFlow />
         </>
       )}
     </SettingsFrame>

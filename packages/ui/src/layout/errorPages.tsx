@@ -19,13 +19,13 @@ export function NotFoundPage({ illustration }: { illustration: string }) {
         <p className="text-gray-400">Error 404</p>
         <div className="mt-10 flex items-center justify-center gap-x-6">
           <Button
-            label="Go back home"
-            style="primary"
+
+            variant="primary"
             size="medium"
             onClick={() => {
               window.location.href = "/";
             }}
-          />
+          >Go back home</Button>
         </div>
       </div>
     </div>
@@ -59,13 +59,13 @@ export function RouteErrorPage({ illustration }: { illustration: string }) {
         <p className="mt-6 text-lg leading-8 text-gray-600">{message}</p>
         <div className="mt-10 flex items-center justify-center gap-x-6">
           <Button
-            label="Go back home"
-            style="primary"
+
+            variant="primary"
             size="medium"
             onClick={() => {
               window.location.href = "/";
             }}
-          />
+          >Go back home</Button>
         </div>
         <p className="mt-1 text-sm text-gray-400">{statusText}</p>
         {stackTrace && (

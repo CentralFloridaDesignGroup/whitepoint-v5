@@ -1,6 +1,7 @@
 import { randomToken, sha256 } from "./session";
 
-const ITERATIONS = 600_000;
+// Workers WebCrypto rejects PBKDF2 iteration counts above 100,000.
+const ITERATIONS = 100_000;
 const encoder = new TextEncoder();
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomToken(16);
@@ -169,10 +170,12 @@ export async function verifyTotp(
 export async function issueRecoveryCodes(
   db: D1Database,
   userId: string,
+  precedingStatements: D1PreparedStatement[] = [],
 ): Promise<string[]> {
   const codes = Array.from({ length: 10 }, () => randomToken(9));
   const hashes = await Promise.all(codes.map(sha256));
   await db.batch([
+    ...precedingStatements,
     db.prepare("DELETE FROM user_recovery_codes WHERE user_id=?").bind(userId),
     ...hashes.map((hash) =>
       db

@@ -14,10 +14,11 @@ export type Project = {
   revision: number; createdAt: string; updatedAt: string
   stage: ProjectStage; active: boolean; contactId: string; address: ProjectAddress
   payTableId: string | null
+  poNumber: string; poDocuments: { id: string; name: string; sizeBytes: number; createdAt: string }[]
   contacts: ProjectContact[]; tasks: RecordTask[]; accounting: ProjectAccounting
   archivedAt: string | null; capabilities: RecordCapabilities
 }
 
-export type ProjectInput = { projectNumber?: string; clientId: string; name: string; stage?: ProjectStage; active?: boolean; description: string; managerUserId: string; contactId: string; payTableId?: string | null; startDate?: string | null; dueDate?: string | null; address?: Partial<ProjectAddress>; contacts?: ProjectContact[]; tasks?: Array<Partial<RecordTask>>; contractPriceCents?: number; budgetCents?: number; confirmContractSigned?: boolean }
+export type ProjectInput = { projectNumber?: string; clientId: string; name: string; stage?: ProjectStage; active?: boolean; description: string; managerUserId: string; contactId: string; payTableId?: string | null; poNumber?: string; startDate?: string | null; dueDate?: string | null; address?: Partial<ProjectAddress>; contacts?: ProjectContact[]; tasks?: Array<Partial<RecordTask>>; contractPriceCents?: number; budgetCents?: number; confirmContractSigned?: boolean }
 
 export type ProjectUpdateInput = Partial<ProjectInput> & { revision: number }

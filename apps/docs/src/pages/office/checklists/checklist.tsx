@@ -1,8 +1,10 @@
+import { setPageMetadata } from "@whitepoint/utils/page-metadata";
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { WorkInProgressComponent } from "@whitepoint/ui/layout";
 import { Button } from "@whitepoint/ui/input";
-import { type ReviewData, type ChecklistSection as Section } from "./createChecklistPdf";
+import { type ChecklistSection as Section } from "./createChecklistPdf";
+import { exportChecklistPdf, type ChecklistMeta, type ExportReviewData } from "./checklistExport";
 import disclaimer from "./disclaimer.json" with { type: "json" };
 import {
   useSidebarContext,
@@ -10,14 +12,6 @@ import {
 } from "@whitepoint/ui/layout";
 import { useAuth } from "../../../auth/AuthContext";
 import { ChecklistSection } from "./components/ChecklistSection";
-
-type ExportReviewData = ReviewData & { isFinal: boolean };
-
-interface ChecklistMeta {
-  Title?: string;
-  Category?: string;
-  WIP?: boolean;
-}
 
 interface ChecklistConfig {
   breadcrumbName?: string;
@@ -103,7 +97,7 @@ function ChecklistReview({ checklistType }: { checklistType?: string }) {
 
   useEffect(() => {
     if (config && meta && meta.Title) {
-      document.title = `${meta.Title} - The Compass`;
+      setPageMetadata({ title: `${meta.Title} | The Compass`, description: `${meta.Title} checklist from White Point Survey.` });
     }
   }, [config, meta, checklistType]);
 
@@ -167,52 +161,15 @@ function ChecklistReview({ checklistType }: { checklistType?: string }) {
     action: "download" | "preview" = "download",
   ) => {
     if (exporting) return;
-    // Open during the click event, before loading jsPDF, to avoid popup blocking.
-    const previewWindow =
-      action === "preview" ? window.open("about:blank", "_blank") : null;
-    if (action === "preview" && !previewWindow) {
-      setExportError("Allow pop-ups for this site to preview the PDF.");
-      return;
-    }
-    if (previewWindow) previewWindow.opener = null;
-    let previewUrl: string | null = null;
     setExporting(true);
     setExportError(null);
     try {
-      const { createChecklistPdf, checklistPdfFilename } =
-        await import("./createChecklistPdf");
-      const pdf = createChecklistPdf({
-        meta: { ...meta, WIP: meta.WIP || !review.isFinal },
-        sections,
-        noEntries,
-        naEntries,
-        review,
-        showDisclaimer: !isAuthenticated,
-      });
-      if (previewWindow) {
-        if (previewWindow.closed) return;
-        previewUrl = URL.createObjectURL(pdf.output("blob"));
-        previewWindow.location.replace(previewUrl);
-        const url = previewUrl;
-        // Keep the blob available for the viewer's save/reload actions.
-        const cleanup = window.setInterval(() => {
-          if (previewWindow.closed) {
-            URL.revokeObjectURL(url);
-            window.clearInterval(cleanup);
-          }
-        }, 1000);
-      } else {
-        await pdf.save(
-          checklistPdfFilename(meta.Title || "Checklist", review.jobNumber),
-          { returnPromise: true },
-        );
-        setIsReviewerModalOpen(false);
-      }
+      await exportChecklistPdf({ action, review, meta, sections, noEntries, naEntries, isAuthenticated });
+      if (action === "download") setIsReviewerModalOpen(false);
     } catch (error) {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      previewWindow?.close();
       console.error("Checklist PDF export failed:", error);
-      setExportError("The PDF could not be created. Please try again.");
+      setExportError(error instanceof Error && error.message.startsWith("Allow pop-ups")
+        ? error.message : "The PDF could not be created. Please try again.");
     } finally {
       setExporting(false);
     }
@@ -280,11 +237,11 @@ function ChecklistReview({ checklistType }: { checklistType?: string }) {
               />
               <div className="col-span-2 lg:col-span-1">
                 <Button
-                  colorMode="auto"
+
                   onClick={handlePrint}
-                  label="Export Review"
-                  style="primary"
-                />
+
+                  variant="primary"
+                >Export Review</Button>
               </div>
             </div>
           </div>
@@ -461,33 +418,32 @@ const ReviewerModal = ({
         )}
         <div className="flex flex-wrap justify-between gap-4">
           <Button
-            colorMode="auto"
-            style="secondary"
-            properties={{ disabled: exporting }}
+
+            variant="secondary"
+            disabled={exporting}
             onClick={onClose}
-            label="Cancel"
-          />
+
+          >Cancel</Button>
           <Button
-            colorMode="auto"
-            style="secondary"
-            properties={{ disabled: exporting }}
+
+            variant="secondary"
+            disabled={exporting}
             onClick={() => {
               void onSave(
                 { reviewer, jobNumber, date, notes, isFinal },
                 "preview",
               );
             }}
-            label="Preview PDF"
-          />
+
+          >Preview PDF</Button>
           <Button
-            colorMode="auto"
-            style="primary"
-            properties={{ disabled: exporting }}
+
+            variant="primary"
+            disabled={exporting}
             onClick={() => {
               void onSave({ reviewer, jobNumber, date, notes, isFinal });
             }}
-            label={exporting ? "Creating PDF..." : "Download PDF"}
-          />
+          >{exporting ? "Creating PDF..." : "Download PDF"}</Button>
         </div>
       </div>
     </div>

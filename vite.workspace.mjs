@@ -11,6 +11,7 @@ export const workspaceAliases = [
   { find: /^@whitepoint\/types\/permissions$/, replacement: source("./packages/types/src/permissions.ts") },
   { find: /^@whitepoint\/types$/, replacement: source("./packages/types/src/index.ts") },
   { find: /^@whitepoint\/utils$/, replacement: source("./packages/utils/src/index.ts") },
+  { find: /^@whitepoint\/utils\/api-client$/, replacement: source("./packages/utils/src/apiClient.ts") },
   { find: /^@whitepoint\/ui\/components$/, replacement: source("./packages/ui/src/components/input/index.ts") },
   { find: /^@whitepoint\/ui\/input$/, replacement: source("./packages/ui/src/input/index.ts") },
   { find: /^@whitepoint\/ui\/layout$/, replacement: source("./packages/ui/src/layout/index.ts") },

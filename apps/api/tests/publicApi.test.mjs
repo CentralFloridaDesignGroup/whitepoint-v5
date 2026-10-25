@@ -13,7 +13,7 @@ globalThis.fetch = async (url, init) => {
 }
 const env = {
   BREVO_API_KEY: 'test-key', BREVO_SENDER_EMAIL: 'sender@example.com',
-  DB: { prepare: () => ({ bind: () => ({ first: async () => ({ attempts: 1 }) }) }) },
+  DB: { prepare: () => ({ bind: () => ({ run: async () => ({ meta: { changes: 0 } }), first: async () => ({ attempts: 1, expires_at: Date.now() + 3_600_000 }) }) }) },
 }
 const api = createPublicApi()
 
@@ -27,6 +27,10 @@ test('contact sends company mail and sender acknowledgement with server-owned re
   assert.equal(response.status, 200)
   assert.deepEqual(sent.map(message => message.to[0].email), ['info@whitepointsurvey.com', 'jane@example.com'])
   assert.equal(sent[0].replyTo.email, 'jane@example.com')
+  assert.match(sent[0].htmlContent, /<table role="presentation"/)
+  assert.match(sent[0].htmlContent, /Please survey my property/)
+  assert.match(sent[0].textContent, /Please survey my property/)
+  assert.match(sent[1].htmlContent, /Hi Jane/)
 })
 
 test('job application sends bounded resume to company inbox', async () => {
@@ -43,6 +47,8 @@ test('job application sends bounded resume to company inbox', async () => {
   assert.equal(sent.length, 1)
   assert.equal(sent[0].to[0].email, 'info@whitepointsurvey.com')
   assert.equal(sent[0].attachment[0].name, 'resume.pdf')
+  assert.match(sent[0].htmlContent, /CAD drafting experience/)
+  assert.match(sent[0].textContent, /CAD drafting experience/)
 })
 
 test('invalid job attachment is rejected before email', async () => {

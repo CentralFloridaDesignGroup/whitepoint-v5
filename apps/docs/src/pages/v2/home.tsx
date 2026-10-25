@@ -1,7 +1,8 @@
 import { Sections } from "../SectionRef.json";
 import * as LucideIcons from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { fetchUserFavoritePaths, saveUserFavoritePaths } from "../homeFavoritesApi";
+import { fetchUserFavoritePaths, saveUserFavoritePaths } from "../../api/favorites";
+import { readStoredPaths, saveStoredPaths } from "../../browserPaths";
 import { Keyboard, LucideIcon, Star } from "lucide-react";
 import { SidebarHeaderItem, SidebarLinkItem, useSidebarContext } from "@whitepoint/ui/layout";
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react";
@@ -25,21 +26,6 @@ type HomeSection = {
     links?: SectionLink[];
 };
 
-function normalizePaths(value: unknown): string[] {
-    const items = Array.isArray(value) ? value : [];
-    const unique = new Set<string>();
-
-    for (const item of items) {
-        const text = String(item ?? "").trim();
-        if (!text || !text.startsWith("/")) {
-            continue;
-        }
-        unique.add(text);
-    }
-
-    return Array.from(unique);
-}
-
 export function HomeV2() {
     const { isAuthenticated, userId, hasPermission } = useAuth();
     const favoritesStorageKey = `wps-document:favorites:${userId ?? "anonymous"}`;
@@ -59,10 +45,6 @@ export function HomeV2() {
         const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as LucideIcon | undefined;
         return IconComponent ? <IconComponent className="w-6 h-6" /> : null;
     };
-
-    useEffect(() => {
-        window.document.title = "Home - The Compass";
-    }, []);
 
     useEffect(() => {
         const onKeyDown = (event: KeyboardEvent) => {
@@ -230,39 +212,13 @@ export function HomeV2() {
     }, [recentStorageKey]);
 
     useEffect(() => {
-        const rawValue = localStorage.getItem(favoritesStorageKey);
-        if (!rawValue) {
-            setFavoritePaths([]);
-            setFavoritesHydrated(true);
-            return;
-        }
-
-        try {
-            const parsed = JSON.parse(rawValue);
-            setFavoritePaths(normalizePaths(parsed));
-        } catch {
-            setFavoritePaths([]);
-        } finally {
-            setFavoritesHydrated(true);
-        }
+        setFavoritePaths(readStoredPaths(favoritesStorageKey));
+        setFavoritesHydrated(true);
     }, [favoritesStorageKey]);
 
     useEffect(() => {
-        const rawValue = localStorage.getItem(recentStorageKey);
-        if (!rawValue) {
-            setRecentPaths([]);
-            setRecentHydrated(true);
-            return;
-        }
-
-        try {
-            const parsed = JSON.parse(rawValue);
-            setRecentPaths(normalizePaths(parsed).slice(0, 5));
-        } catch {
-            setRecentPaths([]);
-        } finally {
-            setRecentHydrated(true);
-        }
+        setRecentPaths(readStoredPaths(recentStorageKey).slice(0, 5));
+        setRecentHydrated(true);
     }, [recentStorageKey]);
 
     useEffect(() => {
@@ -280,7 +236,7 @@ export function HomeV2() {
                     return;
                 }
                 setFavoritePaths(serverFavorites);
-                localStorage.setItem(favoritesStorageKey, JSON.stringify(serverFavorites));
+                saveStoredPaths(favoritesStorageKey, serverFavorites);
             } catch {
                 // Local storage favorites remain the fallback if network sync fails.
             } finally {
@@ -302,7 +258,7 @@ export function HomeV2() {
             return;
         }
 
-        localStorage.setItem(favoritesStorageKey, JSON.stringify(favoritePaths));
+        saveStoredPaths(favoritesStorageKey, favoritePaths);
 
         if (!favoritesLoaded || !isAuthenticated || !userId) {
             return;
@@ -318,7 +274,7 @@ export function HomeV2() {
             return;
         }
 
-        localStorage.setItem(recentStorageKey, JSON.stringify(recentPaths.slice(0, 5)));
+        saveStoredPaths(recentStorageKey, recentPaths.slice(0, 5));
     }, [recentHydrated, recentPaths, recentStorageKey]);
 
 

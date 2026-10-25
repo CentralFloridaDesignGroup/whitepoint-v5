@@ -17,4 +17,4 @@ All staff members must enroll TOTP during account setup or administrator-assiste
 
 Passkey sign-in can discover an account's saved passkey without entering an email. If an older authenticator does not offer its passkey in that prompt, enter the account email before choosing **Use passkey**; the API will request that account's saved credential explicitly.
 
-The Worker Free tier has a 10 ms CPU limit; the local workerd password hash and verification took about 167 ms wall time each in the initial smoke test. This is not a CPU measurement. Validate actual CPU usage on the intended Cloudflare tier before deployment. Do not lower the 600,000-iteration password work factor to fit a tier.
+The Worker Free tier has a 10 ms CPU limit; the local workerd password hash and verification took about 167 ms wall time each in the initial smoke test. This is not a CPU measurement. Validate actual CPU usage on the intended Cloudflare tier before deployment. Do not raise the iteration count above 100,000: Workers WebCrypto throws `NotSupportedError` for higher PBKDF2 counts, which surfaces as a 500 on setup and login.

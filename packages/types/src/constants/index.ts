@@ -13,4 +13,11 @@ export {
     COUNTIES_ESRI_CODE
 } from './general';
 
+export {
+    COUNTIES_BY_STATE,
+    STATE_OPTIONS,
+    getCountyOptions,
+    type StateCode
+} from './counties';
+
 export { PERMISSION_CATALOG, PERMISSION_KEYS, type Permission, type PermissionGroup, type PermissionEntry } from './permissions'

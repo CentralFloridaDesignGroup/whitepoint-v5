@@ -18,8 +18,6 @@ export function Alta_TableA_2026() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "ALTA Table A - The Compass";
-
     // Fetch the Table A data from the JSON file
     fetch("/office/tableA.json")
       .then((response) => {
@@ -65,10 +63,10 @@ export function TableEntry({ item, parentId }: { item: TableAEntry; parentId?: n
   return (
     <div key={item.id} className="p-4 flex flex-col gap-2">
       <div className="flex flex-row items-center gap-2">
-        <Checkbox colorMode="auto"
+        <Checkbox
           id={`${parentId ? `${parentId}-` : ""}${item.id}-checkbox`}
           checked={item.alwaysRequired || (item.default ?? false)}
-          type="checkbox"
+          aria-label={`Include item ${item.id}`}
           disabled={item.alwaysRequired}
         />
         <h2 className="font-semibold text-lg">

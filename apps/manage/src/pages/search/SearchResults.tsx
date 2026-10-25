@@ -28,7 +28,7 @@ export function SearchResults() {
 
   return (
     <main className="mx-auto w-full max-w-5xl pb-10">
-      <div className="border-b border-slate-200 pb-5 "><p className="text-sm text-sky-800 ">Northstar search</p><h1 className="mt-1 text-3xl font-semibold tracking-tight">Results for “{query || '…'}”</h1><p className="mt-2 text-sm text-slate-600 ">Matches from the client and project records you can access.</p></div>
+      <div className="border-b border-slate-200 pb-5 "><p className="text-sm text-sky-800 ">NorthStar search</p><h1 className="mt-1 text-3xl font-semibold tracking-tight">Results for “{query || '…'}”</h1><p className="mt-2 text-sm text-slate-600 ">Matches from the client and project records you can access.</p></div>
       {loading && <p className="py-8 text-sm text-slate-500">Searching records…</p>}
       {error && <p role="alert" className="mt-5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-900   ">{error}</p>}
       {!loading && !error && query && clients.length + projects.length === 0 && <div className="py-12 text-center"><Search className="mx-auto h-6 w-6 text-slate-400" /><p className="mt-3 font-medium">No matching records</p><p className="mt-1 text-sm text-slate-500">Try a project number, client name, or contact detail.</p></div>}

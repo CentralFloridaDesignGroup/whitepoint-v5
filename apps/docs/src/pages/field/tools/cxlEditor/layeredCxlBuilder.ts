@@ -6,11 +6,11 @@ function categoryFor(code: LayeredCode, layers: CxlLayer[], categories: CxlCateg
   const layer = layers.find((item) => item.id === code.layerId);
   return categories.find((item) => item.id === layer?.categoryId)?.name.trim() || "__no_category__";
 }
-function legacyCodes(codes: LayeredCode[], layers: CxlLayer[], categories: CxlCategory[]): CodeEntry[] {
+function codeEntries(codes: LayeredCode[], layers: CxlLayer[], categories: CxlCategory[]): CodeEntry[] {
   return codes.map((code) => ({ ...code, category: categoryFor(code, layers, categories) }));
 }
 export function validateLayeredCodes(codes: LayeredCode[], layers: CxlLayer[], categories: CxlCategory[]): string[] {
-  const errors = validateCodes(legacyCodes(codes, layers, categories));
+  const errors = validateCodes(codeEntries(codes, layers, categories));
   if (categories.some((item) => !item.name.trim())) errors.push("Every category needs a name.");
   if (layers.some((item) => !item.name.trim())) errors.push("Every layer needs a name.");
   layers.forEach((layer) => { if (!categories.some((item) => item.id === layer.categoryId)) errors.push(`Layer "${layer.name}" needs a category.`); });
@@ -18,7 +18,7 @@ export function validateLayeredCodes(codes: LayeredCode[], layers: CxlLayer[], c
   return [...new Set(errors)];
 }
 export function buildLayeredCxlXml(listName: string, description: string, codes: LayeredCode[], layers: CxlLayer[], categories: CxlCategory[]): string {
-  const xml = buildCxlXml(listName, description, legacyCodes(codes, layers, categories));
+  const xml = buildCxlXml(listName, description, codeEntries(codes, layers, categories));
   const doc = new DOMParser().parseFromString(xml, "application/xml");
   const ns = "http://www.huacenav.com";
   const infos = Array.from(doc.getElementsByTagNameNS(ns, "LayerInfo"));

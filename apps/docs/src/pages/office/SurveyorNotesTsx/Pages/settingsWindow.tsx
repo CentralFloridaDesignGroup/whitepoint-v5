@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { parameters as Parameters } from './SurveyNoteDefinitions.json';
-import { TextboxSuggestion, Textbox, Combobox, Button, Bearing, Multiselect, Checkbox } from '@whitepoint/ui/input';
+import { Textbox, SearchableDropdown, Button, Toggle } from '@whitepoint/ui/input';
+import { Bearing } from '../components/Bearing';
+import { Multiselect } from '../components/Multiselect';
 import { type SurveyNotesProps } from '../SurveyorNotes';
 
 
@@ -29,6 +31,10 @@ export function SettingsWindow({
 
     function processParameters(): void {
         onAccept(intParameters);
+    }
+
+    function updateParameter(key: string, value: string) {
+        setIntParameters(prev => prev.map(param => param.key === key ? { ...param, value } : param));
     }
 
     useEffect(() => {
@@ -85,16 +91,16 @@ export function SettingsWindow({
         <div className='max-w-7xl mx-auto p-4'>
             <h2 className='text-xl font-bold mb-4 text-center'>Survey Parameters</h2>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
-                <Button colorMode="auto"
-                    label="Accept Parameters"
-                    style='primary'
+                <Button
+
+                    variant='primary'
                     onClick={processParameters}
-                />
-                <Button colorMode="auto"
-                    label="Hide Settings"
-                    style='secondary'
+                >Accept Parameters</Button>
+                <Button
+
+                    variant='secondary'
                     onClick={onHide}
-                />
+                >Hide Settings</Button>
             </div>
             <div className='divide-y divide-gray-300 '>
                 {Parameters.map(group => (
@@ -105,17 +111,17 @@ export function SettingsWindow({
                                 if (param.type === 'text') {
                                     const textParam = param as TextProperties;
                                     return (
-                                        <Textbox colorMode="auto"
+                                        <Textbox
                                             key={textParam.key}
-                                            field={textParam.key}
+                                            name={textParam.key}
                                             label={textParam.displayName}
                                             placeholder={textParam.options?.placeholder ? textParam.options.placeholder : ''}
                                             type={textParam.options?.format ? textParam.options.format : 'text'}
-                                            regexFormat={{ format: textParam.options?.regex ? new RegExp(textParam.options.regex) : (/^[\s\S]*$/) }}
+                                            pattern={textParam.options?.regex}
                                             required={textParam.options?.required ? textParam.options.required : false}
                                             defaultValue={intParameters.find(p => p.key === textParam.key)?.value || ''}
-                                            onValidChange={(_, value) => {
-                                                setIntParameters(prev => prev.map(p => p.key === textParam.key ? { ...p, value } : p));
+                                            onChange={(event) => {
+                                                if (event.currentTarget.validity.valid) updateParameter(textParam.key, event.currentTarget.value);
                                             }}
                                         />
                                     );
@@ -123,33 +129,37 @@ export function SettingsWindow({
                                 if (param.type === 'textSuggestion') {
                                     const textSuggestionParam = param as TextSuggestionProperties;
                                     return (
-                                        <TextboxSuggestion colorMode="auto"
+                                        <div key={textSuggestionParam.key}>
+                                        <Textbox
                                             key={textSuggestionParam.key}
-                                            field={textSuggestionParam.key}
+                                            name={textSuggestionParam.key}
+                                            list={`${textSuggestionParam.key}-suggestions`}
                                             label={textSuggestionParam.displayName}
                                             placeholder={textSuggestionParam.options?.placeholder ? textSuggestionParam.options.placeholder : ''}
-                                            regexFormat={{ format: textSuggestionParam.options?.regex ? new RegExp(textSuggestionParam.options.regex) : (/^[\s\S]*$/) }}
-                                            required={{ isRequired: textSuggestionParam.options?.required ? textSuggestionParam.options.required : false }}
+                                            pattern={textSuggestionParam.options?.regex}
+                                            required={textSuggestionParam.options?.required ?? false}
                                             defaultValue={intParameters.find(p => p.key === textSuggestionParam.key)?.value || ''}
-                                            suggestions={textSuggestionParam.options.options}
-                                            onValidChange={(_, value) => {
-                                                setIntParameters(prev => prev.map(p => p.key === textSuggestionParam.key ? { ...p, value } : p));
+                                            onChange={(event) => {
+                                                if (event.currentTarget.validity.valid) updateParameter(textSuggestionParam.key, event.currentTarget.value);
                                             }}
                                         />
+                                        <datalist id={`${textSuggestionParam.key}-suggestions`}>
+                                            {textSuggestionParam.options.options.map(option => <option key={option.value} value={option.value} />)}
+                                        </datalist>
+                                        </div>
                                     );
                                 }
                                 if (param.type === 'list') {
                                     const comboboxParam = param as ComboboxProperties;
                                     return (
-                                        <Combobox colorMode="auto"
+                                        <SearchableDropdown
                                             key={comboboxParam.key}
-                                            field={comboboxParam.key}
+                                            name={comboboxParam.key}
                                             label={comboboxParam.displayName}
                                             required={comboboxParam.options?.required ? comboboxParam.options.required : false}
-                                            selections={comboboxParam.options?.options as { key: string; value: string }[] ? comboboxParam.options?.options as { key: string; value: string }[] : []}
-                                            onValidChange={(_, value) => {
-                                                setIntParameters(prev => prev.map(p => p.key === comboboxParam.key ? { ...p, value } : p));
-                                            }}
+                                            value={intParameters.find(p => p.key === comboboxParam.key)?.value ?? ''}
+                                            options={(comboboxParam.options?.options ?? []).map(option => ({ label: option.key, value: option.value }))}
+                                            onChange={(value) => updateParameter(comboboxParam.key, value)}
 
                                         />
                                     );
@@ -157,7 +167,7 @@ export function SettingsWindow({
                                 if (param.type === 'multiSelection') {
                                     const multiSelectParam = param as MultSelectProperties;
                                     return (
-                                        <Multiselect colorMode="auto"
+                                        <Multiselect
                                             key={multiSelectParam.key}
                                             field={multiSelectParam.key}
                                             label={multiSelectParam.displayName}
@@ -172,7 +182,7 @@ export function SettingsWindow({
                                 if (param.type === 'bearing') {
                                     const bearingParam = param as BearingProperties;
                                     return (
-                                        <Bearing colorMode="auto"
+                                        <Bearing
                                             key={bearingParam.key}
                                             field={bearingParam.key}
                                             label={bearingParam.displayName}
@@ -190,13 +200,11 @@ export function SettingsWindow({
                                     const toggleParam = param as CheckboxProperties;
                                     const currentValue = intParameters.find(p => p.key === toggleParam.key)?.value;
                                     return (
-                                        <Checkbox colorMode="auto"
+                                        <Toggle
                                             key={toggleParam.key}
                                             label={toggleParam.displayName}
-                                            type="switch"
                                             checked={(currentValue ?? (toggleParam.options.defaultValue ? toggleParam.options.trueValue : toggleParam.options.falseValue)) === toggleParam.options.trueValue}
-                                            onChange={(e) => {
-                                                const value = e.target.checked;
+                                            onChange={(value) => {
                                                 const stringValue = value ? toggleParam.options.trueValue : toggleParam.options.falseValue;
                                                 setIntParameters(prev => prev.map(p => p.key === toggleParam.key ? { ...p, value: stringValue } : p));
                                             }}

@@ -1,4 +1,4 @@
-import { Combobox } from "@whitepoint/ui/input";
+import { Dropdown } from "@whitepoint/ui/input";
 import { matchPath, NavLink, useLocation, useNavigate } from "react-router-dom";
 
 type LinkTab = { label: string; to: string; end?: boolean };
@@ -34,8 +34,8 @@ export function TabNavigation(props: TabNavigationProps) {
     );
   const dropdownOptions = props.tabs.map((tab) =>
     "to" in tab
-      ? { key: tab.label, value: tab.to }
-      : { key: tab.label, value: tab.value },
+      ? { label: tab.label, value: tab.to }
+      : { label: tab.label, value: tab.value },
   );
   const selectedTab = isButtonNavigation
     ? props.activeValue
@@ -77,19 +77,18 @@ export function TabNavigation(props: TabNavigationProps) {
           );
         })}
       </nav>
-      {/* Combobox dropdown for mobile view */}
       <div className="md:hidden">
-        <Combobox
-          field={`${props.ariaLabel.replace(/\s+/g, "")}TabSelection`}
+        <Dropdown
+          name={`${props.ariaLabel.replace(/\s+/g, "")}TabSelection`}
           value={selectedTab}
-          onChange={(_, value) => {
+          onChange={(value) => {
             if (isButtonNavigation) {
               props.onChange?.(value);
             } else {
               navigate(value);
             }
           }}
-          selections={dropdownOptions}
+          options={dropdownOptions}
           label="Select tab"
         />
       </div>

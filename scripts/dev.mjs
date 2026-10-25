@@ -12,7 +12,12 @@ if (!['manage', 'payment', 'both'].includes(mode)) {
 }
 
 const webhookUrl = 'http://localhost:8787/v5/webhooks/stripe';
-const stripeEvents = 'checkout.session.completed,checkout.session.async_payment_succeeded,checkout.session.async_payment_failed,payment_intent.succeeded,payment_intent.processing,payment_intent.payment_failed';
+const stripeEvents = [
+  'checkout.session.completed', 'checkout.session.async_payment_succeeded', 'checkout.session.async_payment_failed',
+  'payment_intent.succeeded', 'payment_intent.processing', 'payment_intent.payment_failed', 'payment_intent.requires_action',
+  'payout.created', 'payout.updated', 'payout.paid', 'payout.failed', 'payout.canceled', 'payout.reconciliation_completed',
+  'refund.created', 'refund.updated', 'charge.dispute.created', 'charge.dispute.updated', 'charge.dispute.closed',
+].join(',');
 const stripeCommand = process.platform === 'win32' ? 'stripe.cmd' : 'stripe';
 const stripeArgs = ['listen', '--forward-to', webhookUrl, '--events', stripeEvents];
 const devVarsPath = join(root, 'apps/api/.dev.vars');

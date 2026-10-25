@@ -5,6 +5,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { NotificationCard } from "@whitepoint/ui/layout";
 import { OutletProvider, useSidebarContext } from "@whitepoint/ui/layout";
 import { useAuth } from "../../../auth/AuthContext";
+import { rememberRecentPath } from "../../../browserPaths";
 
 
 export function CommonLayout() {
@@ -20,8 +21,7 @@ function CommonLayoutContent() {
   useEffect(() => {
     if (!auth.userId || location.pathname === "/") return;
     const key = "wps-document:recent:" + auth.userId;
-    const existing = JSON.parse(localStorage.getItem(key) || "[]") as string[];
-    localStorage.setItem(key, JSON.stringify([location.pathname, ...existing.filter((item) => item !== location.pathname)].slice(0, 5)));
+    rememberRecentPath(key, location.pathname);
   }, [auth.userId, location.pathname]);
 
   return (

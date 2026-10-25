@@ -32,7 +32,7 @@ export async function readSession(db: D1Database, request: Request): Promise<Ses
   const token = cookie(request)
   if (!token) return null
   const row = await db.prepare(`SELECT s.user_id,s.csrf_token,s.pending_mfa,c.totp_enabled,u.email,u.display_name,r.name AS role_name,r.permissions
-    FROM user_sessions s JOIN users u ON u.id=s.user_id JOIN user_credentials c ON c.user_id=u.id JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id
+    FROM user_sessions s JOIN users_named u ON u.id=s.user_id JOIN user_credentials c ON c.user_id=u.id JOIN user_roles ur ON ur.user_id=u.id JOIN roles r ON r.id=ur.role_id
     WHERE s.token_hash=? AND s.revoked_at IS NULL AND s.expires_at>? AND u.active=1 AND u.archived_at IS NULL AND r.archived_at IS NULL`)
     .bind(await sha256(token), Date.now()).first<Record<string, unknown>>()
   if (!row) return null

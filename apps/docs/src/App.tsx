@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { setPageMetadata } from "@whitepoint/utils/page-metadata";
+import { docsMetadata } from "./routeMetadata";
 import { Suspense, lazy } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { CommonLayout } from "./components/layout/v2";
@@ -14,15 +18,21 @@ const AltaStandards2026 = lazy(() => import("./pages/office/alta_standards_2026"
 const Documentation = lazy(() => import("./pages/general/documentation").then((module) => ({ default: module.Documentation })));
 const SurveyNotes = lazy(() => import("./pages/office/SurveyorNotesTsx/SurveyorNotes"));
 
+function RouteMetadata() {
+  const { pathname } = useLocation();
+  useEffect(() => setPageMetadata(docsMetadata(pathname)), [pathname]);
+  return null;
+}
+
 function Loading() {
   return <div className="flex min-h-48 items-center justify-center text-sm">Loading…</div>;
 }
 
 const router = createBrowserRouter([
-  { path: "/login", element: <StaffLogin />, errorElement: <RouteError /> },
+  { path: "/login", element: <><RouteMetadata /><StaffLogin /></>, errorElement: <RouteError /> },
   {
     path: "/",
-    element: <CommonLayout />,
+    element: <><RouteMetadata /><CommonLayout /></>,
     errorElement: <RouteError />,
     children: [
       { index: true, element: <HomeV2 /> },
@@ -33,7 +43,7 @@ const router = createBrowserRouter([
       { path: "platting", element: <Platting /> },
       { path: "reference/alta-tablea", element: <AltaTableA2026 /> },
       { path: "office/alta-standards", element: <AltaStandards2026 /> },
-      { path: "documents/employee-handbook", element: <Documentation markdownFile="/documents/handbooks/employeeHandbook.md" title="Employee Handbook" /> },
+      { path: "documents/employee-handbook", element: <Documentation markdownFile="/documents/handbooks/employeeHandbook.md" /> },
       { element: <ProtectedRoutes />, children: [
         { path: "tools/survey-notes", element: <SurveyNotes /> },
       ] },

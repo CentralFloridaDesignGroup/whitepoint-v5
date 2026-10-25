@@ -14,19 +14,13 @@ interface HeaderItem {
 
 export function Documentation({
     markdownFile,
-    title = "Documentation",
 }: {
     markdownFile: string,
-    title?: string,
 }) {
     const [markdown, setMarkdown] = useState("");
     const [headers, setHeaders] = useState<HeaderItem[]>([]);
     const [search, setSearch] = useState("");
     const { setSidebarItems } = useSidebarContext();
-
-    useEffect(() => {
-        document.title = `${title} - The Compass`;
-    }, [title]);
 
     const extractHeaders = (text: string): HeaderItem[] => {
         const headerRegex = /^(#{3,4})\s+(.+)$/gm;
@@ -137,8 +131,9 @@ export function Documentation({
 
         < div className="w-full flex flex-col justify-center items-center" >
             <div className="w-full max-w-3xl px-4 py-8">
-                <Textbox colorMode="auto"
-                    field="search"
+                <Textbox
+                    name="search"
+                    label="Search documentation"
                     placeholder="Search documentation..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}

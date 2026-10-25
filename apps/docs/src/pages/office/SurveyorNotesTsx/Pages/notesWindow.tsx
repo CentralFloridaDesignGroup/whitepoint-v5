@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { notes as Notes } from './SurveyNoteDefinitions.json'
 import { type SurveyNotesProps } from '../SurveyorNotes';
 import { Button } from '@whitepoint/ui/input';
-import { Dates } from '@whitepoint/utils';
+import * as Dates from '@whitepoint/utils/dates';
 import { NoteBlock } from '../components/noteBlock'
 
 export function NotesWindow({
@@ -48,17 +48,16 @@ export function NotesWindow({
             <div className='flex flex-col md:flex-row md:justify-between mb-6 gap-2'>
                 <h2 className="text-2xl font-bold mb-4 text-center md:text-left flex-1">Surveyor Notes</h2>
                 {exportNotes.length > 0 && (
-                    <Button colorMode="auto"
-                        style='success'
+                    <Button
+                        variant='success'
                         onClick={() => onExport(exportNotes)}
-                        label={`Export ${exportNotes.length} Note${exportNotes.length > 1 ? 's' : ''}`}
-                    />
+                    >{`Export ${exportNotes.length} Note${exportNotes.length > 1 ? 's' : ''}`}</Button>
                 )}
-                <Button colorMode="auto"
-                    style='primary'
+                <Button
+                    variant='primary'
                     onClick={onHide}
-                    label='Open Parameters'
-                />
+
+                >Open Parameters</Button>
             </div>
             <div className="space-y-4 mb-6">
                 {generatedNotes.map((note, index) => (

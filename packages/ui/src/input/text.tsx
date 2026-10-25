@@ -1,217 +1,165 @@
-import { Input, Textarea as HeadlessTextarea } from "@headlessui/react";
+﻿import { Input, Textarea as HeadlessTextarea } from "@headlessui/react";
 import {
   useId,
-  useState,
   type InputHTMLAttributes,
   type TextareaHTMLAttributes,
 } from "react";
 import {
   FieldFrame,
+  LockedLinkOverlay,
   controlClass,
+  linkedLockedClass,
   describedBy,
   join,
   type FieldProps,
 } from "./shared";
 
-type TextFieldProps = FieldProps & {
-  /** Existing callers may supply a required rule with a custom error message. */
-  required?: boolean | { isRequired?: boolean; errorMessage?: string };
-  regexFormat?: { format: RegExp; errorMessage?: string };
-  /** @deprecated No longer supported. Will be removed in future versions. */
-  onValidChange?: (field: string, value: string) => void;
-  /** @deprecated No longer supported. Will be removed in future versions. */
-  onValidReport?: (field: string, valid: boolean) => void;
+export type TextboxProps = InputHTMLAttributes<HTMLInputElement> & FieldProps & {
+  /** Text to display before the input value. For instance, a currency symbol like "$" */
+  textPrefix?: string;
 };
 
-function isRequired(rule: TextFieldProps["required"]) {
-  return typeof rule === "boolean" ? rule : Boolean(rule?.isRequired);
-}
-
-function validationError(
-  value: string,
-  rule: TextFieldProps["required"],
-  regex?: TextFieldProps["regexFormat"],
-) {
-  if (isRequired(rule) && !value.trim())
-    return typeof rule === "object"
-      ? (rule.errorMessage ?? "This field is required.")
-      : "This field is required.";
-  if (
-    value &&
-    regex &&
-    !new RegExp(
-      regex.format.source,
-      regex.format.flags.replace(/[gy]/g, ""),
-    ).test(value)
-  )
-    return regex.errorMessage ?? "Enter a valid value.";
-  return undefined;
-}
-
-type NativeTextProps = Omit<InputHTMLAttributes<HTMLInputElement>, "required">;
-export type TextboxProps = NativeTextProps &
-  TextFieldProps & {
-    autocompleteField?: string;
-    characterLimit?: number;
-    showRequiredError?: boolean;
-  };
-
-/** Native value/defaultValue and change events work without an adapter. */
 export function Textbox({
-  field,
   id,
-  name,
   label,
   description,
   error,
   labelPosition,
-  required,
-  regexFormat,
-  onValidChange,
-  onValidReport,
-  autocompleteField,
-  characterLimit,
-  showRequiredError = true,
   className,
-  onChange,
-  onBlur,
-  autoComplete,
-  maxLength,
+  textPrefix,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
   ...props
 }: TextboxProps) {
   const generatedId = useId();
-  const inputId = id ?? field ?? generatedId;
-  const inputName = name ?? field;
-  const requiredFlag = isRequired(required);
-  const [validationMessage, setValidationMessage] = useState<string>();
-  const message = error ?? validationMessage;
-  const report = (value: string) => {
-    const problem = validationError(value, required, regexFormat);
-    setValidationMessage(problem);
-    onValidReport?.(inputName ?? inputId, !problem);
-    if (!problem) onValidChange?.(inputName ?? inputId, value);
-  };
+  const inputId = id ?? generatedId;
   return (
     <FieldFrame
       id={inputId}
-      name={inputName}
       label={label}
       description={description}
-      error={showRequiredError ? message : undefined}
-      required={requiredFlag}
+      error={error}
+      required={props.required}
       labelPosition={labelPosition}
     >
-      <Input
-        {...props}
-        id={inputId}
-        name={inputName}
-        type={props.type ?? "text"}
-        required={requiredFlag}
-        autoComplete={autoComplete ?? autocompleteField}
-        maxLength={maxLength ?? characterLimit}
-        aria-describedby={describedBy(
-          inputId,
-          description,
-          showRequiredError ? message : undefined,
-          ariaDescribedBy,
+      <div className="relative">
+        <Input
+          {...props}
+          id={inputId}
+          type={props.type ?? "text"}
+          aria-describedby={describedBy(
+            inputId,
+            description,
+            error,
+            ariaDescribedBy,
+          )}
+          aria-invalid={ariaInvalid ?? Boolean(error)}
+          className={join(controlClass, textPrefix && "pl-5", className)}
+        />
+        {textPrefix && (
+          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-sm text-slate-500">
+            {textPrefix}
+          </span>
         )}
-        aria-invalid={ariaInvalid ?? Boolean(message)}
-        className={join(controlClass, className)}
-        onChange={(event) => {
-          onChange?.(event);
-          report(event.target.value);
-        }}
-        onBlur={(event) => {
-          onBlur?.(event);
-          report(event.target.value);
-        }}
-      />
+      </div>
     </FieldFrame>
   );
 }
 
-export type TextareaProps = Omit<
-  TextareaHTMLAttributes<HTMLTextAreaElement>,
-  "required"
-> &
-  TextFieldProps & {
-    allowNewlines?: boolean;
-    readonly?: boolean;
-  };
+export type LinkedTextboxProps = TextboxProps & {
+  /** Link to navigate to when the textbox is readonly and clicked */
+  linkRef: string;
+};
 
-export function Textarea({
-  field,
+export function LinkedTextbox({
   id,
-  name,
   label,
   description,
   error,
   labelPosition,
-  required,
-  regexFormat,
-  onValidChange,
-  onValidReport,
-  allowNewlines = true,
-  readonly,
   className,
-  onChange,
-  onBlur,
-  onKeyDown,
-  readOnly,
+  textPrefix,
+  linkRef,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+  ...props
+}: LinkedTextboxProps) {
+  const generatedId = useId();
+  const inputId = id ?? generatedId;
+  return (
+    <FieldFrame
+      id={inputId}
+      label={label}
+      description={description}
+      error={error}
+      required={props.required}
+      labelPosition={labelPosition}
+    >
+      <div className="relative">
+        <Input
+          {...props}
+          id={inputId}
+          type={props.type ?? "text"}
+          aria-describedby={describedBy(
+            inputId,
+            description,
+            error,
+            ariaDescribedBy,
+          )}
+          aria-invalid={ariaInvalid ?? Boolean(error)}
+          className={join(controlClass, linkedLockedClass, textPrefix && "pl-5", className)}
+        />
+        {textPrefix && (
+          <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-sm text-slate-500">
+            {textPrefix}
+          </span>
+        )}
+        <LockedLinkOverlay
+          href={linkRef}
+          locked={Boolean(props.readOnly || props.disabled)}
+          label={label}
+        />
+      </div>
+    </FieldFrame>
+  );
+}
+
+export type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> &
+  FieldProps;
+
+export function Textarea({
+  id,
+  label,
+  description,
+  error,
+  labelPosition,
+  className,
   "aria-describedby": ariaDescribedBy,
   "aria-invalid": ariaInvalid,
   ...props
 }: TextareaProps) {
   const generatedId = useId();
-  const inputId = id ?? field ?? generatedId;
-  const inputName = name ?? field;
-  const requiredFlag = isRequired(required);
-  const [validationMessage, setValidationMessage] = useState<string>();
-  const message = error ?? validationMessage;
-  const report = (value: string) => {
-    const problem = validationError(value, required, regexFormat);
-    setValidationMessage(problem);
-    onValidReport?.(inputName ?? inputId, !problem);
-    if (!problem) onValidChange?.(inputName ?? inputId, value);
-  };
+  const inputId = id ?? generatedId;
   return (
     <FieldFrame
       id={inputId}
-      name={inputName}
       label={label}
       description={description}
-      error={message}
-      required={requiredFlag}
+      error={error}
+      required={props.required}
       labelPosition={labelPosition}
     >
       <HeadlessTextarea
         {...props}
         id={inputId}
-        name={inputName}
-        required={requiredFlag}
-        readOnly={readOnly ?? readonly}
         aria-describedby={describedBy(
           inputId,
           description,
-          message,
+          error,
           ariaDescribedBy,
         )}
-        aria-invalid={ariaInvalid ?? Boolean(message)}
+        aria-invalid={ariaInvalid ?? Boolean(error)}
         className={join(controlClass, "min-h-28 resize-y", className)}
-        onChange={(event) => {
-          onChange?.(event);
-          report(event.target.value);
-        }}
-        onBlur={(event) => {
-          onBlur?.(event);
-          report(event.target.value);
-        }}
-        onKeyDown={(event) => {
-          if (!allowNewlines && event.key === "Enter") event.preventDefault();
-          onKeyDown?.(event);
-        }}
       />
     </FieldFrame>
   );

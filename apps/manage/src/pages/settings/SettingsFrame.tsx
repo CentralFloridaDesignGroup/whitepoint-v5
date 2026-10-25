@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import { TabNavigation } from "../common/TabNavigation";
 
@@ -15,20 +15,11 @@ const links = [
     label: "Roles & permissions",
     permission: "company.roles.view",
   },
-  { to: "/settings/qbo", label: "QBO Integration", permission: "company.qbo.view" },
   { to: "/settings/rates", label: "Billing rates", permission: "timesheets.rates.view" },
+  { to: "/settings/qbo", label: "QBO Integration", permission: "company.qbo.view" },
 ];
-export function SettingsFrame({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+export function SettingsFrame({ children }: { children: ReactNode }) {
   const auth = useAuth();
-  useEffect(() => {
-    document.title = `${title} - NorthStar`;
-  }, [title]);
 
   return (
     <div className="space-y-4">

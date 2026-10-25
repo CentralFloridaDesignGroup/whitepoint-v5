@@ -14,3 +14,5 @@ Thumbs.db
 .vscode/
 
 .plans/
+
+apps/api/migrations/0008_v4_import.sql

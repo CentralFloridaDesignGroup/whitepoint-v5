@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { setPageMetadata } from "@whitepoint/utils/page-metadata";
+import { manageMetadata } from "./routeMetadata";
 import { Suspense, lazy } from "react";
 import {
   createBrowserRouter,
@@ -8,7 +12,7 @@ import { CommonLayout } from "./components";
 import { AuthProvider, ProtectedRoutes, useAuth } from "./auth/AuthContext";
 import { StaffLogin } from "@whitepoint/ui/layout";
 import { ErrorPage, RouteError } from "./pages/common";
-import { ManageHome } from "./pages/dashboard/ManageHome";
+import { BusinessDashboard } from "./pages/dashboard/BusinessDashboard";
 
 const ClientRecordPage = lazy(() =>
   import("./pages/client/ClientRecord").then((module) => ({
@@ -50,13 +54,21 @@ const SearchResults = lazy(() =>
     default: module.SearchResults,
   })),
 );
+const MePage = lazy(() => import('./pages/me/MePage').then(module => ({ default: module.MePage })));
 const TimesheetsPage = lazy(() => import('./pages/timesheets/TimesheetsPage').then(module => ({default:module.TimesheetsPage})));
 const TimesheetDetailPage = lazy(() => import('./pages/timesheets/TimesheetDetailPage').then(module => ({default:module.TimesheetDetailPage})));
 const TimesheetReviewPage = lazy(() => import('./pages/timesheets/TimesheetReviewPage').then(module => ({default:module.TimesheetReviewPage})));
 const TimesheetInvoicePoolPage = lazy(() => import('./pages/timesheets/TimesheetInvoicePoolPage').then(module => ({default:module.TimesheetInvoicePoolPage})));
 const RateSettings = lazy(() => import('./pages/settings/rates/RateSettings').then(module => ({default:module.RateSettings})));
 const InvoicesPage = lazy(() => import('./pages/invoices/InvoicesPage').then(module => ({default:module.InvoicesPage})));
-const InvoiceDetailPage = lazy(() => import('./pages/invoices/InvoiceDetailPage').then(module => ({default:module.InvoiceDetailPage})));
+const InvoiceDetailPage = lazy(() => import('./pages/invoices/InvoiceDetailView').then(module => ({default:module.InvoiceDetailPage})));
+  const PaymentReconciliationPage = lazy(() => import('./pages/invoices/PaymentReconciliationPage').then(module => ({default:module.PaymentReconciliationPage})));
+
+function RouteMetadata() {
+  const { pathname } = useLocation();
+  useEffect(() => setPageMetadata(manageMetadata(pathname)), [pathname]);
+  return null;
+}
 
 function Loading() {
   return (
@@ -77,29 +89,30 @@ function RootRedirect() {
 const router = createBrowserRouter([
   {
     path: "/login",
-    element: (
+    element: (<><RouteMetadata />
       <StaffLogin
         logo={
           <img
-            src="/White_Point_Logo_Name.webp"
-            className="h-20 mx-auto"
-            alt="Logo"
+            src="/northstar-logo.svg"
+            className="mx-auto w-full max-w-[320px]"
+            alt="NorthStar by White Point Survey"
           />
         }
-      />
+      /></>
     ),
     errorElement: <RouteError />,
   },
   {
     path: "/",
-    element: <CommonLayout />,
+    element: <><RouteMetadata /><CommonLayout /></>,
     errorElement: <RouteError />,
     children: [
       { index: true, element: <RootRedirect /> },
       {
         element: <ProtectedRoutes />,
-        children: [{ path: "dashboard", element: <ManageHome /> }],
+        children: [{ path: "dashboard", element: <BusinessDashboard /> }],
       },
+      { element: <ProtectedRoutes />, children: [{ path: "me", element: <MePage /> }] },
       {
         element: (
           <ProtectedRoutes permissions={["projects.view", "clients.view"]} />
@@ -132,7 +145,11 @@ const router = createBrowserRouter([
       },
       {
         element: <ProtectedRoutes />,
-        children: [{ path: "timesheets", element: <TimesheetsPage /> }, { path: "timesheets/review", element: <TimesheetReviewPage /> }, { path: "timesheets/:start", element: <TimesheetDetailPage /> }],
+        children: [{ path: "timesheets", element: <TimesheetsPage /> }, { path: "timesheets/:start", element: <TimesheetDetailPage /> }],
+      },
+      {
+        element: <ProtectedRoutes permission="timesheets.view" />,
+        children: [{ path: "timesheets/review", element: <TimesheetReviewPage /> }],
       },
       {
         element: <ProtectedRoutes permission="timesheets.rates.view" />,
@@ -164,6 +181,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoutes />,
         children: [{ path: "invoices", element: <InvoicesPage /> }, { path: "invoices/:id", element: <InvoiceDetailPage /> }],
       },
+      { element: <ProtectedRoutes permission="invoices.manage" />, children: [{ path: "invoices/payments", element: <PaymentReconciliationPage /> }] },
       { path: "*", element: <ErrorPage /> },
     ],
   },

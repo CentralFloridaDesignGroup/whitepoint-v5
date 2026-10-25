@@ -5,3 +5,5 @@ allowBuilds:
   core-js: false
   esbuild: true
   workerd: true
+overrides:
+  dompurify: 3.4.17

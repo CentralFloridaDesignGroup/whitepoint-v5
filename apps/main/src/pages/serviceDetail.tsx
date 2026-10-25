@@ -1,16 +1,11 @@
+import { findServiceByTitle, formatCost, type Service } from "./servicePricing";
 import { ArrowRight, CheckCircle2, Clock, DollarSign } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { MarketingButton } from "../components/marketing";
 import { getServiceLandingBySlug } from "../data/serviceLandingPages";
 import { services, timeframes } from "../data/servicesProvided.json";
 
-type ServiceMatch = {
-  title: string;
-  description: string;
-  timeframe: string;
-  costLow: number;
-  costHigh: number | null;
-};
+type ServiceMatch = Service;
 
 export function ServiceDetail() {
   const { slug } = useParams();
@@ -88,23 +83,4 @@ function ServiceStat({ icon: Icon, label, value }: { icon: typeof Clock; label: 
       </span>
     </div>
   );
-}
-
-function findServiceByTitle(title: string): ServiceMatch | null {
-  for (const category of services) {
-    const service = category.services.find((item) => item.title === title);
-    if (service) return service;
-  }
-
-  return null;
-}
-
-function formatCost(costLow: number, costHigh: number | null) {
-  const low = formatCurrency(costLow);
-  if (costHigh === null) return `Starts at ${low}`;
-  return `${low} - ${formatCurrency(costHigh)}`;
-}
-
-function formatCurrency(value: number) {
-  return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

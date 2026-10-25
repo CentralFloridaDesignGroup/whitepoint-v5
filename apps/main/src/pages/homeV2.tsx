@@ -1,3 +1,4 @@
+import { findServiceByTitle, formatCost, type Service } from "./servicePricing";
 import {
   ArrowRight,
   Building2,
@@ -296,29 +297,4 @@ function CountyServiceList({ countyList, countyValues }: { countyList: "core" | 
   );
 }
 
-type FeaturedService = {
-  title: string;
-  description: string;
-  timeframe: string;
-  costLow: number;
-  costHigh: number | null;
-};
-
-function findServiceByTitle(title: string): FeaturedService | null {
-  for (const category of services) {
-    const service = category.services.find((item) => item.title === title);
-    if (service) return service;
-  }
-
-  return null;
-}
-
-function formatCost(costLow: number, costHigh: number | null) {
-  const low = formatCurrency(costLow);
-  if (costHigh === null) return `Starts at ${low}`;
-  return `${low} - ${formatCurrency(costHigh)}`;
-}
-
-function formatCurrency(value: number) {
-  return `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
+type FeaturedService = Service;

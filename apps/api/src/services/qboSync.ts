@@ -17,6 +17,13 @@ export function qboEnvironment(env: ApiEnv): "sandbox" | "production" {
     : "production";
 }
 
+export function qboApiBase(env: ApiEnv, realmId: string): string {
+  const host = qboEnvironment(env) === 'sandbox'
+    ? 'https://sandbox-quickbooks.api.intuit.com'
+    : 'https://quickbooks.api.intuit.com';
+  return `${host}/v3/company/${encodeURIComponent(realmId)}`;
+}
+
 export async function startQboConnection(
   env: ApiEnv,
   state: string,
@@ -29,6 +36,29 @@ export async function startQboConnection(
   url.searchParams.set("scope", "com.intuit.quickbooks.accounting");
   url.searchParams.set("state", state);
   return url.toString();
+}
+
+export async function revokeQboConnection(db: D1Database, env: ApiEnv) {
+  const connection = await db.prepare("SELECT refresh_token FROM qbo_connection WHERE id=1")
+    .first<{ refresh_token: string }>();
+  if (!connection) return;
+  if (!env.QBO_CLIENT_ID || !env.QBO_CLIENT_SECRET)
+    throw new Error("QuickBooks is not configured.");
+  const response = await fetch("https://developer.api.intuit.com/v2/oauth2/tokens/revoke", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Basic ${btoa(`${env.QBO_CLIENT_ID}:${env.QBO_CLIENT_SECRET}`)}`,
+    },
+    body: JSON.stringify({ token: connection.refresh_token }),
+  });
+  if (!response.ok)
+    throw new Error(`QuickBooks token revocation failed (${response.status}).`);
+  const deleted = await db.prepare("DELETE FROM qbo_connection WHERE id=1 AND refresh_token=?")
+    .bind(connection.refresh_token).run();
+  if (deleted.meta.changes !== 1)
+    throw new Error("QuickBooks connection changed during disconnect. Refresh and try again.");
 }
 
 async function tokenRequest(env: ApiEnv, body: URLSearchParams) {
@@ -135,12 +165,12 @@ export async function accessToken(
 
 export async function fetchQboChoices(db: D1Database, env: ApiEnv) {
   const { realmId, token } = await accessToken(db, env);
-  const base = qboEnvironment(env) === 'sandbox' ? 'https://sandbox-quickbooks.api.intuit.com' : 'https://quickbooks.api.intuit.com';
+  const base = qboApiBase(env, realmId);
   async function query(entity: 'Item' | 'Account') {
     const collected: Record<string, unknown>[] = [];
     for (let start = 1; start <= 10001; start += 1000) {
       const sql = `SELECT * FROM ${entity} WHERE Active = true STARTPOSITION ${start} MAXRESULTS 1000`;
-      const url = `${base}/v3/company/${encodeURIComponent(realmId)}/query?query=${encodeURIComponent(sql)}&minorversion=${encodeURIComponent(clean(env.QBO_MINOR_VERSION) || '75')}`;
+      const url = `${base}/query?query=${encodeURIComponent(sql)}&minorversion=${encodeURIComponent(clean(env.QBO_MINOR_VERSION) || '75')}`;
       const response = await fetch(url, { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } });
       const body = await response.json().catch(() => ({})) as { QueryResponse?: Record<string, unknown>; Fault?: { Error?: Array<{ Detail?: string; Message?: string }> } };
       if (!response.ok) throw new Error(body.Fault?.Error?.[0]?.Detail || body.Fault?.Error?.[0]?.Message || `QuickBooks lookup failed (${response.status}).`);

@@ -30,7 +30,7 @@ export function UserDirectory() {
   const query = search.trim().toLowerCase();
   const visible = users.filter(user => `${user.display_name} ${user.email} ${user.role_name || ''}`.toLowerCase().includes(query));
 
-  return <SettingsFrame title="Users"><main className="mx-auto max-w-5xl space-y-5 pb-8">
+  return <SettingsFrame><main className="mx-auto max-w-5xl space-y-5 pb-8">
     <div className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-3xl font-semibold">Users</h1><p className="mt-1 text-sm text-slate-600">Select a user to view or change their details.</p></div>{auth.hasPermission('users.create') && auth.hasPermission('users.manage') && <Link className="rounded border bg-white px-4 py-2 text-sm text-sky-800" to="/settings/users/new">Add user</Link>}</div>
     {error && <p role="alert" className="rounded bg-red-50 p-3 text-sm text-red-800">{error}</p>}
     <label className="block max-w-md text-sm text-slate-700">Search users<input className="mt-1 w-full rounded border bg-white p-2" type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Name, email, or role"/></label>

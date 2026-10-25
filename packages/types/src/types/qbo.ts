@@ -76,6 +76,10 @@ export type QboConnectionStatus = {
   stripeFeeExpenseAccountId: string;
   /** Stripe fee expense account name */
   stripeFeeExpenseAccountName: string;
+  stripeClearingAccountId: string;
+  stripeClearingAccountName: string;
+  stripePayoutBankAccountId: string;
+  stripePayoutBankAccountName: string;
 };
 
 /** Cached QuickBooks Online service item used for invoice line sync. */

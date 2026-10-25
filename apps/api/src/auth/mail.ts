@@ -1,6 +1,7 @@
 import type { ApiEnv } from '../types/apiTypes'
 import { randomToken, sha256 } from './session'
 import { sendEmail } from '../services/brevo.ts'
+import { accountAccessEmail } from '../emails/account.ts'
 
 export async function issueAccessLink(db: D1Database, userId: string, purpose: 'invite' | 'reset') {
   const token = randomToken()
@@ -11,5 +12,5 @@ export async function issueAccessLink(db: D1Database, userId: string, purpose: '
 export async function sendAccessEmail(env: ApiEnv, email: string, name: string, token: string) {
   const url = new URL('/login', env.STAFF_APP_URL || 'https://app.whitepointsurvey.com')
   url.searchParams.set('token', token)
-  await sendEmail(env, { to: [{ email, name }], subject: 'White Point account access', text: `Open this link to set your password. It expires in 30 minutes: ${url.toString()}` })
+  await sendEmail(env, { to: [{ email, name }], subject: 'White Point account access', ...accountAccessEmail(url.toString()) })
 }

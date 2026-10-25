@@ -243,6 +243,11 @@
         "description": "Approve, reject, or reopen timesheets in the reporting chain."
       },
       {
+        "key": "timesheet.team.modify",
+        "displayName": "Modify Team Timesheets",
+        "description": "Add, change, or delete draft and rejected time entries, and submit those weeks, for users in the reporting chain."
+      },
+      {
         "key": "timesheets.rates.view",
         "displayName": "View Timesheet Rates",
         "description": "View pay tables, labor costs, charged values, and the invoice pool."
@@ -296,6 +301,16 @@
         "key": "invoices.manage",
         "displayName": "Manage Invoices",
         "description": "Update invoice records and status."
+      },
+      {
+        "key": "finance.emails",
+        "displayName": "Finance Email Notices",
+        "description": "Receive payment processing and finance notices."
+      },
+      {
+        "key": "finance.emails.sensitive",
+        "displayName": "Sensitive Finance Email Notices",
+        "description": "Receive payout, refund, and dispute notices."
       },
       {
         "key": "invoices.email.postupdate",

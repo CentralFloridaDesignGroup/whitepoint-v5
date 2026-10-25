@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 104" role="img" aria-label="NorthStar, White Point Survey">
+  <rect x="4" y="8" width="88" height="88" rx="19" fill="#10283d"/>
+  <path d="M31.1 24.1A33 33 0 0 0 15 52m49.9-27.9A33 33 0 0 1 81 52M15 52a33 33 0 0 0 16.1 27.9M81 52a33 33 0 0 1-16.1 27.9" fill="none" stroke="#4c819e" stroke-width="3.4" stroke-linecap="round"/>
+  <path d="M48 17.6 54.9 45.1 72.8 52 54.9 58.9 48 83.6 41.1 58.9 23.2 52 41.1 45.1Z" fill="#e9f2f4"/>
+  <path d="M48 17.6 54.9 45.1 48 52 41.1 45.1Z" fill="#d9a441"/>
+  <path d="M48 52 54.9 58.9 48 83.6Z" fill="#4c819e"/>
+  <circle cx="48" cy="52" r="3" fill="#10283d"/>
+  <text x="111" y="59" fill="#10283d" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700" letter-spacing="-1.8">NorthStar</text>
+  <path d="M113 69h36" stroke="#d9a441" stroke-width="3" stroke-linecap="round"/>
+  <text x="111" y="88" fill="#4c819e" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" letter-spacing="2.1">WHITE POINT SURVEY</text>
+</svg>

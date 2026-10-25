@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useBlocker } from 'react-router-dom';
 
 export function useUnsavedChanges(dirty: boolean) {
-  const blocker = useBlocker(dirty);
+  const allowNextNavigation = useRef(false);
+  const blocker = useBlocker(() => dirty && !allowNextNavigation.current);
   useEffect(() => {
     if (blocker.state !== 'blocked') return;
     if (window.confirm('Discard unsaved changes and leave this page?')) blocker.proceed();
@@ -14,4 +15,5 @@ export function useUnsavedChanges(dirty: boolean) {
     window.addEventListener('beforeunload', beforeUnload);
     return () => window.removeEventListener('beforeunload', beforeUnload);
   }, [dirty]);
+  return () => { allowNextNavigation.current = true; };
 }

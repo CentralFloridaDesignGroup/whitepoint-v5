@@ -68,7 +68,7 @@ export function ApplicationSettings() {
     } catch (e) { setError(String(e)); }
     finally { setBusy(false); }
   }
-  return <SettingsFrame title="Application settings">
+  return <SettingsFrame>
     {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}{notice && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</p>}
     {!draft ? <p>Loading settings…</p> : <fieldset disabled={!canManage} className="space-y-6">
       <section className="grid gap-4 rounded-xl border bg-white p-5 sm:grid-cols-2"><h2 className="sm:col-span-2 text-lg font-semibold">Company</h2>

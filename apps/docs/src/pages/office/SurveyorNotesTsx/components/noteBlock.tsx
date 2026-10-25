@@ -20,9 +20,9 @@ export function NoteBlock({
             <div className="flex flex-col md:flex-row gap-2 mb-2 items-center justify-between">
                 <h2 className="text-xl font-semibold grow text-center md:text-left">{title}</h2>
                 <div className="grid grid-cols-2 gap-2">
-                    <Button colorMode="auto"
-                        style="secondary"
-                        label="Copy Note"
+                    <Button
+                        variant="secondary"
+
                         onClick={() => {
                             navigator.clipboard.writeText(content);
                             showNotification({
@@ -31,15 +31,14 @@ export function NoteBlock({
                                 style: 'success'
                             });
                         }}
-                    />
-                    <Button colorMode="auto"
-                        style={includeExport ? 'success' : 'primary'}
-                        label={includeExport ? 'Remove from Export' : 'Include Export'}
+                    >Copy Note</Button>
+                    <Button
+                        variant={includeExport ? 'success' : 'primary'}
                         onClick={() => {
                             setIncludeExport(prev => !prev);
                             onExportChange?.(!includeExport);
                         }}
-                    />
+                    >{includeExport ? 'Remove from Export' : 'Include Export'}</Button>
                 </div>
             </div>
             <p className="text-gray-700  mb-2">{description}</p>

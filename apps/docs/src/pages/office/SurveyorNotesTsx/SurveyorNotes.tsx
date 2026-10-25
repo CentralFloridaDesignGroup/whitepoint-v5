@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { SettingsWindow } from './Pages/settingsWindow';
 import { NotesWindow, type NoteProps } from './Pages/notesWindow';
 import { ExportWindow } from './Pages/exportWindow';
@@ -21,11 +21,6 @@ export default function SurveyNotesTsx() {
     const [stage, setStage] = useState<'parameters' | 'view' | 'export'>('parameters');
     const [parameters, setParameters] = useState<SurveyNotesProps[]>([]);
     const [exportNotes, setExportNotes] = useState<NoteProps[]>([]);
-
-        useEffect(() => {
-            document.title = "Surveyor Notes - The Compass";
-
-        }, []);
 
     function onAcceptParameters(newParameters: SurveyNotesProps[]) {
         setParameters(newParameters);

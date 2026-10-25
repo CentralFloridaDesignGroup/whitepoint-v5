@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { requestJson } from '../../api/client';
+import { formatUsdCents } from '@whitepoint/utils/currency';
 import { Card } from '../common/RecordControls';
 
 type TimeEntry = {
@@ -15,7 +16,7 @@ type TimeEntry = {
   chargeCents?: number | null;
 };
 type EntryPage = { items: TimeEntry[]; entryCount: number; totalHours: number; hasMore: boolean; nextPage: number };
-const money = (cents: number | null | undefined) => cents == null ? '—' : (cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+const money = (cents: number | null | undefined) => cents == null ? '—' : formatUsdCents(cents);
 
 export function ProjectTimeEntries({ projectId, showFinancials }: { projectId: string; showFinancials: boolean }) {
   const [items, setItems] = useState<TimeEntry[]>([]);

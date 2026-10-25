@@ -1,5 +1,7 @@
 import { Hono } from 'hono'
 import { sendEmail } from '../services/brevo.ts'
+import { contactAcknowledgementEmail, contactRequestEmail } from '../emails/contact.ts'
+import { jobApplicationEmail } from '../emails/jobApplication.ts'
 import { allowRequest } from '../services/rateLimit.ts'
 import type { HonoEnv } from '../types/apiTypes.ts'
 
@@ -88,16 +90,23 @@ export function createPublicApi() {
     const preferredMethod = get('preferredMethod', 30)
     if (!firstName || !lastName || !email || !emailPattern.test(email) || !phone || !subject || !message || message.length < 10 ||
       !['Email', 'Phone', 'Text message'].includes(preferredMethod || '')) return c.json({ error: 'Please check the form fields.' }, 400)
-    if (!await allowRequest(c.env.DB, `contact:${c.req.header('CF-Connecting-IP') || 'local'}`, 5, 3_600_000)) return c.json({ error: 'Too many messages. Please try again later.' }, 429)
+    let contactLimit
+    try {
+      contactLimit = await allowRequest(c.env.DB, `contact:${c.req.header('CF-Connecting-IP') || 'local'}`, 5, 3_600_000)
+    } catch (error) {
+      console.error('Contact rate limit check failed', error)
+      return c.json({ error: 'Contact form is temporarily unavailable. Please try again later.' }, 503)
+    }
+    if (!contactLimit.allowed) return c.json({ error: 'Too many messages. Please try again later.' }, 429, { 'Retry-After': String(contactLimit.retryAfterSeconds), 'Cache-Control': 'no-store' })
     try {
       await sendEmail(c.env, {
         to: [{ email: inbox }], replyTo: { email, name: `${firstName} ${lastName}` },
         subject: `Contact request: ${subject}`,
-        text: [`Name: ${firstName} ${lastName}`, `Email: ${email}`, `Phone: ${phone}`, `Preferred contact: ${preferredMethod}`, '', message].join('\n'),
+        ...contactRequestEmail({ firstName, lastName, email, phone, preferredMethod: preferredMethod!, subject, message }),
       })
       try {
         await sendEmail(c.env, { to: [{ email, name: firstName }], subject: 'We received your message',
-          text: `Hi ${firstName},\n\nThank you for contacting White Point Survey. We received your message and will follow up soon.\n\nWhite Point Survey` })
+          ...contactAcknowledgementEmail(firstName) })
       } catch (error) { console.error('Contact acknowledgement failed', error) }
       return c.json({ ok: true })
     } catch (error) {
@@ -122,13 +131,14 @@ export function createPublicApi() {
       phone === null || message === null || !validFile(resume) || (coverLetter !== null && !validFile(coverLetter))) {
       return c.json({ error: 'Please check the form and attach a PDF, DOC, or DOCX resume of 3 MB or less.' }, 400)
     }
-    if (!await allowRequest(c.env.DB, `job-application:${c.req.header('CF-Connecting-IP') || 'local'}`, 5, 3_600_000)) return c.json({ error: 'Too many applications. Please try again later.' }, 429)
+    const applicationLimit = await allowRequest(c.env.DB, `job-application:${c.req.header('CF-Connecting-IP') || 'local'}`, 5, 3_600_000)
+    if (!applicationLimit.allowed) return c.json({ error: 'Too many applications. Please try again later.' }, 429, { 'Retry-After': String(applicationLimit.retryAfterSeconds), 'Cache-Control': 'no-store' })
     try {
       const attachments = [await attachment(resume)]
       if (coverLetter instanceof File) attachments.push(await attachment(coverLetter))
       await sendEmail(c.env, {
         to: [{ email: inbox }], replyTo: { email, name }, subject: `Job application ${positionId} - ${name}`,
-        text: [`Position: ${positionId}`, `Name: ${name}`, `Email: ${email}`, `Phone: ${phone || 'Not provided'}`, '', 'Applicant message:', message || 'Not provided'].join('\n'),
+        ...jobApplicationEmail({ positionId, name, email, phone: phone || '', message: message || '' }),
         attachments,
       })
       return c.json({ ok: true })

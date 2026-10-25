@@ -8,6 +8,7 @@ export type { ViteEnvironment } from './environment';
 
 // Invoice Exports
 export type { InvoiceState, InvoiceDisposition, InvoiceSplitBasis, InvoiceLine, InvoiceAllocation, InvoicePaymentRecord, InvoiceReviewTask, InvoiceBranding, InvoicePoolEntry, InvoiceRecord, PublicInvoice, InvoiceListItem } from './invoicing';
+export type { InvoicePaymentTerm, InvoiceWriteoffReason, InvoiceRecipient, InvoicePoDocument, InvoiceAnalysis } from './invoicing';
 // Quickbooks Online Exports
 export type {
     QboCustomer,
@@ -24,3 +25,4 @@ export type { RecordTask } from './task';
 export type { ProjectInvoiceReference } from './invoicing';
 export type { ClientSearchResult, ProjectSearchResult, SearchResults } from './search';
 export type { AppSettings } from './settings';
+export type { DashboardResponse } from './dashboard';

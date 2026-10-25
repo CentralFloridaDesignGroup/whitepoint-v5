@@ -454,7 +454,7 @@ export function StaffLogin({
                     const options = await post(
                       auth.apiBaseUrl,
                       "passkey/register/options",
-                      {},
+                      { currentPassword: password },
                       activeCsrf,
                     );
                     const credential = await startRegistration({
@@ -556,7 +556,8 @@ export function StaffLogin({
           >
             {["login", "reset"].includes(step) && (
               <Textbox
-                field="Email"
+                name="email"
+                label="Email"
                 required
                 type="email"
                 autoComplete="username"
@@ -566,7 +567,8 @@ export function StaffLogin({
             )}
             {["login", "setup", "set-password"].includes(step) && (
               <Textbox
-                field="Password"
+                name="password"
+                label="Password"
                 required
                 type="password"
                 autoComplete={
@@ -579,7 +581,8 @@ export function StaffLogin({
             {isNewPassword && <PasswordRequirements password={password} />}
             {isNewPassword && (
               <Textbox
-                field="Confirm password"
+                name="confirmPassword"
+                label="Confirm password"
                 required
                 type="password"
                 autoComplete="new-password"
@@ -589,7 +592,8 @@ export function StaffLogin({
             )}
             {step === "setup" && (
               <Textbox
-                field="Administrator setup token"
+                name="bootstrapToken"
+                label="Administrator setup token"
                 required
                 type="password"
                 value={bootstrapToken}
@@ -600,7 +604,7 @@ export function StaffLogin({
               <div className="space-y-2">
                 {useRecoveryCode ? (
                   <Textbox
-                    field="Recovery code"
+                    name="recoveryCode"
                     label="Recovery code"
                     required
                     autoComplete="off"
@@ -709,6 +713,7 @@ export function StaffLogin({
                     <Button
                       onClick={() => setStep("setup")}
                       variant="secondary"
+                      className="w-full"
                     >
                       First administrator setup
                     </Button>

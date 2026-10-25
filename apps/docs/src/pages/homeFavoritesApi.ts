@@ -1,1 +1,0 @@
-export { fetchUserFavoritePaths, saveUserFavoritePaths } from '../api/favorites'

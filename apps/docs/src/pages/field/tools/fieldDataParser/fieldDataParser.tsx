@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@whitepoint/ui/input";
 import { Upload, Download, X } from "lucide-react";
+import { downloadBlob } from "@whitepoint/utils/browser-files";
 
 type FileFormat = "txt" | "csv" | null;
 
@@ -24,10 +25,6 @@ export function FieldDataParser() {
     processMagnetCodeErrors: false,
   });
   const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    document.title = "Field Data Parser - The Compass";
-  }, []);
 
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,15 +162,8 @@ export function FieldDataParser() {
     if (!fileFormat || !processedContent) return;
 
     const filename = `${file?.name.slice(0, file.name.lastIndexOf("."))}_processed.${fileFormat}`;
-    const element = document.createElement("a");
     const fileBlob = new Blob([processedContent], { type: "text/plain" });
-
-    element.href = URL.createObjectURL(fileBlob);
-    element.download = filename;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    URL.revokeObjectURL(element.href);
+    downloadBlob(fileBlob, filename);
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
@@ -244,7 +234,7 @@ export function FieldDataParser() {
             type="file"
             accept=".txt,.csv"
             onChange={handleFileChange}
-            
+
             className="hidden"
             id="file-input"
           />
@@ -359,18 +349,18 @@ export function FieldDataParser() {
 
           {/* Process Button */}
           <div className="mt-6 flex gap-3">
-            <Button colorMode="auto"
-              label="Process File"
+            <Button
+
               onClick={processFile}
-              style="primary"
+              variant="primary"
               size="medium"
-            />
-            <Button colorMode="auto"
-              label="Clear All"
+            >Process File</Button>
+            <Button
+
               onClick={clearAll}
-              style="secondary"
+              variant="secondary"
               size="medium"
-            />
+            >Clear All</Button>
           </div>
         </div>
       )}
@@ -407,13 +397,13 @@ export function FieldDataParser() {
           <p className="text-gray-600  mb-4">
             Your file has been processed successfully. Download it now.
           </p>
-          <Button colorMode="auto"
-            label="Download Processed File"
+          <Button
+
             onClick={downloadFile}
-            style="primary"
+            variant="primary"
             size="medium"
             icon={Download}
-          />
+          >Download Processed File</Button>
         </div>
       )}
     </div>

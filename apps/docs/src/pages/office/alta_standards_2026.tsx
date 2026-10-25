@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function Alta_Standards_2026() {
-    useEffect(() => {
-        document.title = "ALTA Standards 2026 - The Compass";
-    }, []);
 
     return (
         <div className=" mx-auto w-full max-w-7xl space-y-4">

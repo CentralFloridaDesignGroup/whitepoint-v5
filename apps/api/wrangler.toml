@@ -28,7 +28,21 @@ bucket_name = "whitepoint-v5-record-documents"
 
 [env.production]
 name = "wps-api-v5"
+workers_dev = false
+preview_urls = false
 routes = [{ pattern = "api.whitepointsurvey.com", zone_name = "whitepointsurvey.com", custom_domain = true }]
+
+[env.production.observability]
+enabled = true
+head_sampling_rate = 0.1
+
+[env.production.observability.logs]
+enabled = true
+head_sampling_rate = 0.1
+
+[env.production.observability.traces]
+enabled = true
+head_sampling_rate = 0.01
 
 [env.production.triggers]
 crons = ["0 13,14,20,21 * * 1", "0 13,14 10 * *"]
