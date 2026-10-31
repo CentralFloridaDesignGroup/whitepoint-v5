@@ -46,7 +46,7 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   permission('POST', '/qbo/connect', ['manage'], 'company.qbo.manage'), permission('POST', '/qbo/disconnect', ['manage'], 'company.qbo.manage'), p('GET', '/qbo/callback', ['qbo'], 'public'),
   permission('GET', '/qbo/status', ['manage'], 'company.qbo.view'), permission('GET', '/qbo/choices', ['manage'], 'company.qbo.view'), permission('PUT', '/qbo/settings', ['manage'], 'company.qbo.manage'),
   permission('GET', '/settings', ['manage'], 'company.view'), permission('GET', '/settings/logo/:kind', ['manage'], 'company.view'), permission('POST', '/settings/logo/:kind', ['manage'], 'company.manage'), permission('PUT', '/settings', ['manage'], 'company.manage'),
-  session('GET', '/search', ['manage'], true), session('GET', '/dashboard', ['manage'], true),
+  session('GET', '/search', ['manage'], true), session('GET', '/dashboard', ['manage'], true), session('GET', '/dashboard/details', ['manage'], true),
   permission('GET', '/timesheets/configuration', ['manage'], 'timesheets.rates.view'), permission('PUT', '/timesheets/configuration', ['manage'], 'timesheets.rates.manage'),
   session('GET', '/timesheets/lookups', ['manage'], true), session('GET', '/timesheets/roster', ['manage'], true), session('GET', '/timesheets/weeks/:start', ['manage'], true),
   session('PUT', '/timesheets/weeks/:start/entries/:entryId', ['manage'], true), session('DELETE', '/timesheets/weeks/:start/entries/:entryId', ['manage'], true),

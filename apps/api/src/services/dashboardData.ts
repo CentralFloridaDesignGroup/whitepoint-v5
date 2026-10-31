@@ -16,13 +16,13 @@ export function businessMonth(value: string): string | null {
   return businessDay(date).slice(0, 7)
 }
 
-function shiftDay(day: string, days: number): string {
+export function shiftBusinessDay(day: string, days: number): string {
   const date = new Date(`${day}T12:00:00Z`)
   date.setUTCDate(date.getUTCDate() + days)
   return date.toISOString().slice(0, 10)
 }
 
-function monthKeys(today: string): string[] {
+export function dashboardMonthKeys(today: string): string[] {
   const year = Number(today.slice(0, 4))
   const month = Number(today.slice(5, 7))
   return Array.from({ length: 12 }, (_, index) => {
@@ -33,8 +33,8 @@ function monthKeys(today: string): string[] {
 
 export function completedFourWeekWindow(today: string): { from: string; through: string } {
   const weekday = new Date(`${today}T12:00:00Z`).getUTCDay()
-  const currentMonday = shiftDay(today, -((weekday + 6) % 7))
-  return { from: shiftDay(currentMonday, -28), through: shiftDay(currentMonday, -1) }
+  const currentMonday = shiftBusinessDay(today, -((weekday + 6) % 7))
+  return { from: shiftBusinessDay(currentMonday, -28), through: shiftBusinessDay(currentMonday, -1) }
 }
 
 // NULL retains the 40-hour default; 0 needs setup and -1 has no minimum.
@@ -49,7 +49,7 @@ export async function dashboardData(db: D1Database, access: Access, now = new Da
   if (access.projects) {
     const rows = (await db.prepare(`SELECT stage, due_date FROM projects WHERE archived_at IS NULL AND active=1 AND stage IN ('active','opportunity','proposal','shortlisted','negotiating')`).all<Row>()).results || []
     const active = rows.filter(row => row.stage === 'active')
-    const dueLimit = shiftDay(today, 7)
+    const dueLimit = shiftBusinessDay(today, 7)
     result.projects = {
       active: active.length,
       dueSoon: active.filter(row => typeof row.due_date === 'string' && row.due_date >= today && row.due_date <= dueLimit).length,
@@ -69,7 +69,7 @@ export async function dashboardData(db: D1Database, access: Access, now = new Da
       db.prepare(`SELECT i.id, i.status, i.sent_at, i.due_date, COALESCE(SUM(l.amount_cents),0) AS total_cents FROM invoices i LEFT JOIN invoice_lines l ON l.invoice_id=i.id WHERE i.status IN ('draft','sent','paid') GROUP BY i.id`).all<Row>(),
       db.prepare(`SELECT ip.invoice_id, ip.paid_at, MAX(0,ip.amount_cents-ip.refunded_cents-ip.disputed_cents) AS net_cents FROM invoice_payments ip JOIN invoices i ON i.id=ip.invoice_id WHERE ip.status='succeeded' AND i.status IN ('sent','paid')`).all<Row>(),
     ])
-    const keys = monthKeys(today)
+    const keys = dashboardMonthKeys(today)
     const buckets = new Map(keys.map(month => [month, { month, sentCents: 0, incomeCents: 0 }]))
     const paidByInvoice = new Map<string, number>()
     for (const payment of payments.results || []) {

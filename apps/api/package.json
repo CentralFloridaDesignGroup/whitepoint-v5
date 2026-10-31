@@ -11,6 +11,7 @@
     "deploy": "wrangler deploy --env production",
     "migrate:d1:local": "wrangler d1 migrations apply whitepoint-v5 --local",
     "migrate:d1:remote": "wrangler d1 migrations apply whitepoint-v5 --remote --env production",
+    "d1:sample-invoices": "node ./scripts/invoice-overview-sample-data.mjs",
     "d1:reset": "node ./scripts/reset-local-d1.mjs",
     "d1:migrate:local": "pnpm migrate:d1:local"
   },

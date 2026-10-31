@@ -11,6 +11,7 @@ type ProjectOption = {
   name: string;
   client_name: string;
 };
+type OverviewFilter = "all" | "outstanding" | "overdue" | "drafts";
 export function InvoicesPage() {
   const canManagePayments = useAuth().hasPermission("invoices.manage");
   const [items, setItems] = useState<InvoiceListItem[]>([]),
@@ -25,6 +26,48 @@ export function InvoicesPage() {
     [error, setError] = useState("");
   const navigate = useNavigate(),
     [params] = useSearchParams();
+  const [overviewFilter, setOverviewFilter] = useState<OverviewFilter>("all");
+  const filteredItems = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    return items.filter((item) =>
+      `${item.clientName} ${item.projectName} ${item.projectNumber} ${item.invoiceNumber} ${item.status}`
+        .toLowerCase()
+        .includes(search),
+    );
+  }, [items, query]);
+  const today = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  const summary = useMemo(() => {
+    return filteredItems.reduce(
+      (totals, item) => {
+        if (item.status === "sent") {
+          totals.outstandingCents += item.balanceCents;
+          if (item.balanceCents > 0 && item.dueDate < today) {
+            totals.overdueCents += item.balanceCents;
+          }
+        }
+        if (item.status === "draft") totals.drafts += 1;
+        return totals;
+      },
+      { outstandingCents: 0, overdueCents: 0, drafts: 0 },
+    );
+  }, [filteredItems, today]);
+  const visibleItems = useMemo(
+    () =>
+      filteredItems.filter((item) => {
+        if (overviewFilter === "drafts") return item.status === "draft";
+        if (overviewFilter === "overdue") {
+          return item.status === "sent" && item.balanceCents > 0 && item.dueDate < today;
+        }
+        if (overviewFilter === "outstanding") return item.status === "sent" && item.balanceCents > 0;
+        return true;
+      }),
+    [filteredItems, overviewFilter, today],
+  );
   useEffect(() => {
     void Promise.all([
       requestJson<{ items: InvoiceListItem[] }>("/invoices", {
@@ -80,17 +123,14 @@ export function InvoicesPage() {
       string,
       {
         name: string;
-        projects: Map<string, { name: string; invoices: InvoiceListItem[] }>;
+        balanceCents: number;
+        projects: Map<string, { name: string; invoices: InvoiceListItem[]; balanceCents: number }>;
       }
     >();
-    for (const item of items.filter((i) =>
-      `${i.clientName} ${i.projectName} ${i.projectNumber} ${i.invoiceNumber} ${i.status}`
-        .toLowerCase()
-        .includes(query.toLowerCase()),
-    )) {
+    for (const item of visibleItems) {
       let client = clients.get(item.clientId);
       if (!client) {
-        client = { name: item.clientName, projects: new Map() };
+        client = { name: item.clientName, balanceCents: 0, projects: new Map() };
         clients.set(item.clientId, client);
       }
       let project = client.projects.get(item.projectId);
@@ -98,13 +138,18 @@ export function InvoicesPage() {
         project = {
           name: `${item.projectNumber} · ${item.projectName}`,
           invoices: [],
+          balanceCents: 0,
         };
         client.projects.set(item.projectId, project);
       }
       project.invoices.push(item);
+      if (item.status === "sent") {
+        project.balanceCents += item.balanceCents;
+        client.balanceCents += item.balanceCents;
+      }
     }
     return [...clients.entries()];
-  }, [items, query]);
+  }, [visibleItems]);
   async function create() {
     if (!projectId || poolLoading) return;
     setBusy(true);
@@ -126,16 +171,17 @@ export function InvoicesPage() {
     }
   }
   return (
-    <main className="mx-auto max-w-6xl space-y-5 pb-8">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <main className="mx-auto max-w-6xl space-y-6 pb-10">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold">Invoices</h1>
-          <p className="text-sm text-slate-600">
+          <p className="text-sm font-medium text-sky-800">FINANCE</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Invoices</h1>
+          <p className="mt-1 text-sm text-slate-600">
             Review invoices by client and project.
           </p>
           {canManagePayments && (
             <Link
-              className="text-sm text-sky-800 underline"
+              className="mt-2 inline-flex text-sm font-medium text-sky-800 hover:text-sky-950"
               to="/invoices/payments"
             >
               Payment reconciliation and client holds
@@ -144,7 +190,7 @@ export function InvoicesPage() {
         </div>
         {projects.length > 0 && (
           <button
-            className="rounded-lg bg-sky-800 px-4 py-2 text-white"
+            className="rounded-xl bg-sky-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-700 focus:ring-offset-2"
             onClick={() => setCreating((v) => !v)}
           >
             Create manual invoice
@@ -156,13 +202,45 @@ export function InvoicesPage() {
           {error}
         </p>
       )}
+      <section aria-label="Invoice summary" className="grid gap-3 sm:grid-cols-3">
+        <button
+          type="button"
+          aria-pressed={overviewFilter === "outstanding"}
+          onClick={() => setOverviewFilter(overviewFilter === "outstanding" ? "all" : "outstanding")}
+          className={`rounded-2xl border p-5 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-sky-700 focus:ring-offset-2 ${overviewFilter === "outstanding" ? "border-sky-900 bg-sky-900 text-white" : "border-slate-200 bg-white text-slate-950 hover:border-sky-300 hover:bg-sky-50/50"}`}
+        >
+          <span className={`block text-sm font-medium ${overviewFilter === "outstanding" ? "text-sky-100" : "text-slate-600"}`}>Outstanding balance</span>
+          <span className="mt-2 block text-2xl font-semibold tracking-tight tabular-nums">{money(summary.outstandingCents)}</span>
+          <span className={`mt-1 block text-xs ${overviewFilter === "outstanding" ? "text-sky-100" : "text-slate-500"}`}>Unpaid sent invoices matching search</span>
+        </button>
+        <button
+          type="button"
+          aria-pressed={overviewFilter === "overdue"}
+          onClick={() => setOverviewFilter(overviewFilter === "overdue" ? "all" : "overdue")}
+          className={`rounded-2xl border p-5 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-amber-600 focus:ring-offset-2 ${overviewFilter === "overdue" ? "border-amber-700 bg-amber-700 text-white" : "border-amber-200 bg-amber-50/70 text-amber-950 hover:border-amber-400 hover:bg-amber-50"}`}
+        >
+          <span className={`block text-sm font-medium ${overviewFilter === "overdue" ? "text-amber-100" : "text-amber-900"}`}>Overdue balance</span>
+          <span className="mt-2 block text-2xl font-semibold tracking-tight tabular-nums">{money(summary.overdueCents)}</span>
+          <span className={`mt-1 block text-xs ${overviewFilter === "overdue" ? "text-amber-100" : "text-amber-800"}`}>Sent invoices past their due date</span>
+        </button>
+        <button
+          type="button"
+          aria-pressed={overviewFilter === "drafts"}
+          onClick={() => setOverviewFilter(overviewFilter === "drafts" ? "all" : "drafts")}
+          className={`rounded-2xl border p-5 text-left shadow-sm transition focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2 ${overviewFilter === "drafts" ? "border-indigo-800 bg-indigo-800 text-white" : "border-slate-200 bg-white text-slate-950 hover:border-indigo-200 hover:bg-indigo-50/50"}`}
+        >
+          <span className={`block text-sm font-medium ${overviewFilter === "drafts" ? "text-indigo-100" : "text-slate-600"}`}>Draft invoices</span>
+          <span className="mt-2 block text-2xl font-semibold tracking-tight tabular-nums">{summary.drafts}</span>
+          <span className={`mt-1 block text-xs ${overviewFilter === "drafts" ? "text-indigo-100" : "text-slate-500"}`}>Awaiting review or issue</span>
+        </button>
+      </section>
       {creating && (
-        <section className="space-y-4 rounded-xl border bg-white p-5">
+        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="text-lg font-semibold">New manual invoice</h2>
           <label className="block text-sm">
             Project
             <select
-              className="mt-1 w-full rounded border p-2"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 focus:border-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-100"
               value={projectId}
               onChange={(e) => {
                 setProjectId(e.target.value);
@@ -266,36 +344,52 @@ export function InvoicesPage() {
       <label className="block text-sm">
         Search invoices
         <input
-          className="mt-1 w-full rounded-lg border bg-white p-3"
+          className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3 shadow-sm placeholder:text-slate-400 focus:border-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-100"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Client, project, invoice number, or status"
         />
       </label>
+      {overviewFilter !== "all" && (
+        <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+          <p className="text-slate-600">
+            Showing {overviewFilter === "outstanding" ? "outstanding" : overviewFilter === "overdue" ? "overdue" : "draft"} invoices
+          </p>
+          <button
+            type="button"
+            className="font-medium text-sky-800 hover:text-sky-950"
+            onClick={() => setOverviewFilter("all")}
+          >
+            Show all invoices
+          </button>
+        </div>
+      )}
       {groups.map(([clientId, client]) => (
-        <details key={clientId} open className="rounded-xl border bg-white">
-          <summary className="cursor-pointer p-4 font-semibold">
-            {client.name}
+        <details key={clientId} open className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 bg-slate-50/80 px-5 py-4 font-semibold text-slate-900">
+            <span>{client.name}</span>
+            <span className="text-sm font-semibold tabular-nums text-slate-700">{money(client.balanceCents)}</span>
           </summary>
-          <div className="space-y-3 px-4 pb-4">
+          <div className="space-y-3 p-4 sm:p-5">
             {[...client.projects.entries()].map(([id, project]) => (
-              <details key={id} open className="rounded-lg border">
-                <summary className="cursor-pointer bg-slate-50 p-3 font-medium">
-                  {project.name}
+              <details key={id} open className="overflow-hidden rounded-xl border border-slate-200">
+                <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-4 py-3 font-medium text-slate-800">
+                  <span>{project.name}</span>
+                  <span className="text-sm font-semibold tabular-nums text-slate-700">{money(project.balanceCents)}</span>
                 </summary>
                 <div className="divide-y">
                   {project.invoices.map((invoice) => (
                     <Link
                       key={invoice.id}
                       to={`/invoices/${invoice.id}`}
-                      className="grid gap-1 p-3 text-sm hover:bg-sky-50 sm:grid-cols-[1fr_6rem_7rem_7rem]"
+                      className="grid gap-1 border-slate-100 p-3 text-sm transition hover:bg-sky-50/70 focus:bg-sky-50 focus:outline-none sm:grid-cols-[minmax(0,1fr)_6rem_7rem_8rem]"
                     >
                       <span className="font-medium text-sky-800">
                         {invoice.invoiceNumber}
                       </span>
                       <span className="capitalize">{invoice.status}</span>
                       <span>{invoice.issueDate}</span>
-                      <span className="text-right font-medium">
+                      <span className="text-right font-semibold tabular-nums text-slate-900">
                         {money(invoice.balanceCents)}
                       </span>
                     </Link>
@@ -307,8 +401,8 @@ export function InvoicesPage() {
         </details>
       ))}
       {!groups.length && (
-        <p className="rounded-xl border bg-white p-5 text-slate-600">
-          No invoices match.
+        <p className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600 shadow-sm">
+          {overviewFilter === "all" ? "No invoices match." : "No invoices match this filter and search."}
         </p>
       )}
     </main>

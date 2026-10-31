@@ -59,4 +59,4 @@ Both of these files are yours to maintain, add, edit, correct, and change as nee
 
 # Deployment Status
 
-**NO DEPLOYMENT**: This app is in full development mode. No considerations need to be made for backwards compatibility or D1 concerns. D1 databases can be reset at any time as required.
+**CURRENT DEVELOPMENT**: Git commit 4b55a0254c6798750562031e631f0a3afbd6da77 and migration 0008 are the current latest and greatest production code. Any code developed moving forward must adapt from this code.

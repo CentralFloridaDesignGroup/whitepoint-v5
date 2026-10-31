@@ -15,3 +15,43 @@ export type DashboardResponse = {
     incomeMultiplier: number | null;
   };
 };
+
+export type DashboardDetailMetric =
+  | "project-active"
+  | "project-due-soon"
+  | "project-overdue"
+  | "project-opportunity"
+  | "project-proposal"
+  | "project-shortlisted"
+  | "project-negotiating"
+  | "invoice-paid"
+  | "invoice-all"
+  | "invoice-outstanding"
+  | "invoice-late"
+  | "invoice-draft"
+  | "month"
+  | "utilization"
+  | "missing-targets"
+  | "income-multiplier";
+
+export type DashboardDetailRow = {
+  id: string;
+  kind: "project" | "invoice" | "payment" | "staff" | "time-entry";
+  label: string;
+  description?: string;
+  status?: string;
+  date?: string;
+  amountCents?: number;
+  amountLabel?: string;
+  secondaryAmountCents?: number;
+  secondaryAmountLabel?: string;
+  hours?: number;
+  targetHours?: number;
+  relatedProjectId?: string;
+  relatedInvoiceId?: string;
+};
+
+export type DashboardDetailResponse = {
+  title: string;
+  sections: Array<{ title: string; rows: DashboardDetailRow[] }>;
+};

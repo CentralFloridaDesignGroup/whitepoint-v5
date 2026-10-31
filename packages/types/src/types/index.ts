@@ -25,4 +25,4 @@ export type { RecordTask } from './task';
 export type { ProjectInvoiceReference } from './invoicing';
 export type { ClientSearchResult, ProjectSearchResult, SearchResults } from './search';
 export type { AppSettings } from './settings';
-export type { DashboardResponse } from './dashboard';
+export type { DashboardResponse, DashboardDetailMetric, DashboardDetailRow, DashboardDetailResponse } from './dashboard';
