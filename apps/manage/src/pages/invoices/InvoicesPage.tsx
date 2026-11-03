@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from "@headlessui/react";
 import type { InvoiceListItem, InvoicePoolEntry } from "@whitepoint/types";
 import { requestJson } from "../../api/client";
 import { formatUsdCents as money } from "@whitepoint/utils/currency";
 import { useAuth } from "../../auth/AuthContext";
+import { SearchableDropdown, Textbox } from "@whitepoint/ui";
+import { X } from "lucide-react";
 
 type ProjectOption = {
   id: string;
@@ -103,7 +106,7 @@ export function InvoicesPage() {
     )
       .then((r) => {
         if (active) {
-          setPool(r.items);
+          setPool(r.items.sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime()));
           setSelected(r.items.map((entry) => entry.entryId));
           setPoolLoading(false);
         }
@@ -170,6 +173,12 @@ export function InvoicesPage() {
       setBusy(false);
     }
   }
+
+  function dateDisplay(date: string) {
+    const d = new Date(date);
+    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
+  }
+
   return (
     <main className="mx-auto max-w-6xl space-y-6 pb-10">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -191,13 +200,13 @@ export function InvoicesPage() {
         {projects.length > 0 && (
           <button
             className="rounded-xl bg-sky-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-700 focus:ring-offset-2"
-            onClick={() => setCreating((v) => !v)}
+            onClick={() => setCreating(true)}
           >
             Create manual invoice
           </button>
         )}
       </div>
-      {error && (
+      {error && !creating && (
         <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-800">
           {error}
         </p>
@@ -234,114 +243,145 @@ export function InvoicesPage() {
           <span className={`mt-1 block text-xs ${overviewFilter === "drafts" ? "text-indigo-100" : "text-slate-500"}`}>Awaiting review or issue</span>
         </button>
       </section>
-      {creating && (
-        <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-semibold">New manual invoice</h2>
-          <label className="block text-sm">
-            Project
-            <select
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white p-3 focus:border-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-100"
-              value={projectId}
-              onChange={(e) => {
-                setProjectId(e.target.value);
-                setPool([]);
-                setSelected([]);
-                setPoolLoading(Boolean(e.target.value));
-              }}
-            >
-              <option value="">Select a project</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.client_name} · {p.project_number} · {p.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          {projectId && (
-            <div>
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <p className="text-sm font-medium">
-                    Approved entries to include
+      <Dialog open={creating} onClose={() => setCreating(false)} className="relative z-50">
+        <DialogBackdrop className="fixed inset-0 bg-slate-950/40 transition-opacity" />
+        <div className="fixed inset-0 overflow-y-auto p-3 sm:p-6">
+          <div className="flex min-h-full items-center justify-center">
+            <DialogPanel className="w-full max-w-3xl rounded-2xl bg-white p-5 shadow-2xl ring-1 ring-slate-900/10 sm:p-6">
+              <header className="mb-5 flex items-center justify-between gap-4">
+                <DialogTitle className="text-lg font-semibold text-slate-950">
+                  New manual invoice
+                </DialogTitle>
+                <button
+                  type="button"
+                  onClick={() => setCreating(false)}
+                  aria-label="Close manual invoice dialog"
+                  className="rounded-lg px-1 py-1 text-2xl leading-none text-slate-500 hover:bg-slate-100 hover:text-red-500 focus-visible:outline-2 focus-visible:outline-sky-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </header>
+              <div className="space-y-4">
+                {error && (
+                  <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
+                    {error}
                   </p>
-                  <p className="text-xs text-slate-600">
-                    Available entries are selected automatically. Fixed fee
-                    hours are included for review; set their invoice amount on
-                    the draft.
-                  </p>
-                </div>
-                {!!pool.length && (
-                  <div className="flex gap-3 text-sm">
-                    <button
-                      className="text-sky-800 underline"
-                      onClick={() =>
-                        setSelected(pool.map((entry) => entry.entryId))
-                      }
-                    >
-                      Select all
-                    </button>
-                    <button
-                      className="text-sky-800 underline"
-                      onClick={() => setSelected([])}
-                    >
-                      Start blank
-                    </button>
+                )}
+                <SearchableDropdown
+                  label="Project"
+                  value={projectId}
+                  onChange={(value) => {
+                    setProjectId(value);
+                    setPool([]);
+                    setSelected([]);
+                    setPoolLoading(Boolean(value));
+                  }}
+                  options={projects.map((p) => ({
+                    value: p.id,
+                    label: `${p.client_name} · ${p.project_number} · ${p.name}`,
+                  }))}
+                />
+                {projectId && (
+                  <div>
+                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-medium">
+                          Time entries
+                        </p>
+                        <p className="text-xs text-slate-600">
+                          Available entries are selected automatically. Fixed fee
+                          hours are included for review; set their invoice amount on
+                          the draft.
+                        </p>
+                      </div>
+                      {!!pool.length && (
+                        <div className="flex gap-3 text-sm">
+                          <button
+                            type="button"
+                            className="text-sky-800 underline"
+                            onClick={() =>
+                              setSelected(pool.map((entry) => entry.entryId))
+                            }
+                          >
+                            Select all
+                          </button>
+                          <button
+                            type="button"
+                            className="text-sky-800 underline"
+                            onClick={() => setSelected([])}
+                          >
+                            Start blank
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="max-h-100 overflow-auto gap-2 p-0.5 flex flex-col">
+                      {pool.map((entry) => (
+                        <div key={entry.entryId} 
+                          className={`border rounded-lg ${selected.includes(entry.entryId) ? "border-blue-500 outline outline-2 outline-blue-500" : "border-neutral-500 border-dashed"} flex flex-col gap-1 p-1 text-sm transition-colors`}
+                          onClick={() =>
+                            setSelected((old) =>
+                              selected.includes(entry.entryId)
+                                ? old.filter((x) => x !== entry.entryId)
+                                : [...old, entry.entryId],
+                            )
+                          }
+                        >              
+                          <div className="grid grid-cols-2 lg:grid-cols-4">
+                            <span className="truncate text-ellipsis max-w-full col-span-2 font-semibold">{entry.taskName}</span>
+                            <span>{dateDisplay(entry.entryDate)}</span>
+                            <span className="text-right">{entry.hours.toFixed(2)} h | {money(entry.chargeCents)}</span>
+                            <span className="block text-slate-600 italic col-span-2 lg:col-span-4">{entry.note}</span>
+                          </div>
+                        </div>
+                      ))}
+                      {!pool.length && (
+                        <p className="p-3 text-sm text-slate-500">
+                          {poolLoading
+                            ? "Loading approved time…"
+                            : "No approved entries available. You can start a blank invoice."}
+                        </p>
+                      )}
+                    </div>
+                    <p className="mt-2 text-xs text-slate-600">
+                      {selected.length} {selected.length === 1 ? "entry" : "entries"}{" "}
+                      selected
+                    </p>
                   </div>
                 )}
-              </div>
-              <div className="max-h-64 overflow-auto rounded border">
-                {pool.map((entry) => (
-                  <label
-                    key={entry.entryId}
-                    className="flex gap-3 border-b p-2 text-sm"
+                <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setCreating(false)}
+                    className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                   >
-                    <input
-                      type="checkbox"
-                      checked={selected.includes(entry.entryId)}
-                      onChange={(e) =>
-                        setSelected((old) =>
-                          e.target.checked
-                            ? [...old, entry.entryId]
-                            : old.filter((x) => x !== entry.entryId),
-                        )
-                      }
-                    />
-                    <span>
-                      {entry.entryDate} · {entry.taskName} ·{" "}
-                      {entry.hours.toFixed(2)} h · {money(entry.chargeCents)} ·{" "}
-                      {entry.billingType}
-                      <span className="block text-slate-500">{entry.note}</span>
-                    </span>
-                  </label>
-                ))}
-                {!pool.length && (
-                  <p className="p-3 text-sm text-slate-500">
-                    {poolLoading
-                      ? "Loading approved time…"
-                      : "No approved entries available. You can start a blank invoice."}
-                  </p>
-                )}
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!projectId || busy || poolLoading}
+                    onClick={() => void create()}
+                    className="rounded-lg bg-sky-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    {busy
+                      ? "Creating…"
+                      : selected.length
+                        ? "Create draft with time"
+                        : "Create blank draft"}
+                  </button>
+                </div>
               </div>
-              <p className="mt-2 text-xs text-slate-600">
-                {selected.length} {selected.length === 1 ? "entry" : "entries"}{" "}
-                selected
-              </p>
-            </div>
-          )}
-          <button
-            disabled={!projectId || busy || poolLoading}
-            onClick={() => void create()}
-            className="rounded bg-sky-800 px-4 py-2 text-white disabled:opacity-50"
-          >
-            {busy
-              ? "Creating…"
-              : selected.length
-                ? "Create draft with time"
-                : "Create blank draft"}
-          </button>
-        </section>
-      )}
-      <label className="block text-sm">
+            </DialogPanel>
+          </div>
+        </div>
+      </Dialog>
+      <Textbox
+        label="Search invoices"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Client, project, invoice number, or status"
+      />
+      {/* <label className="block text-sm">
         Search invoices
         <input
           className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3 shadow-sm placeholder:text-slate-400 focus:border-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-100"
@@ -349,7 +389,7 @@ export function InvoicesPage() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Client, project, invoice number, or status"
         />
-      </label>
+      </label> */}
       {overviewFilter !== "all" && (
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
           <p className="text-slate-600">

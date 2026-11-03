@@ -7,7 +7,7 @@ import type { PublicInvoice } from '@whitepoint/types'
 import { downloadBlob } from '@whitepoint/utils/browser-files'
 import { formatUsdCents as money } from '@whitepoint/utils/currency'
 import { setPageMetadata } from '@whitepoint/utils/page-metadata'
-import { apiBaseUrl, createCheckout, fetchInvoicePacket, fetchPublicInvoice, type CheckoutSession } from '../api/publicInvoices'
+import { apiBaseUrl, createCheckout, fetchInvoicePacket, fetchInvoicePo, fetchPublicInvoice, type CheckoutSession } from '../api/publicInvoices'
 import { checkoutIdentity, confirmCheckout } from '../checkoutState'
 
 const date = (value: string) => /^(\d{4})-(\d{2})-(\d{2})$/.test(value) ? value.slice(5, 7) + '/' + value.slice(8, 10) + '/' + value.slice(0, 4) : value
@@ -78,6 +78,10 @@ export function PayInvoicePage() {
     try { downloadBlob(await fetchInvoicePacket(token), `${invoice.invoiceNumber}.pdf`) }
     catch(cause){setError(String(cause))}
   }
+  async function downloadPo(documentId:string,name:string){
+    try { downloadBlob(await fetchInvoicePo(token,documentId),name) }
+    catch(cause){setError(String(cause))}
+  }
 
   return <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900">
     <article className="mx-auto max-w-4xl space-y-7 rounded-xl border bg-white p-6 shadow-sm sm:p-10">
@@ -87,13 +91,14 @@ export function PayInvoicePage() {
           : <strong className="max-w-64 text-lg text-sky-950">{invoice?.branding.companyName || 'White Point Survey'}</strong>}
         <div className="text-right"><p className="text-sm font-bold tracking-wide">INVOICE</p>
           <h1 className="text-2xl font-bold text-slate-900">{invoice?.invoiceNumber || ''}</h1>
-          {invoice && <button className="mt-3 inline-flex items-center gap-2 rounded border px-3 py-2 text-sm" onClick={() => void downloadPacket()}><Download size={16}/>Download invoice and PO PDFs</button>}
+          {invoice && <button className="mt-3 inline-flex items-center gap-2 rounded border px-3 py-2 text-sm" onClick={() => void downloadPacket()}><Download size={16}/>Download invoice PDF</button>}
         </div>
       </header>
       {loading && <p>Loading invoice…</p>}
       {error && <p role="alert" className="rounded bg-red-50 p-3 text-red-800">{error}</p>}
       {params.has('payment') && <p className="rounded bg-blue-50 p-3 text-blue-900">Payment return received. The balance below updates after Stripe confirms the payment.</p>}
       {invoice && <>
+        {invoice.poDocuments.length > 0 && <section className="space-y-2 text-sm"><h2 className="font-semibold">Purchase orders</h2>{invoice.poDocuments.map(document=><button key={document.id} className="block text-sky-800 underline" onClick={()=>void downloadPo(document.id,document.name)}>{document.name}</button>)}</section>}
         <div className="grid gap-7 text-sm sm:grid-cols-2">
           <section><h2 className="mb-3 text-xs font-bold tracking-wide text-slate-900">BILL TO</h2>
             <strong>{invoice.billingName}</strong>

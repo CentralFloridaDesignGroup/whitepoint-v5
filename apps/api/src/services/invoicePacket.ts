@@ -11,15 +11,17 @@ export function base64Bytes(bytes:Uint8Array):string{
   return btoa(value)
 }
 
-export async function buildInvoicePacket(env:ApiEnv,invoice:InvoiceRecord,poKeys:string[]):Promise<Uint8Array>{
-  const poPdfs:Uint8Array[]=[]
-  for(const key of poKeys){const object=await env.RECORD_DOCUMENTS.get(key);if(!object)throw new Error('A project PO document is missing.');poPdfs.push(new Uint8Array(await object.arrayBuffer()))}
+export async function buildInvoicePacket(env:ApiEnv,invoice:InvoiceRecord):Promise<Uint8Array>{
+  const started=performance.now()
   let logoDataUrl:string|undefined
   const logo=await companyLogoResponse(env)
   if(logo){const kind=logo.headers.get('Content-Type')||'image/png';logoDataUrl=`data:${kind};base64,${base64Bytes(new Uint8Array(await logo.arrayBuffer()))}`}
+  const logoMs=performance.now()-started
   const clientInvoice=publicInvoice({...invoice,status:'sent'},invoice.publicToken)
   const paymentUrl=`${env.PAYMENT_APP_URL||'https://payment.whitepointsurvey.com'}/pay/${encodeURIComponent(invoice.publicToken)}`
-  return createInvoicePacket(clientInvoice,paymentUrl,'',poPdfs,logoDataUrl,invoice.includeHoursBreakdown?invoiceHoursBreakdownRows(invoice.allocations,undefined,invoice.includeLineItemNotes):[])
+  const packet=await createInvoicePacket(clientInvoice,paymentUrl,'',logoDataUrl,invoice.includeHoursBreakdown?invoiceHoursBreakdownRows(invoice.allocations,undefined,invoice.includeLineItemNotes):[])
+  console.info('Invoice PDF generation', {logoMs:Math.round(logoMs),renderMs:Math.round(performance.now()-started-logoMs),bytes:packet.byteLength})
+  return packet
 }
 
 export async function storedInvoicePacket(env: ApiEnv, invoiceId: string, status: InvoiceRecord['status']) {
@@ -30,7 +32,7 @@ export async function storedInvoicePacket(env: ApiEnv, invoiceId: string, status
   if (status !== 'sent' && status !== 'paid') return null
   const invoice = await invoiceDetail(env.DB, invoiceId)
   if (!invoice) return null
-  const packet = await buildInvoicePacket(env, invoice, [])
+  const packet = await buildInvoicePacket(env, invoice)
   await env.RECORD_DOCUMENTS.put(key, packet, { httpMetadata: { contentType: 'application/pdf' } })
   return markInvoicePacketStatus(packet, status)
 }

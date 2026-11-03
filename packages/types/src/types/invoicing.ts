@@ -48,14 +48,16 @@ export type InvoiceRecord = {
   publicToken: string; revision: number; lines: InvoiceLine[]; allocations: InvoiceAllocation[];
   reviewTasks: InvoiceReviewTask[]; payments: InvoicePaymentRecord[];
   recipients: InvoiceRecipient[]; poDocuments: InvoicePoDocument[];
+  copyPm: boolean; projectManager: { name: string; email: string } | null;
+  pmCopyStatus: 'none' | 'accepted' | 'failed'; pmCopyEmail: string | null; pmCopyError: string | null;
   totalCents: number; paidCents: number; balanceCents: number;
   emailStatus: string; emailError: string | null; managerEmailStatus: string; managerEmailError: string | null;
   qboSyncStatus: string; qboSyncError: string | null;
-  canEdit: boolean; canSend: boolean; canRetryQbo: boolean; canRecordPayment: boolean;
+  canEdit: boolean; canSend: boolean; canVoid: boolean; canRetryQbo: boolean; canRecordPayment: boolean;
 };
 export type PublicInvoice = Pick<InvoiceRecord,
   'id' | 'invoiceNumber' | 'status' | 'issueDate' | 'dueDate' | 'notes' | 'billingName' |
-  'billingAddress' | 'projectReference' | 'poNumber' | 'projectAddress' | 'branding' | 'lines' | 'totalCents' | 'paidCents' | 'balanceCents'>;
+  'billingAddress' | 'projectReference' | 'poNumber' | 'projectAddress' | 'branding' | 'lines' | 'totalCents' | 'paidCents' | 'balanceCents' | 'poDocuments'>;
 export type InvoiceListItem = Pick<InvoiceRecord,'id'|'invoiceNumber'|'projectId'|'clientId'|'source'|'billingMonth'|'status'|'issueDate'|'dueDate'|'totalCents'|'paidCents'|'balanceCents'> & {
   clientName: string; projectName: string; projectNumber: string; managerUserId: string | null;
 };

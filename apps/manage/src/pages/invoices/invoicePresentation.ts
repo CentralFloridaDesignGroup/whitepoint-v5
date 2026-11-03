@@ -8,6 +8,7 @@ export function fromInvoice(invoice: InvoiceRecord): Draft {
     paymentTerm: invoice.paymentTerm,
     includeHoursBreakdown: invoice.includeHoursBreakdown,
     includeLineItemNotes: invoice.includeLineItemNotes,
+    copyPm: invoice.copyPm,
     notes: invoice.notes,
     internalNote: invoice.internalNote,
     recipientIds: invoice.recipients
@@ -60,6 +61,7 @@ export function clientView(
     poNumber: invoice.poNumber,
     projectAddress: invoice.projectAddress,
     branding: invoice.branding,
+    poDocuments: invoice.poDocuments,
     lines: draft.lines.map((line) =>
       line.kind === "time"
         ? {

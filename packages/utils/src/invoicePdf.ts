@@ -1,24 +1,16 @@
 import { degrees, PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import type { PublicInvoice } from '@whitepoint/types'
-import { createHoursBreakdownPdf, createInvoicePdf, type InvoiceHourRow } from './invoicePdfCompiler.js'
+import { appendHoursBreakdownPdf, createInvoicePdf, type InvoiceHourRow } from './invoicePdfCompiler.js'
 
 export { createInvoicePdf, invoiceHoursBreakdownRows } from './invoicePdfCompiler.js'
 export type { InvoiceHourRow } from './invoicePdfCompiler.js'
 
 const filename = (invoice: PublicInvoice) => `${invoice.invoiceNumber.replace(/[^a-z0-9_-]+/gi, '_') || 'invoice'}.pdf`
 
-export async function createInvoicePacket(invoice:PublicInvoice,paymentUrl:string,apiBaseUrl:string,poPdfs:readonly Uint8Array[],logoDataUrl?:string,hourRows:readonly InvoiceHourRow[]=[]):Promise<Uint8Array>{
+export async function createInvoicePacket(invoice:PublicInvoice,paymentUrl:string,apiBaseUrl:string,logoDataUrl?:string,hourRows:readonly InvoiceHourRow[]=[]):Promise<Uint8Array>{
   const invoicePdf=await createInvoicePdf(invoice,paymentUrl,apiBaseUrl,logoDataUrl)
-  const packet=await PDFDocument.create()
-  const source=await PDFDocument.load(invoicePdf.output('arraybuffer'))
-  packet.addPage((await packet.copyPages(source,[0]))[0])
-  if(hourRows.length){
-    const breakdown=await PDFDocument.load(createHoursBreakdownPdf(invoice,hourRows).output('arraybuffer'))
-    for(const page of await packet.copyPages(breakdown,breakdown.getPageIndices()))packet.addPage(page)
-  }
-  for(const page of await packet.copyPages(source,source.getPageIndices().slice(1)))packet.addPage(page)
-  for(const part of poPdfs){const document=await PDFDocument.load(part);for(const page of await packet.copyPages(document,document.getPageIndices()))packet.addPage(page)}
-  return packet.save()
+  if(hourRows.length)appendHoursBreakdownPdf(invoicePdf,invoice,hourRows)
+  return new Uint8Array(invoicePdf.output('arraybuffer'))
 }
 
 export async function markInvoicePacketStatus(bytes: Uint8Array, status: PublicInvoice['status']): Promise<Uint8Array> {

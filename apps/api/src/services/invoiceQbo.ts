@@ -51,6 +51,25 @@ export async function syncInvoiceQbo(db:D1Database,env:ApiEnv,invoiceId:string){
     await db.prepare("UPDATE invoices SET qbo_invoice_id=?,qbo_sync_token=?,qbo_sync_status='synced',qbo_sync_error=NULL WHERE id=?").bind(result.Invoice.Id,result.Invoice.SyncToken||'',invoiceId).run()
   }catch(error){const message=String(error instanceof Error?error.message:error).slice(0,1000);await db.prepare("UPDATE invoices SET qbo_sync_status=?,qbo_sync_error=? WHERE id=?").bind(message==='QuickBooks is not configured.'?'not_configured':'failed',message,invoiceId).run()}
 }
+export async function voidInvoiceQbo(db:D1Database,env:ApiEnv,invoiceId:string){
+  try{
+    const row=await db.prepare("SELECT invoice_number,qbo_invoice_id FROM invoices WHERE id=? AND status='void'").bind(invoiceId).first<{invoice_number:string;qbo_invoice_id:string|null}>()
+    if(!row)return
+    if(!env.QBO_CLIENT_ID||!env.QBO_CLIENT_SECRET){
+      if(row.qbo_invoice_id)throw new Error('QuickBooks is not configured to void the linked invoice.')
+      await db.prepare("UPDATE invoices SET qbo_sync_status='not_configured',qbo_sync_error=NULL WHERE id=?").bind(invoiceId).run()
+      return
+    }
+    const matches=row.qbo_invoice_id?[]:await query(db,env,'Invoice','DocNumber',row.invoice_number)
+    if(matches.length>1)throw new Error('QuickBooks has multiple invoices with this number. Review them before retrying.')
+    const existing=row.qbo_invoice_id?(await readEntity(db,env,'invoice',row.qbo_invoice_id)).Invoice:matches[0]
+    if(existing&&!row.qbo_invoice_id&&!existing.PrivateNote?.includes(`V5 invoice ${invoiceId}`))throw new Error('QuickBooks invoice does not match this V5 invoice.')
+    if(!existing){await db.prepare("UPDATE invoices SET qbo_sync_status='synced',qbo_sync_error=NULL WHERE id=?").bind(invoiceId).run();return}
+    const result=existing.PrivateNote?.startsWith('Voided')?existing: (await request(db,env,'invoice?operation=void',{Id:existing.Id,SyncToken:existing.SyncToken})).Invoice
+    if(!result?.Id)throw new Error('QuickBooks did not confirm the invoice void.')
+    await db.prepare("UPDATE invoices SET qbo_invoice_id=?,qbo_sync_token=?,qbo_sync_status='synced',qbo_sync_error=NULL WHERE id=?").bind(result.Id,result.SyncToken||'',invoiceId).run()
+  }catch(error){await db.prepare("UPDATE invoices SET qbo_sync_status='failed',qbo_sync_error=? WHERE id=?").bind(String(error instanceof Error?error.message:error).slice(0,1000),invoiceId).run()}
+}
 export async function syncPaymentQbo(db:D1Database,env:ApiEnv,paymentId:string){
   const payment=await db.prepare("SELECT * FROM invoice_payments WHERE id=? AND status='succeeded'").bind(paymentId).first<Record<string,unknown>>()
   if(!payment||payment.qbo_payment_id)return

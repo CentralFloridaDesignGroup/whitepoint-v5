@@ -160,7 +160,7 @@ export function createTimesheetsApi(){
   })
   api.get('/invoice-pool',async c=>{
     if(!has(c,'timesheets.rates.view'))return c.json({error:'Forbidden'},403)
-    const rows=(await c.env.DB.prepare(`SELECT e.id AS entry_id,w.user_id,w.week_start,e.project_id,e.project_task_id,e.entry_date,(ROUND(e.hours*100)-COALESCE(a.claimed_hours,0))/100.0 AS hours,e.note,e.cost_cents,e.charge_cents-COALESCE(a.claimed_charge,0) AS charge_cents,e.billing_type FROM user_timesheet_entries e JOIN user_timesheets w ON w.id=e.timesheet_id LEFT JOIN (SELECT entry_id,SUM(billed_hours_hundredths+writeoff_hours_hundredths) AS claimed_hours,SUM(billed_charge_cents+writeoff_charge_cents) AS claimed_charge FROM invoice_entry_allocations GROUP BY entry_id) a ON a.entry_id=e.id WHERE w.status='approved' AND ROUND(e.hours*100)>COALESCE(a.claimed_hours,0) AND e.billing_type IN ('fixed-fee','time-and-materials','time-and-materials-nte') ORDER BY e.entry_date,e.id`).all()).results
+    const rows=(await c.env.DB.prepare(`SELECT e.id AS entry_id,w.user_id,w.week_start,e.project_id,e.project_task_id,e.entry_date,(ROUND(e.hours*100)-COALESCE(a.claimed_hours,0))/100.0 AS hours,e.note,e.cost_cents,e.charge_cents-COALESCE(a.claimed_charge,0) AS charge_cents,e.billing_type FROM user_timesheet_entries e JOIN user_timesheets w ON w.id=e.timesheet_id LEFT JOIN invoice_entry_claims a ON a.entry_id=e.id WHERE w.status='approved' AND ROUND(e.hours*100)>COALESCE(a.claimed_hours,0) AND e.billing_type IN ('fixed-fee','time-and-materials','time-and-materials-nte') ORDER BY e.entry_date,e.id`).all()).results
     return c.json({items:rows})
   })
   return api

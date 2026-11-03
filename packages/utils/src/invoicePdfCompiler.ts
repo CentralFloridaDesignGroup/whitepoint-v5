@@ -17,8 +17,8 @@ export function invoiceHoursBreakdownRows(allocations: readonly InvoiceAllocatio
     .sort((a, b) => a.task.localeCompare(b.task) || a.employee.localeCompare(b.employee) || a.date.localeCompare(b.date))
 }
 
-export function createHoursBreakdownPdf(invoice: PublicInvoice, rows: readonly InvoiceHourRow[]): jsPDF {
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' })
+export function appendHoursBreakdownPdf(pdf: jsPDF, invoice: PublicInvoice, rows: readonly InvoiceHourRow[]): void {
+  pdf.addPage()
   const left = 54, right = 558
   let y = 0
   function page() {
@@ -55,7 +55,6 @@ export function createHoursBreakdownPdf(invoice: PublicInvoice, rows: readonly I
   pdf.setFont('helvetica', 'bold'); pdf.setFontSize(10); pdf.setTextColor(...navy)
   pdf.text('Total billed hours', left, y + 24)
   pdf.text(rows.reduce((sum, row) => sum + row.hours, 0).toFixed(2), right, y + 24, { align: 'right' })
-  return pdf
 }
 
 type PdfLogo = { dataUrl: string; width: number; height: number }

@@ -47,6 +47,9 @@ head_sampling_rate = 0.01
 [env.production.triggers]
 crons = ["0 13,14,20,21 * * 1", "0 13,14 10 * *"]
 
+[env.production.limits]
+cpu_ms = 30000
+
 [env.production.vars]
 AUTH_ORIGINS = "https://whitepointsurvey.com,https://www.whitepointsurvey.com,https://app.whitepointsurvey.com,https://docs.whitepointsurvey.com,https://payment.whitepointsurvey.com"
 STAFF_APP_URL = "https://app.whitepointsurvey.com"

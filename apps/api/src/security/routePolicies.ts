@@ -55,11 +55,11 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   permission('GET', '/invoices/payments/payouts', ['manage'], 'invoices.manage'), permission('GET', '/invoices/payments/payouts/:id', ['manage'], 'invoices.manage'), permission('POST', '/invoices/payments/payouts/:id/retry', ['manage'], 'invoices.manage'),
   permission('GET', '/invoices/payments/holds', ['manage'], 'invoices.manage'), permission('POST', '/invoices/payments/holds/:clientId/release', ['manage'], 'invoices.manage', true), permission('POST', '/invoices/payments/:paymentId/qbo/correct', ['manage'], 'invoices.manage'),
   session('GET', '/invoices', ['manage'], true), session('GET', '/invoices/projects', ['manage'], true), session('GET', '/invoices/pool', ['manage'], true),
-  p('GET', '/invoices/public/:token', ['payment'], 'public'), p('GET', '/invoices/public/:token/packet', ['payment'], 'public'), p('GET', '/invoices/public/:token/logo', ['payment'], 'public'), publicPost('/invoices/public/:token/checkout', ['payment']),
+  p('GET', '/invoices/public/:token', ['payment'], 'public'), p('GET', '/invoices/public/:token/packet', ['payment'], 'public'), p('GET', '/invoices/public/:token/po-documents/:documentId', ['payment'], 'public'), p('GET', '/invoices/public/:token/logo', ['payment'], 'public'), publicPost('/invoices/public/:token/checkout', ['payment']),
   session('POST', '/invoices', ['manage'], true), session('GET', '/invoices/:id/logo', ['manage'], true), session('GET', '/invoices/:id/packet', ['manage'], true),
   session('GET', '/invoices/:id/po-documents/:documentId', ['manage'], true), session('GET', '/invoices/:id', ['manage'], true), session('GET', '/invoices/:id/analysis', ['manage'], true),
   session('POST', '/invoices/:id/entries', ['manage'], true), session('PUT', '/invoices/:id', ['manage'], true), session('POST', '/invoices/:id/mark-sent', ['manage'], true),
-  session('POST', '/invoices/:id/send', ['manage'], true), session('DELETE', '/invoices/:id', ['manage'], true), permission('POST', '/invoices/:id/payments', ['manage'], 'invoices.manage'), session('POST', '/invoices/:id/qbo/retry', ['manage'], true),
+  session('POST', '/invoices/:id/send', ['manage'], true), session('POST', '/invoices/:id/resend', ['manage'], true), permission('POST', '/invoices/:id/void', ['manage'], 'invoices.manage', true), session('DELETE', '/invoices/:id', ['manage'], true), permission('POST', '/invoices/:id/payments', ['manage'], 'invoices.manage'), session('POST', '/invoices/:id/qbo/retry', ['manage'], true),
   p('POST', '/webhooks/stripe', ['stripe'], 'signed-webhook', undefined, { csrfExempt: true }),
 ] as const
 

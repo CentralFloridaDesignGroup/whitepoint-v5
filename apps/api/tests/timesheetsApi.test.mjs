@@ -10,7 +10,7 @@ import { projectTimeEntries } from '../src/routes/projectTimeEntries.ts'
 import { createInvoicesApi } from '../src/routes/invoicesApi.ts'
 import { generateMonthlyInvoices } from '../src/services/monthlyInvoices.ts'
 import { createStripeInvoiceWebhook } from '../src/webhooks/stripeInvoiceWebhook.ts'
-import { correctPaymentQbo, syncInvoiceQbo, syncPaymentQbo, syncPayoutQbo } from '../src/services/invoiceQbo.ts'
+import { correctPaymentQbo, syncInvoiceQbo, syncPaymentQbo, syncPayoutQbo, voidInvoiceQbo } from '../src/services/invoiceQbo.ts'
 import { payoutTransactions } from '../src/services/stripeApi.ts'
 import { processStripeEvent } from '../src/services/stripePayments.ts'
 import { paymentNotice, retryFailedPaymentNotices } from '../src/services/paymentNotices.ts'
@@ -22,7 +22,7 @@ function fixture(){
   const documents=new Map()
   const RECORD_DOCUMENTS={put:async(key,value)=>{documents.set(key,value)},get:async key=>{const value=documents.get(key);return value?{arrayBuffer:async()=>value.buffer.slice(value.byteOffset,value.byteOffset+value.byteLength),body:new Blob([value]).stream()}:null},delete:async key=>documents.delete(key)}
   sqlite.exec('PRAGMA foreign_keys=ON')
-  for(const name of ['0001_company_initialization.sql','0002_roles_permissions.sql','0003_user_init_auth_seed.sql','0004_client_init.sql','0005_project_init.sql','0006_timesheet_init.sql','0007_invoice_init.sql'])sqlite.exec(readFileSync(new URL(`../migrations/${name}`,import.meta.url),'utf8'))
+  for(const name of ['0001_company_initialization.sql','0002_roles_permissions.sql','0003_user_init_auth_seed.sql','0004_client_init.sql','0005_project_init.sql','0006_timesheet_init.sql','0007_invoice_init.sql','0009_invoice_void_and_pm_copy.sql'])sqlite.exec(readFileSync(new URL(`../migrations/${name}`,import.meta.url),'utf8'))
   const db={
     prepare(sql){const execute=(values)=>({first:async()=>sqlite.prepare(sql).get(...values)||null,all:async()=>({results:sqlite.prepare(sql).all(...values)}),run:async()=>({meta:{changes:Number(sqlite.prepare(sql).run(...values).changes)}})});return {...execute([]),bind(...values){return execute(values)}}},
     async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const statement of statements)results.push(await statement.run());sqlite.exec('COMMIT');return results}catch(error){sqlite.exec('ROLLBACK');throw error}}
@@ -74,7 +74,7 @@ test('a billed split can hold its balance for a later invoice',async()=>{
   assert.equal((await requestAt('2','/invoices/pool?projectId=p')).body.items.some(x=>x.entryId==='split-held'),false)
 })
 
-test('billed time and materials hours appear between the invoice and PO when selected',async()=>{
+test('billed time and materials hours follow the invoice while PO stays separate',async()=>{
   const {sqlite,requestAt,documents}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; INSERT INTO user_timesheets(id,user_id,week_start,status) VALUES('hours-week','3','2026-10-19','approved'); INSERT INTO user_timesheet_entries(id,timesheet_id,project_id,project_task_id,entry_date,hours,note,charge_cents,billing_type) VALUES('hours-entry','hours-week','p','t','2026-10-20',2,'Field visit',30000,'time-and-materials');")
   const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:['hours-entry']})
@@ -93,10 +93,10 @@ test('billed time and materials hours appear between the invoice and PO when sel
   const sent=await requestAt('2',`/invoices/${invoice.id}/mark-sent`,'POST',{})
   assert.equal(sent.status,200)
   const packet=await PDFDocument.load(documents.get(`invoices/${invoice.id}/packet.pdf`))
-  assert.equal(packet.getPageCount(),3)
+  assert.equal(packet.getPageCount(),2)
 })
 
-test('sending attaches a PDF packet with active project POs and deduplicates recipient email',async()=>{
+test('sending attaches the invoice PDF and separate project POs and deduplicates recipient email',async()=>{
   const {sqlite,requestAt,documents,app,db}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2',po_number='PO-77' WHERE id='p'; INSERT INTO contacts(id,client_id,name,email,is_billing_poc) VALUES('duplicate-recipient','c','Second billing contact','billing@example.com',1); INSERT INTO project_contacts(project_id,role,contact_id) VALUES('p','clientBillingPoc','duplicate-recipient');")
   const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:[]})
@@ -115,12 +115,14 @@ test('sending attaches a PDF packet with active project POs and deduplicates rec
     assert.equal(sent.body.invoice.poNumber,'PO-77')
     assert.deepEqual(sent.body.invoice.poDocuments.map(x=>x.name),['Signed PO.pdf'])
     const issuedPacket=await PDFDocument.load(documents.get(`invoices/${invoice.id}/packet.pdf`))
-    assert.equal(issuedPacket.getPageCount(),2)
+    assert.equal(issuedPacket.getPageCount(),1)
     const annotations=issuedPacket.getPage(0).node.Annots()
     assert(annotations?.size()>=2,'issued invoice should show both first-page payment links')
     const links=annotations?.asArray().map(ref=>issuedPacket.context.lookup(ref,PDFDict).lookup(PDFName.of('A'),PDFDict)?.lookup(PDFName.of('URI'))?.toString())||[]
     assert(links.some(url=>url?.includes(`/pay/${invoice.publicToken}`)),'issued invoice first page should link to its payment page')
     assert.equal(sentMail.length,1)
+    assert.equal(sentMail[0].attachment.length,2)
+    assert.equal(sentMail[0].attachment[1].name,'Signed PO.pdf')
     assert(sentMail[0].attachment[0].content.length>100)
     assert.match(sentMail[0].htmlContent, /View and pay invoice/)
     assert.match(sentMail[0].textContent, /View and pay:/)
@@ -128,6 +130,9 @@ test('sending attaches a PDF packet with active project POs and deduplicates rec
     const packet=await app.request(`/invoices/public/${invoice.publicToken}/packet`,{}, {DB:db,RECORD_DOCUMENTS:{get:async key=>({body:new Blob([documents.get(key)]).stream()})}})
     assert.equal(packet.status,200)
     assert.equal((await packet.text()).slice(0,5),'%PDF-')
+    const publicPo=await app.request(`/invoices/public/${invoice.publicToken}/po-documents/po-test`,{}, {DB:db,RECORD_DOCUMENTS:{get:async key=>documents.has(key)?{body:new Blob([documents.get(key)]).stream()}:null}})
+    assert.equal(publicPo.status,200)
+    assert.equal((await publicPo.text()).slice(0,5),'%PDF-')
   }finally{globalThis.fetch=originalFetch}
 })
 
@@ -154,6 +159,81 @@ test('mark sent omits email and a failed recipient retry sends only the failed a
     const retried=await requestAt('2',`/invoices/${invoice.id}/send`,'POST',{})
     assert.equal(retried.body.invoice.emailStatus,'accepted')
     assert.deepEqual(calls,['billing@example.com','second@example.com','second@example.com'])
+  }finally{globalThis.fetch=originalFetch}
+})
+
+test('project manager receives one visible CC when multiple client contacts are emailed',async()=>{
+  const {sqlite,requestAt}=fixture()
+  sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; INSERT INTO contacts(id,client_id,name,email,is_billing_poc) VALUES('second-cc','c','Second Contact','second@example.com',1); INSERT INTO project_contacts(project_id,role,contact_id) VALUES('p','clientBillingPoc','second-cc');")
+  const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:[]})
+  const invoice=created.body.invoice
+  const saved=await requestAt('2',`/invoices/${invoice.id}`,'PUT',{revision:invoice.revision,issueDate:invoice.issueDate,paymentTerm:invoice.paymentTerm,includeHoursBreakdown:false,includeLineItemNotes:false,copyPm:true,notes:'',internalNote:'',recipientIds:invoice.recipients.filter(x=>x.selected).map(x=>x.contactId),allocations:[],lines:[{id:'cc-line',kind:'manual',description:'Survey work',amountCents:10000,projectTaskId:null}]})
+  assert.equal(saved.status,200)
+  const messages=[],originalFetch=globalThis.fetch
+  globalThis.fetch=async(url,init)=>{if(!String(url).includes('api.brevo.com'))throw new Error('Unexpected network request');messages.push(JSON.parse(init.body));return new Response('{}',{status:201})}
+  try{
+    const sent=await requestAt('2',`/invoices/${invoice.id}/send`,'POST',{})
+    assert.equal(sent.status,200)
+    assert.equal(sent.body.invoice.pmCopyStatus,'accepted')
+    assert.equal(sent.body.invoice.pmCopyEmail,'manager@example.com')
+    assert.equal(messages.length,2)
+    assert.equal(messages.filter(message=>message.cc?.[0]?.email==='manager@example.com').length,1)
+    assert.equal((await requestAt('2',`/invoices/${invoice.id}/send`,'POST',{})).status,409)
+    assert.equal((await requestAt('3',`/invoices/${invoice.id}/resend`,'POST',{})).status,403)
+    const resent=await requestAt('2',`/invoices/${invoice.id}/resend`,'POST',{})
+    assert.equal(resent.status,200)
+    assert.equal(resent.body.invoice.emailStatus,'accepted')
+    assert.equal(resent.body.invoice.pmCopyStatus,'accepted')
+    assert.deepEqual(messages.slice(2).map(message=>message.to[0].email),['billing@example.com','second@example.com'])
+    assert.equal(messages.slice(2).filter(message=>message.cc?.[0]?.email==='manager@example.com').length,1)
+    assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM invoice_events WHERE invoice_id=? AND action='resent'").get(invoice.id).n,1)
+  }finally{globalThis.fetch=originalFetch}
+})
+
+test('voiding an unpaid sent invoice blocks payment and releases its time for a replacement',async()=>{
+  const {sqlite,requestAt}=fixture()
+  sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; INSERT INTO user_timesheets(id,user_id,week_start,status) VALUES('void-week','3','2026-10-19','approved'); INSERT INTO user_timesheet_entries(id,timesheet_id,project_id,project_task_id,entry_date,hours,note,charge_cents,billing_type) VALUES('void-entry','void-week','p','t','2026-10-20',1,'Field work',15000,'time-and-materials');")
+  const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:['void-entry']})
+  const id=created.body.invoice.id
+  const marked=await requestAt('2',`/invoices/${id}/mark-sent`,'POST',{})
+  assert.equal(marked.status,200)
+  assert.equal((await requestAt('1','/invoices/pool?projectId=p')).body.items.some(entry=>entry.entryId==='void-entry'),false)
+  sqlite.prepare("INSERT INTO stripe_checkout_sessions(id,invoice_id,amount_cents,status) VALUES('cs_void_open',?,15000,'open')").run(id)
+  const originalFetch=globalThis.fetch
+  const stripeCalls=[]
+  globalThis.fetch=async(url,init={})=>{stripeCalls.push(`${init.method||'GET'} ${url}`);return Response.json({status:'open'})}
+  let voided
+  try{voided=await requestAt('1',`/invoices/${id}/void`,'POST',{revision:marked.body.invoice.revision},{STRIPE_SECRET_KEY:'sk_test'})}
+  finally{globalThis.fetch=originalFetch}
+  assert.equal(voided.status,200)
+  assert.equal(voided.body.invoice.status,'void')
+  assert.equal(sqlite.prepare("SELECT status FROM stripe_checkout_sessions WHERE id='cs_void_open'").get().status,'expired')
+  assert.equal(stripeCalls.length,2)
+  assert.equal((await requestAt('1',`/invoices/public/${created.body.invoice.publicToken}`)).status,404)
+  assert.equal((await requestAt('1','/invoices/pool?projectId=p')).body.items.find(entry=>entry.entryId==='void-entry').hours,1)
+  const replacement=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:['void-entry']})
+  assert.equal(replacement.status,201)
+  assert.notEqual(replacement.body.invoice.id,id)
+  assert.equal((await requestAt('1',`/invoices/${id}/void`,'POST',{revision:voided.body.invoice.revision})).status,409)
+})
+
+test('a linked QBO invoice is voided once and its sync state is retry safe',async()=>{
+  const {sqlite,db}=fixture()
+  sqlite.exec("INSERT INTO qbo_connection(id,realm_id,environment,access_token,refresh_token,token_expires_at,connected_at,updated_at) VALUES(1,'realm','sandbox','token','refresh','2099-01-01T00:00:00Z',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP); INSERT INTO invoices(id,project_id,client_id,invoice_number,source,status,issue_date,due_date,billing_name,project_reference,public_token,qbo_invoice_id) VALUES('void-qbo','p','c','INV-VOID-QBO','manual','void','2026-10-10','2026-11-09','Client','P-1','void-qbo-token','qbo-void-invoice');")
+  let voidCalls=0
+  const originalFetch=globalThis.fetch
+  globalThis.fetch=async(url,init={})=>{
+    const value=String(url)
+    if(value.includes('/invoice/qbo-void-invoice'))return Response.json({Invoice:{Id:'qbo-void-invoice',SyncToken:String(voidCalls),PrivateNote:voidCalls?'Voided V5 invoice void-qbo':'V5 invoice void-qbo'}})
+    if(value.includes('/invoice?operation=void')){voidCalls++;assert.deepEqual(JSON.parse(init.body),{Id:'qbo-void-invoice',SyncToken:'0'});return Response.json({Invoice:{Id:'qbo-void-invoice',SyncToken:'1',PrivateNote:'Voided V5 invoice void-qbo'}})}
+    throw new Error('Unexpected QuickBooks request')
+  }
+  try{
+    const env={QBO_CLIENT_ID:'client',QBO_CLIENT_SECRET:'secret'}
+    await voidInvoiceQbo(db,env,'void-qbo')
+    await voidInvoiceQbo(db,env,'void-qbo')
+    assert.equal(voidCalls,1)
+    assert.equal(sqlite.prepare("SELECT qbo_sync_status FROM invoices WHERE id='void-qbo'").get().qbo_sync_status,'synced')
   }finally{globalThis.fetch=originalFetch}
 })
 

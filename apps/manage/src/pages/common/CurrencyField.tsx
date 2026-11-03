@@ -3,10 +3,10 @@ import { Textbox } from '@whitepoint/ui/input';
 import { centsToDollars, dollarsToCents } from './currency';
 
 type CurrencyFieldProps = {
-  label: string;
   valueCents: number | null | undefined;
   onCentsChange: (cents: number | null) => void;
   disabled: boolean;
+  label?: string;
   nullable?: boolean;
   placeholder?: string;
 };

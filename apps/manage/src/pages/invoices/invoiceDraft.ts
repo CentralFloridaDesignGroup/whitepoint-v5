@@ -24,6 +24,7 @@ export type Draft = {
   paymentTerm: InvoicePaymentTerm;
   includeHoursBreakdown: boolean;
   includeLineItemNotes: boolean;
+  copyPm: boolean;
   notes: string;
   internalNote: string;
   recipientIds: string[];

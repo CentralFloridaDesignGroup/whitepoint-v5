@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogPanel,
+  DialogTitle,
+} from "@headlessui/react";
 import type {
   InvoiceAnalysis,
   InvoiceLine,
@@ -7,7 +13,11 @@ import type {
   InvoicePoolEntry,
   InvoiceRecord,
 } from "@whitepoint/types";
-import { createInvoicePacket, invoiceHoursBreakdownRows } from "@whitepoint/utils/invoice-pdf";
+import {
+  createInvoicePacket,
+  invoiceHoursBreakdownRows,
+} from "@whitepoint/utils/invoice-pdf";
+import { downloadBlob } from "@whitepoint/utils/browser-files";
 import { invoiceDueDate } from "@whitepoint/utils/invoice-terms";
 import { apiBaseUrl, requestBlob, requestJson } from "../../api/client";
 import { formatUsdCents as money } from "@whitepoint/utils/currency";
@@ -18,6 +28,9 @@ import {
   type Draft,
 } from "./invoiceDraft";
 import { clientView, fromInvoice } from "./invoicePresentation";
+import { Dropdown, Textarea, Textbox, Toggle } from "@whitepoint/ui/input";
+import { ArrowLeft, X } from "lucide-react";
+import { CurrencyField } from "../common/CurrencyField";
 
 const termOptions = [
   ["due-on-receipt", "Due on receipt"],
@@ -31,6 +44,28 @@ const field =
 const card = "rounded-xl border border-slate-200 bg-white p-5 shadow-sm";
 const sumMap = (values?: Map<string, number>) =>
   [...(values?.values() || [])].reduce((sum, value) => sum + value, 0);
+function patchedChoice(
+  choice: Choice,
+  patch: Partial<Choice>,
+  source?: InvoiceRecord["allocations"][number],
+) {
+  const next = { ...choice, ...patch };
+  if (
+    source &&
+    ((patch.disposition === "split" && choice.disposition !== "split") ||
+      (patch.splitBasis && patch.splitBasis !== choice.splitBasis))
+  )
+    next.splitValue = defaultSplitValue(source, next.splitBasis);
+  if (
+    patch.disposition &&
+    patch.disposition !== "write-off" &&
+    patch.disposition !== "split"
+  ) {
+    next.writeoffReason = null;
+    next.writeoffExplanation = "";
+  }
+  return next;
+}
 
 export function InvoiceDetailPage() {
   const { id = "" } = useParams(),
@@ -53,6 +88,11 @@ export function InvoiceDetailPage() {
     hours: number;
     charge: number;
   } | null>(null);
+  const [decisionEditor, setDecisionEditor] = useState<{
+    entryId: string;
+    choice: Choice;
+  } | null>(null);
+  const [decisionEditorError, setDecisionEditorError] = useState("");
   const [paymentAmount, setPaymentAmount] = useState(""),
     [paymentMethod, setPaymentMethod] = useState("Check"),
     [paymentRef, setPaymentRef] = useState("");
@@ -115,27 +155,58 @@ export function InvoiceDetailPage() {
       ...draft,
       choices: draft.choices.map((choice) => {
         if (choice.entryId !== entryId) return choice;
-        const next = { ...choice, ...patch },
-          source = invoice.allocations.find(
-            (entry) => entry.entryId === entryId,
-          );
-        if (
-          source &&
-          ((patch.disposition === "split" && choice.disposition !== "split") ||
-            (patch.splitBasis && patch.splitBasis !== choice.splitBasis))
-        )
-          next.splitValue = defaultSplitValue(source, next.splitBasis);
-        if (
-          patch.disposition &&
-          patch.disposition !== "write-off" &&
-          patch.disposition !== "split"
-        ) {
-          next.writeoffReason = null;
-          next.writeoffExplanation = "";
-        }
-        return next;
+        const source = invoice.allocations.find(
+          (entry) => entry.entryId === entryId,
+        );
+        return patchedChoice(choice, patch, source);
       }),
     });
+  }
+  function openDecisionEditor(
+    entryId: string,
+    disposition?: Choice["disposition"],
+  ) {
+    if (!draft || !invoice) return;
+    const choice = draft.choices.find((item) => item.entryId === entryId);
+    if (!choice) return;
+    const source = invoice.allocations.find((item) => item.entryId === entryId),
+      nextChoice = patchedChoice(
+        choice,
+        disposition ? { disposition } : {},
+        source,
+      );
+    setDecisionEditor({ entryId, choice: nextChoice });
+    setDecisionEditorError("");
+  }
+  function saveDecisionEditor() {
+    if (!draft || !invoice || !decisionEditor) return;
+    const nextDraft = {
+        ...draft,
+        choices: draft.choices.map((choice) =>
+          choice.entryId === decisionEditor.entryId
+            ? decisionEditor.choice
+            : choice,
+        ),
+      },
+      calculation = draftPreview(invoice, nextDraft),
+      allocation = calculation?.byEntry.get(decisionEditor.entryId);
+    if (!calculation) {
+      setDecisionEditorError("Enter a valid split value.");
+      return;
+    }
+    if (
+      allocation?.writeoffHoursHundredths &&
+      (!decisionEditor.choice.writeoffReason ||
+        !decisionEditor.choice.writeoffExplanation?.trim())
+    ) {
+      setDecisionEditorError(
+        "Choose a write-off reason and enter an explanation.",
+      );
+      return;
+    }
+    updateDraft(nextDraft);
+    setDecisionEditor(null);
+    setDecisionEditorError("");
   }
   function changeLine(index: number, patch: Partial<InvoiceLine>) {
     if (!draft) return;
@@ -196,6 +267,7 @@ export function InvoiceDetailPage() {
       paymentTerm: draft.paymentTerm,
       includeHoursBreakdown: draft.includeHoursBreakdown,
       includeLineItemNotes: draft.includeLineItemNotes,
+      copyPm: draft.copyPm,
       notes: draft.notes,
       internalNote: draft.internalNote,
       recipientIds: draft.recipientIds,
@@ -229,7 +301,7 @@ export function InvoiceDetailPage() {
   async function saveClose() {
     if (await save()) navigate("/invoices");
   }
-  async function issue(path: "/send" | "/mark-sent") {
+  async function issue(path: "/send" | "/resend" | "/mark-sent") {
     if (!invoice) return;
     const saved = invoice.canEdit ? await save() : invoice;
     if (!saved) return;
@@ -261,6 +333,29 @@ export function InvoiceDetailPage() {
         body: JSON.stringify({ revision: invoice.revision }),
       });
       navigate("/invoices", { replace: true });
+    } catch (cause) {
+      setError(String(cause));
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function voidInvoice() {
+    if (
+      !invoice ||
+      !window.confirm(
+        `Void invoice ${invoice.invoiceNumber}? This disables its payment page and releases its time for another invoice.`,
+      )
+    )
+      return;
+    setBusy(true);
+    setError("");
+    try {
+      await requestJson(`/invoices/${encodeURIComponent(id)}/void`, {
+        authMode: "session",
+        method: "POST",
+        body: JSON.stringify({ revision: invoice.revision }),
+      });
+      await reload();
     } catch (cause) {
       setError(String(cause));
     } finally {
@@ -307,19 +402,6 @@ export function InvoiceDetailPage() {
     try {
       let blob: Blob;
       if (invoice.status === "draft") {
-        const poPdfs = await Promise.all(
-          invoice.poDocuments.map(
-            async (document) =>
-              new Uint8Array(
-                await (
-                  await requestBlob(
-                    `/invoices/${encodeURIComponent(id)}/po-documents/${encodeURIComponent(document.id)}`,
-                    { authMode: "session" },
-                  )
-                ).arrayBuffer(),
-              ),
-          ),
-        );
         const billedHours = new Map(
           [...preview.byEntry].map(([entryId, allocation]) => [
             entryId,
@@ -337,7 +419,6 @@ export function InvoiceDetailPage() {
           clientView(invoice, draft, preview),
           paymentUrl,
           apiBaseUrl,
-          poPdfs,
           undefined,
           hourRows,
         );
@@ -352,6 +433,18 @@ export function InvoiceDetailPage() {
       setError(String(cause));
     } finally {
       setPreviewBusy(false);
+    }
+  }
+  async function downloadPo(documentId: string, name: string) {
+    setError("");
+    try {
+      const blob = await requestBlob(
+        `/invoices/${encodeURIComponent(id)}/po-documents/${encodeURIComponent(documentId)}`,
+        { authMode: "session" },
+      );
+      downloadBlob(blob, name);
+    } catch (cause) {
+      setError(String(cause));
     }
   }
   useEffect(() => {
@@ -384,10 +477,15 @@ export function InvoiceDetailPage() {
       })),
   ].sort(
     (a, b) =>
-      (a.entry.taskName || "").localeCompare(b.entry.taskName || "") ||
+      a.entry.entryDate.localeCompare(b.entry.entryDate) ||
       (a.entry.employeeName || "").localeCompare(b.entry.employeeName || "") ||
-      a.entry.entryDate.localeCompare(b.entry.entryDate),
+      (a.entry.taskName || "").localeCompare(b.entry.taskName || ""),
   );
+  const decisionEntry = decisionEditor
+    ? invoice.allocations.find(
+        (entry) => entry.entryId === decisionEditor.entryId,
+      )
+    : null;
   const currentRevenue = preview?.total ?? invoice.totalCents,
     priorRevenue =
       analysis?.rows.reduce((sum, row) => sum + row.priorInvoicedCents, 0) || 0,
@@ -396,14 +494,44 @@ export function InvoiceDetailPage() {
         (sum, row) => sum + (row.approvedCostCents || 0),
         0,
       ) || 0;
+
+  function dateDisplay(date: string) {
+    const d = new Date(date);
+    return d.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    });
+  }
+
+  /** Returns the appropriate CSS class based on the billing, held, and write-off amounts for background colors */
+  function colorDecision(billed: number, held: number, writeOff: number) {
+    if (billed > 0 && held > 0) return "bg-green-200"; // green to orange background
+    if (billed > 0 && writeOff > 0) return "bg-red-200"; // green to red background
+    if (billed > 0) return "bg-green-400";
+    if (held > 0) return "bg-orange-300";
+    if (writeOff > 0) return "bg-red-500";
+    return "bg-transparent";
+  }
+
+  /** Returns the appropriate CSS class based on the billing, held, and write-off amounts for background colors */
+  function textColorDecision(billed: number, held: number, writeOff: number) {
+    if (billed > 0 && held > 0) return "font-semibold text-black"; // green to orange background
+    if (billed > 0 && writeOff > 0) return "font-semibold text-black"; // green to red background
+    if (billed > 0) return "font-semibold text-black";
+    if (held > 0) return "font-semibold text-black";
+    if (writeOff > 0) return "font-semibold text-white";
+    return "font-semibold text-slate-900";
+  }
+
   return (
     <main className="mx-auto max-w-[1800px] space-y-4 px-4 pb-10 pt-4 text-slate-900">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
         <div>
-          <Link to="/invoices" className="text-sm text-sky-800">
-            ← Invoices
-          </Link>
-          <h1 className="text-2xl font-bold">
+          <h1 className="text-2xl font-bold items-center flex">
+            <Link to="/invoices" className="text-sm cursor-pointer">
+              <ArrowLeft className="inline-block mr-1 hover:text-sky-800" />
+            </Link>
             Invoice {invoice.invoiceNumber}
           </h1>
           <p className="text-sm text-slate-600">
@@ -419,6 +547,15 @@ export function InvoiceDetailPage() {
               className="rounded bg-red-600 px-3 py-2 text-white disabled:opacity-50"
             >
               Delete Invoice
+            </button>
+          )}
+          {invoice.canVoid && (
+            <button
+              disabled={busy}
+              onClick={() => void voidInvoice()}
+              className="rounded bg-red-600 px-3 py-2 text-white disabled:opacity-50"
+            >
+              Void Invoice
             </button>
           )}
           {invoice.canEdit && (
@@ -441,7 +578,8 @@ export function InvoiceDetailPage() {
           )}
           {(invoice.canSend ||
             (invoice.status === "sent" &&
-              invoice.emailStatus !== "accepted")) && (
+              (invoice.emailStatus !== "accepted" ||
+                (invoice.copyPm && invoice.pmCopyStatus !== "accepted")))) && (
             <button
               disabled={busy}
               onClick={() => void issue("/send")}
@@ -450,6 +588,24 @@ export function InvoiceDetailPage() {
               Send Invoice
             </button>
           )}
+          {invoice.status === "sent" &&
+            invoice.emailStatus === "accepted" &&
+            (!invoice.copyPm || invoice.pmCopyStatus === "accepted") && (
+              <button
+                disabled={busy}
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Resend invoice ${invoice.invoiceNumber} to all selected recipients?`,
+                    )
+                  )
+                    void issue("/resend");
+                }}
+                className="rounded bg-green-700 px-3 py-2 text-white disabled:opacity-50"
+              >
+                Resend Invoice Email
+              </button>
+            )}
         </div>
       </header>
       {error && (
@@ -457,170 +613,103 @@ export function InvoiceDetailPage() {
           {error}
         </p>
       )}
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(470px,1.25fr)]">
+      <div className="grid items-start gap-4 xl:grid-cols-2">
         <div className="space-y-4">
+          {/* Invoice Information */}
           <section className={card}>
             <h2 className="mb-4 text-lg font-semibold">
               Invoice information and project history
             </h2>
             <div className="grid gap-3 sm:grid-cols-3">
-              <label className="text-sm">
-                Issue date
-                <input
-                  className={field}
-                  type="date"
-                  disabled={!invoice.canEdit}
-                  value={draft.issueDate}
-                  onChange={(event) => {
-                    const issueDate = event.target.value;
-                    updateDraft({
-                      ...draft,
-                      issueDate,
-                      dueDate: issueDate
-                        ? invoiceDueDate(issueDate, draft.paymentTerm)
-                        : "",
-                    });
-                  }}
-                />
-              </label>
-              <label className="text-sm">
-                Payment terms
-                <select
-                  className={field}
-                  disabled={!invoice.canEdit}
-                  value={draft.paymentTerm}
-                  onChange={(event) => {
-                    const paymentTerm = event.target
-                      .value as Draft["paymentTerm"];
-                    updateDraft({
-                      ...draft,
-                      paymentTerm,
-                      dueDate: draft.issueDate
-                        ? invoiceDueDate(draft.issueDate, paymentTerm)
-                        : "",
-                    });
-                  }}
-                >
-                  {termOptions.map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-sm">
-                Due date
-                <input
-                  className={field}
-                  type="date"
-                  readOnly
-                  value={draft.dueDate}
-                />
-              </label>
+              <Textbox
+                label="Issue date"
+                type="date"
+                disabled={!invoice.canEdit}
+                value={draft.issueDate}
+                onChange={(event) => {
+                  const issueDate = event.target.value;
+                  updateDraft({
+                    ...draft,
+                    issueDate,
+                    dueDate: issueDate
+                      ? invoiceDueDate(issueDate, draft.paymentTerm)
+                      : "",
+                  });
+                }}
+              />
+              <Dropdown
+                label="Payment terms"
+                disabled={!invoice.canEdit}
+                value={draft.paymentTerm}
+                onChange={(event) => {
+                  const paymentTerm = event as Draft["paymentTerm"];
+                  updateDraft({
+                    ...draft,
+                    paymentTerm,
+                    dueDate: draft.issueDate
+                      ? invoiceDueDate(draft.issueDate, paymentTerm)
+                      : "",
+                  });
+                }}
+                options={termOptions.map(([value, label]) => ({
+                  value,
+                  label,
+                }))}
+              />
+              <Textbox
+                label="Due date"
+                disabled={!invoice.canEdit}
+                type="date"
+                readOnly
+                value={draft.dueDate}
+              />
             </div>
             {draft.lines.some((line) => line.kind === "time") && (
               <div className="mt-4 space-y-2">
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    disabled={!invoice.canEdit}
-                    checked={draft.includeHoursBreakdown}
-                    onChange={(event) =>
-                      updateDraft({
-                        ...draft,
-                        includeHoursBreakdown: event.target.checked,
-                      })
-                    }
-                  />
-                  Include billed time and materials hours breakdown in the PDF
-                  packet
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    disabled={!invoice.canEdit || !draft.includeHoursBreakdown}
-                    checked={draft.includeLineItemNotes}
-                    onChange={(event) =>
-                      updateDraft({
-                        ...draft,
-                        includeLineItemNotes: event.target.checked,
-                      })
-                    }
-                  />
-                  Include line item notes in the hours breakdown
-                </label>
+                <Toggle
+                  label="Include billed time and materials hours breakdown in the PDF packet"
+                  disabled={!invoice.canEdit}
+                  checked={draft.includeHoursBreakdown}
+                  onChange={(event) =>
+                    updateDraft({
+                      ...draft,
+                      includeHoursBreakdown: event,
+                      includeLineItemNotes: event
+                        ? draft.includeLineItemNotes
+                        : false, // Disable line item notes if hours breakdown is not included
+                    })
+                  }
+                />
+                <Toggle
+                  label="Include line item notes in the hours breakdown"
+                  disabled={!invoice.canEdit || !draft.includeHoursBreakdown}
+                  checked={draft.includeLineItemNotes}
+                  onChange={(event) =>
+                    updateDraft({
+                      ...draft,
+                      includeLineItemNotes: event,
+                    })
+                  }
+                />
               </div>
             )}
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <label className="text-sm">
-                Client note
-                <textarea
-                  className={field}
-                  rows={3}
-                  disabled={!invoice.canEdit}
-                  value={draft.notes}
-                  onChange={(e) =>
-                    updateDraft({ ...draft, notes: e.target.value })
-                  }
-                />
-              </label>
-              <label className="text-sm">
-                Internal note
-                <textarea
-                  className={field}
-                  rows={3}
-                  disabled={!invoice.canEdit}
-                  value={draft.internalNote}
-                  onChange={(e) =>
-                    updateDraft({ ...draft, internalNote: e.target.value })
-                  }
-                />
-              </label>
-            </div>
-            <div className="mt-4 border-t pt-4">
-              <h3 className="mb-2 font-semibold">Invoice recipients</h3>
-              <p className="mb-2 text-xs text-slate-600">
-                Only contacts assigned to this project can receive the invoice.
-              </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {invoice.recipients.map((recipient) => (
-                  <label
-                    key={recipient.contactId}
-                    className="flex gap-2 rounded border p-2 text-sm"
-                  >
-                    <input
-                      type="checkbox"
-                      disabled={!invoice.canEdit}
-                      checked={draft.recipientIds.includes(recipient.contactId)}
-                      onChange={(event) =>
-                        updateDraft({
-                          ...draft,
-                          recipientIds: event.target.checked
-                            ? [...draft.recipientIds, recipient.contactId]
-                            : draft.recipientIds.filter(
-                                (id) => id !== recipient.contactId,
-                              ),
-                        })
-                      }
-                    />
-                    <span>
-                      <strong>{recipient.name}</strong>
-                      {recipient.isPrimary && " · Project contact"}
-                      {recipient.isBillingPoc && " · Billing POC"}
-                      <span className="block text-slate-600">
-                        {recipient.email || "No email on record"}
-                      </span>
-                      {recipient.deliveryStatus !== "none" && (
-                        <span className="block text-xs">
-                          Delivery: {recipient.deliveryStatus}
-                          {recipient.deliveryError &&
-                            ` — ${recipient.deliveryError}`}
-                        </span>
-                      )}
-                    </span>
-                  </label>
-                ))}
-              </div>
+              <Textarea
+                label="Client Note"
+                disabled={!invoice.canEdit}
+                value={draft.notes}
+                onChange={(e) =>
+                  updateDraft({ ...draft, notes: e.target.value })
+                }
+              />
+              <Textarea
+                label="Internal Note"
+                disabled={!invoice.canEdit}
+                value={draft.internalNote}
+                onChange={(e) =>
+                  updateDraft({ ...draft, internalNote: e.target.value })
+                }
+              />
             </div>
             <div className="mt-4 border-t pt-4">
               <h3 className="mb-2 font-semibold">Project invoice history</h3>
@@ -629,17 +718,20 @@ export function InvoiceDetailPage() {
                   <Link
                     key={item.id}
                     to={`/invoices/${item.id}`}
-                    className="grid grid-cols-[1fr_auto_auto] gap-3 border-b py-2 text-sky-800"
+                    className="grid grid-cols-5 gap-1 border-b border-neutral-400 py-1 text-sky-800"
                   >
                     <span>{item.invoiceNumber}</span>
-                    <span className="capitalize">
+                    <span className="">Issued {item.issueDate}</span>
+                    <span className="capitalize col-start-4 text-center">
                       {item.status === "paid"
                         ? "Paid"
                         : item.status === "sent"
                           ? "Unpaid"
                           : item.status}
                     </span>
-                    <span>{money(item.balanceCents)}</span>
+                    <span className="text-right col-start-5">
+                      {money(item.balanceCents)}
+                    </span>
                   </Link>
                 ))}
                 {!projectHistory.length && (
@@ -650,234 +742,83 @@ export function InvoiceDetailPage() {
               </div>
             </div>
           </section>
+          {/* Contacts and Recipients */}
           <section className={card}>
             <h2 className="mb-2 text-lg font-semibold">
-              Uncommitted time and decisions
+              Contacts and Recipients
             </h2>
-            <p className="mb-3 text-xs text-slate-600">
-              Approved time is sorted by task, then user. Held balances return
-              to the project pool.
-            </p>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[680px] text-left text-sm">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="p-2">Task / user / date</th>
-                    <th className="p-2">Hours</th>
-                    <th className="p-2">Client charge</th>
-                    <th className="p-2">Notes</th>
-                    <th className="p-2">Decision</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map(
-                    ({ entry, available: isAvailable, hours, charge }) => {
-                      const choice = !isAvailable
-                        ? draft.choices.find((x) => x.entryId === entry.entryId)
-                        : null;
-                      const current = choice
-                        ? preview?.byEntry.get(entry.entryId)
-                        : null;
-                      return (
-                        <tr key={entry.entryId} className="border-t align-top">
-                          <td className="p-2">
-                            <strong>
-                              {entry.taskName || "General project"}
-                            </strong>
-                            <span className="block text-xs text-slate-600">
-                              {entry.employeeName} · {entry.entryDate}
-                            </span>
-                          </td>
-                          <td className="p-2">{hours.toFixed(2)}</td>
-                          <td className="p-2">{money(charge)}</td>
-                          <td className="max-w-48 p-2">
-                            <p className="line-clamp-2">{entry.note}</p>
-                            <button
-                              className="text-xs text-sky-800 underline"
-                              onClick={() =>
-                                setOpenNote({
-                                  task: entry.taskName || "General project",
-                                  employee: entry.employeeName,
-                                  date: entry.entryDate,
-                                  note: entry.note,
-                                  hours,
-                                  charge,
-                                })
-                              }
-                            >
-                              View entry
-                            </button>
-                          </td>
-                          <td className="min-w-44 p-2">
-                            {isAvailable ? (
-                              <button
-                                disabled={busy || !invoice.canEdit}
-                                className="rounded border px-2 py-1 text-sky-800 disabled:opacity-50"
-                                onClick={() => void addTime(entry.entryId)}
-                              >
-                                Add to draft
-                              </button>
-                            ) : (
-                              choice && (
-                                <div className="space-y-2">
-                                  <select
-                                    className={field}
-                                    disabled={!invoice.canEdit}
-                                    value={choice.disposition}
-                                    onChange={(e) =>
-                                      changeChoice(entry.entryId, {
-                                        disposition: e.target
-                                          .value as Choice["disposition"],
-                                      })
-                                    }
-                                  >
-                                    <option value="billed">Bill</option>
-                                    <option value="hold">Hold</option>
-                                    <option value="write-off">Write off</option>
-                                    <option value="split">Split</option>
-                                  </select>
-                                  {choice.disposition === "split" && (
-                                    <>
-                                      <select
-                                        className={field}
-                                        disabled={!invoice.canEdit}
-                                        value={choice.splitBasis}
-                                        onChange={(e) =>
-                                          changeChoice(entry.entryId, {
-                                            splitBasis: e.target
-                                              .value as Choice["splitBasis"],
-                                          })
-                                        }
-                                      >
-                                        <option value="hours">
-                                          Split by hours
-                                        </option>
-                                        <option value="charge">
-                                          Split by charge
-                                        </option>
-                                      </select>
-                                      <input
-                                        className={field}
-                                        aria-label="Billed split amount"
-                                        type="number"
-                                        min="0.01"
-                                        step="0.01"
-                                        disabled={!invoice.canEdit}
-                                        value={choice.splitValue}
-                                        onChange={(e) =>
-                                          changeChoice(entry.entryId, {
-                                            splitValue: e.target.value,
-                                          })
-                                        }
-                                      />
-                                      <select
-                                        className={field}
-                                        disabled={!invoice.canEdit}
-                                        value={
-                                          choice.splitRemainder || "write-off"
-                                        }
-                                        onChange={(e) =>
-                                          changeChoice(entry.entryId, {
-                                            splitRemainder: e.target
-                                              .value as Choice["splitRemainder"],
-                                          })
-                                        }
-                                      >
-                                        <option value="hold">
-                                          Hold remainder
-                                        </option>
-                                        <option value="write-off">
-                                          Write off remainder
-                                        </option>
-                                      </select>
-                                    </>
-                                  )}
-                                  {(choice.disposition === "write-off" ||
-                                    (choice.disposition === "split" &&
-                                      choice.splitRemainder !== "hold")) && (
-                                    <>
-                                      <select
-                                        className={field}
-                                        disabled={!invoice.canEdit}
-                                        value={choice.writeoffReason || ""}
-                                        onChange={(e) =>
-                                          changeChoice(entry.entryId, {
-                                            writeoffReason: e.target
-                                              .value as Choice["writeoffReason"],
-                                          })
-                                        }
-                                      >
-                                        <option value="">Select reason</option>
-                                        <option value="advance">Advance</option>
-                                        <option value="over-budget">
-                                          Over budget
-                                        </option>
-                                      </select>
-                                      <textarea
-                                        className={field}
-                                        rows={2}
-                                        placeholder="Explain write-off"
-                                        disabled={!invoice.canEdit}
-                                        value={choice.writeoffExplanation || ""}
-                                        onChange={(e) =>
-                                          changeChoice(entry.entryId, {
-                                            writeoffExplanation: e.target.value,
-                                          })
-                                        }
-                                      />
-                                    </>
-                                  )}
-                                  {current && (
-                                    <p className="text-xs text-slate-600">
-                                      Bill{" "}
-                                      {(
-                                        current.billedHoursHundredths / 100
-                                      ).toFixed(2)}{" "}
-                                      h · Hold{" "}
-                                      {(
-                                        current.heldHoursHundredths / 100
-                                      ).toFixed(2)}{" "}
-                                      h · Write off{" "}
-                                      {(
-                                        current.writeoffHoursHundredths / 100
-                                      ).toFixed(2)}{" "}
-                                      h
-                                    </p>
-                                  )}
-                                </div>
-                              )
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    },
+            <div className="grid gap-2 sm:grid-cols-2 mb-2">
+              {invoice.recipients.map((recipient) => (
+                <div
+                  key={recipient.contactId}
+                  className={`group rounded border p-2 text-sm cursor-pointer transition-colors ${
+                    draft.recipientIds.includes(recipient.contactId)
+                      ? "border-blue-500 outline outline-2 outline-blue-500"
+                      : "border-neutral-200 border-dashed"
+                  }`}
+                  onClick={() => {
+                    if (invoice.canEdit) {
+                      updateDraft({
+                        ...draft,
+                        recipientIds: draft.recipientIds.includes(
+                          recipient.contactId,
+                        )
+                          ? draft.recipientIds.filter(
+                              (id) => id !== recipient.contactId,
+                            )
+                          : [...draft.recipientIds, recipient.contactId],
+                      });
+                    }
+                  }}
+                >
+                  <strong>{recipient.name}</strong>
+                  {recipient.isPrimary && " · Project contact"}
+                  {recipient.isBillingPoc && " · Billing POC"}
+                  <span className="block text-slate-600">
+                    {recipient.email || "No email on record"}
+                  </span>
+                  {recipient.deliveryStatus !== "none" && (
+                    <span className="block text-xs">
+                      Delivery: {recipient.deliveryStatus}
+                      {recipient.deliveryError &&
+                        ` — ${recipient.deliveryError}`}
+                    </span>
                   )}
-                </tbody>
-              </table>
-              {!rows.length && (
-                <p className="p-3 text-sm text-slate-500">
-                  No approved time is available.
-                </p>
-              )}
+                </div>
+              ))}
             </div>
+            <Toggle
+              label={`Copy project manager (${invoice.projectManager?.name || "none"})`}
+              disabled={!invoice.canEdit || !invoice.projectManager}
+              checked={draft.copyPm}
+              onChange={(event) => updateDraft({ ...draft, copyPm: event })}
+            />
           </section>
+
+          {/* Task analysis */}
           <section className={card}>
             <h2 className="mb-3 text-lg font-semibold">
               Project task costs and write-off analysis
             </h2>
             <div className="mb-3 grid gap-2 text-sm sm:grid-cols-3">
-              <p className="rounded bg-sky-50 p-2">
-                Billed: {sumMap(preview?.byTaskHours).toFixed(2)} h ?{" "}
-                {money(currentRevenue)}
-              </p>
-              <p className="rounded bg-amber-50 p-2">
-                Held: {sumMap(preview?.byTaskHeldHours).toFixed(2)} h ?{" "}
-                {money(sumMap(preview?.byTaskHeldCharge))}
-              </p>
-              <p className="rounded bg-rose-50 p-2">
-                Written off: {sumMap(preview?.byTaskWriteoffHours).toFixed(2)} h
-                ? {money(sumMap(preview?.byTaskWriteoffCharge))}
-              </p>
+              <TaskAnalysisCard
+                title="Billed"
+                hours={sumMap(preview?.byTaskHours)}
+                cost={currentRevenue}
+                cardClasses="rounded-lg bg-sky-50 p-2"
+              />
+              <TaskAnalysisCard
+                title="Held"
+                hours={sumMap(preview?.byTaskHeldHours)}
+                cost={sumMap(preview?.byTaskHeldCharge)}
+                cardClasses="rounded-lg bg-amber-50 p-2"
+              />
+              <TaskAnalysisCard
+                title="Written off"
+                hours={sumMap(preview?.byTaskWriteoffHours)}
+                cost={sumMap(preview?.byTaskWriteoffCharge)}
+                cardClasses="rounded-lg bg-rose-50 p-2"
+              />
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[620px] text-sm">
@@ -965,8 +906,12 @@ export function InvoiceDetailPage() {
                 Projected contract labor margin:{" "}
                 <strong>
                   {analysis?.projectContractCents === null ||
-                  analysis?.rows.some((row) => row.approvedCostCents === null)
-                    ? "Restricted"
+                  analysis?.rows.some(
+                    (row) =>
+                      row.approvedCostCents === null ||
+                      row.approvedCostCents === 0,
+                  )
+                    ? "Contract value not provided"
                     : money((analysis?.projectContractCents || 0) - cost)}
                 </strong>
               </p>
@@ -1022,13 +967,230 @@ export function InvoiceDetailPage() {
             </div>
           )}
           {invoice.poDocuments.length > 0 && (
-            <p className="mt-3 text-xs text-slate-600">
-              Attached:{" "}
-              {invoice.poDocuments.map((document) => document.name).join(", ")}
-            </p>
+            <div className="mt-3 space-y-1 text-sm">
+              <p className="font-medium text-slate-700">Purchase orders</p>
+              {invoice.poDocuments.map((document) => (
+                <button
+                  key={document.id}
+                  type="button"
+                  className="block text-sky-800 underline"
+                  onClick={() => void downloadPo(document.id, document.name)}
+                >
+                  Download {document.name}
+                </button>
+              ))}
+            </div>
           )}
         </section>
       </div>
+      {/* Time Review */}
+      <section className={card}>
+        <h2 className="mb-2 text-lg font-semibold">Time Review</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[680px] text-left text-sm">
+            <thead className="bg-slate-50">
+              <tr className="">
+                <th className="max-w-[150px] py-1 px-1">Task</th>
+                <th className="max-w-[75px] py-1 px-1 border-l border-slate-400">
+                  Employee
+                </th>
+                <th className="max-w-[50px] py-1 px-1 border-l border-slate-400">
+                  Date
+                </th>
+                <th className="max-w-[100px] py-1 px-1 border-l border-slate-400">
+                  Hours
+                </th>
+                <th className="max-w-[50px] py-1 px-1 border-l border-slate-400">
+                  Client charge
+                </th>
+                <th className="max-w-[200px] py-1 px-1 border-l border-slate-400">
+                  Notes
+                </th>
+                <th className="max-w-[50px] py-1 px-1 border-l border-slate-400">
+                  Action
+                </th>
+                <th className="max-w-[180px] py-1 px-1 border-l border-slate-400">
+                  Decision
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(
+                ({ entry, available: isAvailable, hours, charge }, index) => {
+                  const choice = isAvailable
+                      ? null
+                      : draft.choices.find(
+                          (item) => item.entryId === entry.entryId,
+                        ),
+                    decision = choice
+                      ? preview?.byEntry.get(entry.entryId)
+                      : null;
+                  return (
+                    <tr key={index} className="border-t align-top">
+                      <td className="max-w-[150px] py-1 px-1">
+                        {entry.taskName || "General project"}
+                      </td>
+                      <td className="max-w-[75px] py-1 px-1 border-l border-slate-400">
+                        {entry.employeeName}
+                      </td>
+                      <td className="max-w-[50px] py-1 px-1 border-l border-slate-400">
+                        {dateDisplay(entry.entryDate)}
+                      </td>
+                      <td className="max-w-[100px] py-1 px-1 border-l border-slate-400">
+                        {hours.toFixed(2)}
+                      </td>
+                      <td className="max-w-[50px] py-1 px-1 border-l border-slate-400">
+                        {money(charge)}
+                      </td>
+                      <td className="max-w-[200px] py-1 px-1 border-l border-slate-400 truncate text-ellipsis">
+                        {
+                          <button
+                            onClick={() =>
+                              setOpenNote({
+                                task: entry.taskName || "General project",
+                                employee: entry.employeeName,
+                                date: entry.entryDate,
+                                note: entry.note,
+                                hours,
+                                charge,
+                              })
+                            }
+                            className="text-xs text-sky-800 underline cursor-pointer truncate"
+                          >
+                            {entry.note}
+                          </button>
+                        }
+                      </td>
+                      <td className="max-w-[50px] border-l border-slate-400">
+                        {isAvailable ? (
+                          <div className="">
+                            <span className="block text-xs text-slate-600">
+                              Available
+                            </span>
+                            <button
+                              disabled={busy || !invoice.canEdit}
+                              className="text-xs text-sky-800 underline disabled:opacity-50"
+                              onClick={() => void addTime(entry.entryId)}
+                            >
+                              Add to draft
+                            </button>
+                          </div>
+                        ) : (
+                          choice && (
+                            <div className="min-w-[50px]">
+                              <div className="flex items-center">
+                                <select
+                                  aria-label={`Decision for ${entry.taskName || "General project"} time on ${entry.entryDate}`}
+                                  className="w-full bg-white p-1 text-xs disabled:bg-slate-50"
+                                  disabled={busy || !invoice.canEdit}
+                                  value={choice.disposition}
+                                  onChange={(event) => {
+                                    const disposition = event.target
+                                      .value as Choice["disposition"];
+                                    if (
+                                      disposition === "split" ||
+                                      disposition === "write-off"
+                                    ) {
+                                      openDecisionEditor(
+                                        entry.entryId,
+                                        disposition,
+                                      );
+                                    } else {
+                                      changeChoice(entry.entryId, {
+                                        disposition,
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <option value="billed">Bill</option>
+                                  <option value="hold">Hold</option>
+                                  <option value="write-off">Write off</option>
+                                  <option value="split">Split</option>
+                                </select>
+                                {(choice.disposition === "write-off" ||
+                                  choice.disposition === "split") && (
+                                  <button
+                                    type="button"
+                                    aria-label={`Edit ${choice.disposition} decision for ${entry.taskName || "General project"} time on ${entry.entryDate}`}
+                                    disabled={busy || !invoice.canEdit}
+                                    className="text-xs text-sky-800 underline disabled:opacity-50 px-1"
+                                    onClick={() =>
+                                      openDecisionEditor(entry.entryId)
+                                    }
+                                  >
+                                    Edit
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </td>
+                      <td
+                        className={`${colorDecision(decision?.billedChargeCents ?? 0, decision?.heldChargeCents ?? 0, decision?.writeoffChargeCents ?? 0)} max-w-[75px] py-1 px-1 border-l border-slate-400 align-middle`}
+                      >
+                        {decision && (
+                          <p
+                            className={`${textColorDecision(decision?.billedChargeCents ?? 0, decision?.heldChargeCents ?? 0, decision?.writeoffChargeCents ?? 0)} text-[11px] leading-4 divide-x divide-slate-300`}
+                          >
+                            {decision.billedChargeCents > 0 && (
+                              <span className="px-1">
+                                Billing $
+                                {(decision.billedChargeCents / 100).toFixed(2)}
+                              </span>
+                            )}
+                            {decision.heldChargeCents > 0 && (
+                              <span className="px-1">
+                                Holding $
+                                {(decision.heldChargeCents / 100).toFixed(2)}
+                              </span>
+                            )}
+                            {decision.writeoffChargeCents > 0 && (
+                              <span className="px-1">
+                                Write off $
+                                {(decision.writeoffChargeCents / 100).toFixed(
+                                  2,
+                                )}
+                              </span>
+                            )}
+                          </p>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                },
+              )}
+              {/* Summery Row */}
+              <tr className="bg-slate-100 font-semibold">
+                <td colSpan={3} className="py-1 px-1 border-t border-slate-400">
+                  Total
+                </td>
+                <td className="py-1 px-1 border-t border-slate-400 text-sm">
+                  {rows
+                    .reduce((sum, row) => sum + (row.hours ?? 0), 0)
+                    .toFixed(2)}
+                </td>
+                <td className="py-1 px-1 border-t border-slate-400 text-sm">
+                  $
+                  {(
+                    rows.reduce((sum, row) => sum + (row.charge ?? 0), 0) / 100
+                  ).toFixed(2)}
+                </td>
+                <td
+                  colSpan={3}
+                  className="py-1 px-1 border-t border-slate-400"
+                ></td>
+              </tr>
+            </tbody>
+          </table>
+          {!rows.length && (
+            <p className="p-3 text-sm text-slate-500">
+              No approved time is available.
+            </p>
+          )}
+        </div>
+      </section>
+      {/* Invoice lines section */}
       <section className={card}>
         <div className="mb-3 flex justify-between">
           <h2 className="text-lg font-semibold">Invoice lines</h2>
@@ -1059,13 +1221,9 @@ export function InvoiceDetailPage() {
         {draft.lines.map((line, index) => (
           <div
             key={line.id}
-            className="mb-2 grid gap-2 sm:grid-cols-[7rem_1fr_10rem_3rem]"
+            className="mb-2 grid gap-2 sm:grid-cols-[1fr_10rem_0fr]"
           >
-            <span className="self-center text-xs uppercase text-slate-500">
-              {line.kind}
-            </span>
-            <input
-              className={field}
+            <Textbox
               aria-label="Line description"
               disabled={!invoice.canEdit || line.kind === "time"}
               value={line.description}
@@ -1073,28 +1231,26 @@ export function InvoiceDetailPage() {
                 changeLine(index, { description: e.target.value })
               }
             />
-            <input
-              className={field}
-              aria-label="Line amount in dollars"
-              type="number"
-              min="0"
-              step="0.01"
-              disabled={!invoice.canEdit || line.kind === "time"}
-              value={(
-                (line.kind === "time"
-                  ? (preview?.byTask.get(line.projectTaskId || "") ??
-                    line.amountCents)
-                  : line.kind === "fixed-fee"
-                    ? (preview?.byTaskAmount.get(line.projectTaskId || "") ??
+            <div className={`${line.kind !== "manual" ? "sm:col-span-2" : ""}`}>
+              <CurrencyField
+                aria-label="Line amount in dollars"
+                disabled={!invoice.canEdit || line.kind === "time"}
+                valueCents={(
+                  (line.kind === "time"
+                    ? (preview?.byTask.get(line.projectTaskId || "") ??
                       line.amountCents)
-                    : line.amountCents) / 100
-              ).toFixed(2)}
-              onChange={(e) =>
-                changeLine(index, {
-                  amountCents: Math.round(Number(e.target.value) * 100),
-                })
-              }
-            />
+                    : line.kind === "fixed-fee"
+                      ? (preview?.byTaskAmount.get(line.projectTaskId || "") ??
+                        line.amountCents)
+                      : line.amountCents)
+                )}
+                onCentsChange={(e) =>
+                  changeLine(index, {
+                    amountCents: e as number | undefined,
+                  })
+                }
+              />
+            </div>
             {line.kind === "manual" && invoice.canEdit && (
               <button
                 aria-label="Remove line"
@@ -1104,8 +1260,9 @@ export function InvoiceDetailPage() {
                     lines: draft.lines.filter((_, i) => i !== index),
                   })
                 }
+                className="p-1 rounded hover:text-red-500 hover:bg-gray-50 cursor-pointer"
               >
-                ×
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>
@@ -1120,6 +1277,13 @@ export function InvoiceDetailPage() {
           Manager notice: {invoice.managerEmailStatus} · Client email:{" "}
           {invoice.emailStatus} · QuickBooks: {invoice.qboSyncStatus}
         </p>
+        {invoice.copyPm && (
+          <p className="text-sm">
+            PM copy: {invoice.pmCopyStatus}
+            {invoice.pmCopyEmail && ` · ${invoice.pmCopyEmail}`}
+            {invoice.pmCopyError && ` · ${invoice.pmCopyError}`}
+          </p>
+        )}
         {invoice.emailError && (
           <p className="text-sm text-red-700">{invoice.emailError}</p>
         )}
@@ -1242,6 +1406,210 @@ export function InvoiceDetailPage() {
           ))}
         </section>
       )}
+      <Dialog
+        open={Boolean(decisionEditor)}
+        onClose={() => setDecisionEditor(null)}
+        className="relative z-50"
+      >
+        <DialogBackdrop className="fixed inset-0 bg-slate-950/40 transition-opacity" />
+        {decisionEditor && (
+          <div className="fixed inset-0 overflow-y-auto p-3 sm:p-6">
+            <div className="flex min-h-full items-center justify-center">
+              <DialogPanel className="w-full max-w-lg rounded-2xl bg-white p-5 shadow-2xl ring-1 ring-slate-900/10 sm:p-6">
+                <header className="mb-4 flex items-start justify-between gap-4">
+                  <div>
+                    <DialogTitle className="text-lg font-semibold text-slate-950">
+                      {decisionEditor.choice.disposition === "split"
+                        ? "Edit split decision"
+                        : "Edit write-off decision"}
+                    </DialogTitle>
+                    {decisionEntry && (
+                      <p className="mt-1 text-sm text-slate-600">
+                        {decisionEntry.taskName || "General project"} ·{" "}
+                        {decisionEntry.employeeName} ·{" "}
+                        {dateDisplay(decisionEntry.entryDate)}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Close decision editor"
+                    className="rounded px-2 py-1 text-xl leading-none text-slate-500 hover:bg-slate-100"
+                    onClick={() => setDecisionEditor(null)}
+                  >
+                    ×
+                  </button>
+                </header>
+                {decisionEditorError && (
+                  <p
+                    role="alert"
+                    className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-800"
+                  >
+                    {decisionEditorError}
+                  </p>
+                )}
+                <div className="space-y-3">
+                  {decisionEditor.choice.disposition === "split" && (
+                    <>
+                      <label className="block text-sm">
+                        Split basis
+                        <select
+                          className={field}
+                          disabled={busy || !invoice.canEdit}
+                          value={decisionEditor.choice.splitBasis}
+                          onChange={(event) => {
+                            const splitBasis = event.target
+                                .value as Choice["splitBasis"],
+                              source = invoice.allocations.find(
+                                (entry) =>
+                                  entry.entryId === decisionEditor.entryId,
+                              );
+                            setDecisionEditorError("");
+                            setDecisionEditor({
+                              ...decisionEditor,
+                              choice: {
+                                ...decisionEditor.choice,
+                                splitBasis,
+                                splitValue: source
+                                  ? defaultSplitValue(source, splitBasis)
+                                  : "",
+                              },
+                            });
+                          }}
+                        >
+                          <option value="hours">Split by hours</option>
+                          <option value="charge">Split by client charge</option>
+                        </select>
+                      </label>
+                      <label className="block text-sm">
+                        Billed{" "}
+                        {decisionEditor.choice.splitBasis === "hours"
+                          ? "hours"
+                          : "amount ($)"}
+                        <input
+                          className={field}
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          disabled={busy || !invoice.canEdit}
+                          value={decisionEditor.choice.splitValue}
+                          onChange={(event) => {
+                            setDecisionEditorError("");
+                            setDecisionEditor({
+                              ...decisionEditor,
+                              choice: {
+                                ...decisionEditor.choice,
+                                splitValue: event.target.value,
+                              },
+                            });
+                          }}
+                        />
+                      </label>
+                      <label className="block text-sm">
+                        Remaining time
+                        <select
+                          className={field}
+                          disabled={busy || !invoice.canEdit}
+                          value={
+                            decisionEditor.choice.splitRemainder || "write-off"
+                          }
+                          onChange={(event) => {
+                            setDecisionEditorError("");
+                            setDecisionEditor({
+                              ...decisionEditor,
+                              choice: {
+                                ...decisionEditor.choice,
+                                splitRemainder: event.target
+                                  .value as Choice["splitRemainder"],
+                              },
+                            });
+                          }}
+                        >
+                          <option value="hold">Hold remainder</option>
+                          <option value="write-off">Write off remainder</option>
+                        </select>
+                      </label>
+                    </>
+                  )}
+                  {(decisionEditor.choice.disposition === "write-off" ||
+                    (decisionEditor.choice.disposition === "split" &&
+                      decisionEditor.choice.splitRemainder !== "hold")) && (
+                    <>
+                      <label className="block text-sm">
+                        Write-off reason
+                        <select
+                          className={field}
+                          disabled={busy || !invoice.canEdit}
+                          value={decisionEditor.choice.writeoffReason || ""}
+                          onChange={(event) => {
+                            setDecisionEditorError("");
+                            setDecisionEditor({
+                              ...decisionEditor,
+                              choice: {
+                                ...decisionEditor.choice,
+                                writeoffReason: event.target
+                                  .value as Choice["writeoffReason"],
+                              },
+                            });
+                          }}
+                        >
+                          <option value="">Select reason</option>
+                          <option value="advance">Advance</option>
+                          <option value="over-budget">Over budget</option>
+                        </select>
+                      </label>
+                      <label className="block text-sm">
+                        Explanation
+                        <textarea
+                          className={field}
+                          rows={3}
+                          placeholder="Explain the write-off"
+                          disabled={busy || !invoice.canEdit}
+                          value={
+                            decisionEditor.choice.writeoffExplanation || ""
+                          }
+                          onChange={(event) => {
+                            setDecisionEditorError("");
+                            setDecisionEditor({
+                              ...decisionEditor,
+                              choice: {
+                                ...decisionEditor.choice,
+                                writeoffExplanation: event.target.value,
+                              },
+                            });
+                          }}
+                        />
+                      </label>
+                    </>
+                  )}
+                </div>
+                <p className="mt-3 text-xs text-slate-500">
+                  Saving this decision updates the invoice draft. Save the
+                  invoice to persist all draft changes.
+                </p>
+                <footer className="mt-5 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm disabled:opacity-50"
+                    onClick={() => setDecisionEditor(null)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busy || !invoice.canEdit}
+                    className="rounded-lg bg-sky-800 px-3 py-2 text-sm text-white disabled:opacity-50"
+                    onClick={saveDecisionEditor}
+                  >
+                    Save decision
+                  </button>
+                </footer>
+              </DialogPanel>
+            </div>
+          </div>
+        )}
+      </Dialog>
       {openNote && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
@@ -1273,5 +1641,27 @@ export function InvoiceDetailPage() {
         </div>
       )}
     </main>
+  );
+}
+
+function TaskAnalysisCard({
+  title,
+  hours,
+  cost,
+  cardClasses,
+}: {
+  title: string;
+  hours: number;
+  cost: number;
+  cardClasses?: string;
+}) {
+  return (
+    <div className={`${cardClasses ?? ""}`}>
+      <h3 className="text-sm">{title}</h3>
+      <div className="flex justify-between">
+        <p className="text-base font-medium">{hours.toFixed(2)} hours</p>
+        <p className="text-base font-medium">{money(cost)}</p>
+      </div>
+    </div>
   );
 }

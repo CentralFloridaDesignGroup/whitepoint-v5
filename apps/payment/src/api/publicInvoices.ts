@@ -21,3 +21,7 @@ export function fetchInvoicePacket(token: string): Promise<Blob> {
   return client.requestBlob(`${invoicePath(token)}/packet`, { authMode: 'public' });
 }
 
+export function fetchInvoicePo(token: string, documentId: string): Promise<Blob> {
+  return client.requestBlob(`${invoicePath(token)}/po-documents/${encodeURIComponent(documentId)}`, { authMode: 'public' });
+}
+
