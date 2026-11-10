@@ -105,10 +105,15 @@ async function payoutEvent(env:ApiEnv,payload:StripeEvent,object:Record<string,u
     let net=0,unmatched=0,mismatched=0
     for(const txn of transactions){
       if(txn.currency!=='usd'||!Number.isSafeInteger(txn.net))throw new Error('Invalid payout transaction.')
-      net+=txn.net
-      const payment=await env.DB.prepare("SELECT id FROM invoice_payments WHERE stripe_balance_transaction_id=? OR (?<>'' AND stripe_charge_id=?) LIMIT 1").bind(txn.id,txn.type==='charge'?txn.source||'':'',txn.type==='charge'?txn.source||'':'').first<{id:string}>()
+      // Stripe includes the payout's own negative balance transaction in the
+      // payout-filtered list. It represents the transfer out of Stripe, not
+      // an item contributing to the payout amount. Stripe API versions also
+      // report card charge transactions as either `charge` or `payment`.
+      if(txn.type!=='payout')net+=txn.net
+      const isPaymentTransaction=txn.type==='charge'||txn.type==='payment'
+      const payment=await env.DB.prepare("SELECT id FROM invoice_payments WHERE stripe_balance_transaction_id=? OR (?<>'' AND stripe_charge_id=?) LIMIT 1").bind(txn.id,isPaymentTransaction?txn.source||'':'',isPaymentTransaction?txn.source||'':'').first<{id:string}>()
       const adjustment=await env.DB.prepare('SELECT adjustment_id AS id FROM stripe_adjustment_transactions WHERE balance_transaction_id=?').bind(txn.id).first<{id:string}>()
-      if(!payment&&!adjustment)unmatched++
+      if(txn.type!=='payout'&&!payment&&!adjustment)unmatched++
       if(payment){const source=await env.DB.prepare('SELECT amount_cents,stripe_balance_transaction_id,stripe_fee_cents,stripe_net_cents FROM invoice_payments WHERE id=?').bind(payment.id).first<{amount_cents:number;stripe_balance_transaction_id:string|null;stripe_fee_cents:number;stripe_net_cents:number|null}>();if(source){if(source.amount_cents!==txn.amount||source.stripe_balance_transaction_id&&(source.stripe_balance_transaction_id!==txn.id||source.stripe_fee_cents!==txn.fee||source.stripe_net_cents!==txn.net))mismatched++;if(!source.stripe_balance_transaction_id)await env.DB.prepare('UPDATE invoice_payments SET stripe_balance_transaction_id=?,stripe_fee_cents=?,stripe_net_cents=? WHERE id=? AND stripe_balance_transaction_id IS NULL').bind(txn.id,txn.fee,txn.net,payment.id).run()}}
       await env.DB.prepare('INSERT INTO stripe_payout_transactions(balance_transaction_id,payout_id,amount_cents,fee_cents,net_cents,type,source_id,payment_id,adjustment_id) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(balance_transaction_id) DO UPDATE SET payout_id=excluded.payout_id,payment_id=excluded.payment_id,adjustment_id=excluded.adjustment_id').bind(txn.id,payoutId,txn.amount,txn.fee,txn.net,txn.type,txn.source||null,payment?.id||null,adjustment?.id||null).run()
       if(payment)await env.DB.prepare('UPDATE invoice_payments SET stripe_payout_id=? WHERE id=?').bind(payoutId,payment.id).run()
