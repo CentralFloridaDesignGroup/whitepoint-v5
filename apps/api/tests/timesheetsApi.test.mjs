@@ -14,7 +14,7 @@ import { correctPaymentQbo, syncInvoiceQbo, syncPaymentQbo, syncPayoutQbo, voidI
 import { payoutTransactions } from '../src/services/stripeApi.ts'
 import { processStripeEvent } from '../src/services/stripePayments.ts'
 import { paymentNotice, retryFailedPaymentNotices } from '../src/services/paymentNotices.ts'
-import { createInvoicePdf, invoiceHoursBreakdownRows } from '@whitepoint/utils/invoice-pdf'
+import { createInvoicePacket, createInvoicePdf, invoiceHoursBreakdownRows } from '@whitepoint/utils/invoice-pdf'
 import { publicInvoice } from '../src/services/invoiceData.ts'
 
 function fixture(){
@@ -22,7 +22,7 @@ function fixture(){
   const documents=new Map()
   const RECORD_DOCUMENTS={put:async(key,value)=>{documents.set(key,value)},get:async key=>{const value=documents.get(key);return value?{arrayBuffer:async()=>value.buffer.slice(value.byteOffset,value.byteOffset+value.byteLength),body:new Blob([value]).stream()}:null},delete:async key=>documents.delete(key)}
   sqlite.exec('PRAGMA foreign_keys=ON')
-  for(const name of ['0001_company_initialization.sql','0002_roles_permissions.sql','0003_user_init_auth_seed.sql','0004_client_init.sql','0005_project_init.sql','0006_timesheet_init.sql','0007_invoice_init.sql','0009_invoice_void_and_pm_copy.sql'])sqlite.exec(readFileSync(new URL(`../migrations/${name}`,import.meta.url),'utf8'))
+  for(const name of ['0001_company_initialization.sql','0002_roles_permissions.sql','0003_user_init_auth_seed.sql','0004_client_init.sql','0005_project_init.sql','0006_timesheet_init.sql','0007_invoice_init.sql','0009_invoice_void_and_pm_copy.sql','0010_unmatched_stripe_payouts.sql'])sqlite.exec(readFileSync(new URL(`../migrations/${name}`,import.meta.url),'utf8'))
   const db={
     prepare(sql){const execute=(values)=>({first:async()=>sqlite.prepare(sql).get(...values)||null,all:async()=>({results:sqlite.prepare(sql).all(...values)}),run:async()=>({meta:{changes:Number(sqlite.prepare(sql).run(...values).changes)}})});return {...execute([]),bind(...values){return execute(values)}}},
     async batch(statements){sqlite.exec('BEGIN');try{const results=[];for(const statement of statements)results.push(await statement.run());sqlite.exec('COMMIT');return results}catch(error){sqlite.exec('ROLLBACK');throw error}}
@@ -36,9 +36,10 @@ function fixture(){
   app.route('/invoices',createInvoicesApi())
   app.route('/webhooks',createStripeInvoiceWebhook())
   app.get('/records/projects/:id/time-entries',projectTimeEntries)
-  async function requestAt(user,path,method='GET',body,envOverride={},headers={}){const response=await app.request(path,{method,headers:{'X-Test-User':user,...body===undefined?{}:{'Content-Type':'application/json'},...headers},body:body===undefined?undefined:JSON.stringify(body)},{DB:db,RECORD_DOCUMENTS,BREVO_API_KEY:'test',BREVO_SENDER_EMAIL:'sender@example.com',...envOverride});return {status:response.status,body:await response.json()}}
+  async function requestAt(user,path,method='GET',body,envOverride={},headers={}){const response=await app.request(path,{method,headers:{'X-Test-User':user,...body===undefined||body instanceof FormData?{}:{'Content-Type':'application/json'},...headers},body:body===undefined?undefined:body instanceof FormData?body:JSON.stringify(body)},{DB:db,RECORD_DOCUMENTS,BREVO_API_KEY:'test',BREVO_SENDER_EMAIL:'sender@example.com',...envOverride});return {status:response.status,body:await response.json()}}
+  async function issueAt(user,id,action='send',envOverride={}){const detail=(await requestAt(user,`/invoices/${id}`)).body.invoice;const bytes=await createInvoicePacket(publicInvoice({...detail,status:'sent'},detail.publicToken),`https://payment.whitepointsurvey.com/pay/${detail.publicToken}`,'',undefined,detail.includeHoursBreakdown?invoiceHoursBreakdownRows(detail.allocations,undefined,detail.includeLineItemNotes):[]);const form=new FormData();form.set('revision',String(detail.revision));form.set('packet',new File([bytes],`${detail.invoiceNumber}.pdf`,{type:'application/pdf'}));return requestAt(user,`/invoices/${id}/${action}`,'POST',form,envOverride)}
   const request=(user,path,method='GET',body)=>requestAt(user,`/timesheets${path}`,method,body)
-  return {sqlite,db,app,request,requestAt,documents}
+  return {sqlite,db,app,request,requestAt,issueAt,documents}
 }
 
 test('invoice recipients default to project contact and either billing POC marker',async()=>{
@@ -75,7 +76,7 @@ test('a billed split can hold its balance for a later invoice',async()=>{
 })
 
 test('billed time and materials hours follow the invoice while PO stays separate',async()=>{
-  const {sqlite,requestAt,documents}=fixture()
+  const {sqlite,requestAt,issueAt,documents}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; INSERT INTO user_timesheets(id,user_id,week_start,status) VALUES('hours-week','3','2026-10-19','approved'); INSERT INTO user_timesheet_entries(id,timesheet_id,project_id,project_task_id,entry_date,hours,note,charge_cents,billing_type) VALUES('hours-entry','hours-week','p','t','2026-10-20',2,'Field visit',30000,'time-and-materials');")
   const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:['hours-entry']})
   assert.equal(created.status,201)
@@ -90,14 +91,14 @@ test('billed time and materials hours follow the invoice while PO stays separate
   assert.deepEqual(invoiceHoursBreakdownRows(saved.body.invoice.allocations).map(row=>row.hours),[1])
   assert.equal(invoiceHoursBreakdownRows(saved.body.invoice.allocations)[0].note,undefined)
   assert.equal(invoiceHoursBreakdownRows(saved.body.invoice.allocations,undefined,true)[0].note,'Field visit')
-  const sent=await requestAt('2',`/invoices/${invoice.id}/mark-sent`,'POST',{})
+  const sent=await issueAt('2',invoice.id,'mark-sent')
   assert.equal(sent.status,200)
   const packet=await PDFDocument.load(documents.get(`invoices/${invoice.id}/packet.pdf`))
   assert.equal(packet.getPageCount(),2)
 })
 
 test('sending attaches the invoice PDF and separate project POs and deduplicates recipient email',async()=>{
-  const {sqlite,requestAt,documents,app,db}=fixture()
+  const {sqlite,requestAt,issueAt,documents,app,db}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2',po_number='PO-77' WHERE id='p'; INSERT INTO contacts(id,client_id,name,email,is_billing_poc) VALUES('duplicate-recipient','c','Second billing contact','billing@example.com',1); INSERT INTO project_contacts(project_id,role,contact_id) VALUES('p','clientBillingPoc','duplicate-recipient');")
   const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:[]})
   const invoice=created.body.invoice
@@ -109,7 +110,7 @@ test('sending attaches the invoice PDF and separate project POs and deduplicates
   const sentMail=[];const originalFetch=globalThis.fetch
   globalThis.fetch=async(url,init)=>{if(String(url).includes('api.brevo.com')){sentMail.push(JSON.parse(init.body));return new Response('{}',{status:201})}throw new Error('Unexpected network request')}
   try{
-    const sent=await requestAt('2',`/invoices/${invoice.id}/send`,'POST',{})
+    const sent=await issueAt('2',invoice.id)
     assert.equal(sent.status,200)
     assert.equal(sent.body.invoice.emailStatus,'accepted')
     assert.equal(sent.body.invoice.poNumber,'PO-77')
@@ -124,6 +125,7 @@ test('sending attaches the invoice PDF and separate project POs and deduplicates
     assert.equal(sentMail[0].attachment.length,2)
     assert.equal(sentMail[0].attachment[1].name,'Signed PO.pdf')
     assert(sentMail[0].attachment[0].content.length>100)
+    assert.equal(sentMail[0].attachment[0].content,Buffer.from(documents.get(`invoices/${invoice.id}/packet.pdf`)).toString('base64'))
     assert.match(sentMail[0].htmlContent, /View and pay invoice/)
     assert.match(sentMail[0].textContent, /View and pay:/)
     assert.equal(sqlite.prepare("SELECT COUNT(*) AS n FROM invoice_notifications WHERE invoice_id=? AND kind='client'").get(invoice.id).n,1)
@@ -137,13 +139,13 @@ test('sending attaches the invoice PDF and separate project POs and deduplicates
 })
 
 test('mark sent omits email and a failed recipient retry sends only the failed address',async()=>{
-  const {sqlite,requestAt,documents}=fixture()
+  const {sqlite,requestAt,issueAt,documents}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; INSERT INTO contacts(id,client_id,name,email,is_billing_poc) VALUES('second-recipient','c','Second Contact','second@example.com',1); INSERT INTO project_contacts(project_id,role,contact_id) VALUES('p','clientBillingPoc','second-recipient');")
   const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:[]})
   const invoice=created.body.invoice
   const updated=await requestAt('2',`/invoices/${invoice.id}`,'PUT',{revision:invoice.revision,issueDate:invoice.issueDate,paymentTerm:invoice.paymentTerm,includeHoursBreakdown:invoice.includeHoursBreakdown,includeLineItemNotes:invoice.includeLineItemNotes,notes:'',internalNote:'',recipientIds:invoice.recipients.filter(x=>x.selected).map(x=>x.contactId),allocations:[],lines:[{id:'line-1',kind:'manual',description:'Survey work',amountCents:10000,projectTaskId:null}]})
   assert.equal(updated.status,200)
-  const marked=await requestAt('2',`/invoices/${invoice.id}/mark-sent`,'POST',{})
+  const marked=await issueAt('2',invoice.id,'mark-sent')
   assert.equal(marked.status,200)
   assert.equal(marked.body.invoice.status,'sent')
   assert.equal(marked.body.invoice.emailStatus,'none')
@@ -163,7 +165,7 @@ test('mark sent omits email and a failed recipient retry sends only the failed a
 })
 
 test('project manager receives one visible CC when multiple client contacts are emailed',async()=>{
-  const {sqlite,requestAt}=fixture()
+  const {sqlite,requestAt,issueAt}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; INSERT INTO contacts(id,client_id,name,email,is_billing_poc) VALUES('second-cc','c','Second Contact','second@example.com',1); INSERT INTO project_contacts(project_id,role,contact_id) VALUES('p','clientBillingPoc','second-cc');")
   const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:[]})
   const invoice=created.body.invoice
@@ -172,7 +174,7 @@ test('project manager receives one visible CC when multiple client contacts are 
   const messages=[],originalFetch=globalThis.fetch
   globalThis.fetch=async(url,init)=>{if(!String(url).includes('api.brevo.com'))throw new Error('Unexpected network request');messages.push(JSON.parse(init.body));return new Response('{}',{status:201})}
   try{
-    const sent=await requestAt('2',`/invoices/${invoice.id}/send`,'POST',{})
+    const sent=await issueAt('2',invoice.id)
     assert.equal(sent.status,200)
     assert.equal(sent.body.invoice.pmCopyStatus,'accepted')
     assert.equal(sent.body.invoice.pmCopyEmail,'manager@example.com')
@@ -191,11 +193,11 @@ test('project manager receives one visible CC when multiple client contacts are 
 })
 
 test('voiding an unpaid sent invoice blocks payment and releases its time for a replacement',async()=>{
-  const {sqlite,requestAt}=fixture()
+  const {sqlite,requestAt,issueAt}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; INSERT INTO user_timesheets(id,user_id,week_start,status) VALUES('void-week','3','2026-10-19','approved'); INSERT INTO user_timesheet_entries(id,timesheet_id,project_id,project_task_id,entry_date,hours,note,charge_cents,billing_type) VALUES('void-entry','void-week','p','t','2026-10-20',1,'Field work',15000,'time-and-materials');")
   const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:['void-entry']})
   const id=created.body.invoice.id
-  const marked=await requestAt('2',`/invoices/${id}/mark-sent`,'POST',{})
+  const marked=await issueAt('2',id,'mark-sent')
   assert.equal(marked.status,200)
   assert.equal((await requestAt('1','/invoices/pool?projectId=p')).body.items.some(entry=>entry.entryId==='void-entry'),false)
   sqlite.prepare("INSERT INTO stripe_checkout_sessions(id,invoice_id,amount_cents,status) VALUES('cs_void_open',?,15000,'open')").run(id)
@@ -238,7 +240,7 @@ test('a linked QBO invoice is voided once and its sync state is retry safe',asyn
 })
 
 test('manual invoice reservations and monthly fixed fee drafts remain separate',async()=>{
-  const {sqlite,db,requestAt}=fixture()
+  const {sqlite,db,requestAt,issueAt}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; UPDATE clients SET email='billing@example.com' WHERE id='c'; UPDATE project_tasks SET contract_amount_cents=100000 WHERE id='t2'; INSERT INTO project_tasks(id,project_id,task_id,sequence,task_name,bill_type,contract_amount_cents) VALUES('tn','p','N',4,'Capped work','time-and-materials-nte',5000);")
   sqlite.exec("INSERT INTO user_timesheets(id,user_id,week_start,status) VALUES('invoice-week','3','2026-10-19','approved'); INSERT INTO user_timesheet_entries(id,timesheet_id,project_id,project_task_id,entry_date,hours,note,charge_cents,billing_type) VALUES('manual-entry','invoice-week','p','t','2026-10-20',2,'T&M work',30000,'time-and-materials'),('fixed-entry','invoice-week','p','t2','2026-10-21',3,'Fixed work',45000,'fixed-fee'),('cap-entry','invoice-week','p','tn','2026-10-22',2,'NTE work',10000,'time-and-materials-nte');")
   assert.equal((await requestAt('3','/invoices','POST',{projectId:'p',entryIds:[]})).status,403)
@@ -264,7 +266,7 @@ test('manual invoice reservations and monthly fixed fee drafts remain separate',
   assert.equal(saved.status,200)
   assert.equal(saved.body.invoice.totalCents,25000)
   assert.equal(saved.body.invoice.reviewTasks.find(t=>t.billingType==='fixed-fee').currentBilledHours,3)
-  const sent=await requestAt('2',`/invoices/${monthly.id}/send`,'POST',{}, {BREVO_API_KEY:undefined})
+  const sent=await issueAt('2',monthly.id,'send',{BREVO_API_KEY:undefined})
   assert.equal(sent.status,200)
   assert.equal(sent.body.invoice.status,'sent')
   assert.equal(sent.body.invoice.emailStatus,'failed')
@@ -380,7 +382,7 @@ test('a later monthly run captures late approved work from an older month',async
 })
 
 test('assigned managers delete drafts and release reserved work without reusing invoice numbers',async()=>{
-  const {sqlite,requestAt}=fixture()
+  const {sqlite,requestAt,issueAt}=fixture()
   sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; UPDATE clients SET email='billing@example.com' WHERE id='c'; INSERT INTO user_timesheets(id,user_id,week_start,status) VALUES('delete-week','3','2026-10-19','approved'); INSERT INTO user_timesheet_entries(id,timesheet_id,project_id,project_task_id,entry_date,hours,note,charge_cents,billing_type) VALUES('delete-entry','delete-week','p','t','2026-10-20',2,'Delete test',30000,'time-and-materials');")
   const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:['delete-entry']})
   assert.equal(created.status,201)
@@ -398,7 +400,7 @@ test('assigned managers delete drafts and release reserved work without reusing 
   const next=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:['delete-entry']})
   assert.equal(next.status,201)
   assert.notEqual(next.body.invoice.invoiceNumber,invoiceNumber)
-  const sent=await requestAt('2',`/invoices/${next.body.invoice.id}/send`,'POST',{}, {BREVO_API_KEY:undefined})
+  const sent=await issueAt('2',next.body.invoice.id,'send',{BREVO_API_KEY:undefined})
   assert.equal(sent.body.invoice.status,'sent')
   assert.equal((await requestAt('2',`/invoices/${next.body.invoice.id}`,'DELETE',{revision:sent.body.invoice.revision})).status,409)
 })
@@ -660,6 +662,144 @@ test('unmatched payout transaction blocks QuickBooks posting',async()=>{
     const payout=sqlite.prepare("SELECT review_error,qbo_transfer_id FROM stripe_payouts WHERE id='po_unmatched'").get()
     assert.match(payout.review_error,/no matching invoice payment/)
     assert.equal(payout.qbo_transfer_id,null)
+  }finally{globalThis.fetch=originalFetch}
+})
+
+test('manual task totals enforce billed charges, cumulative contract, and revisions',async()=>{
+  const {sqlite,requestAt,issueAt}=fixture()
+  sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; UPDATE project_tasks SET bill_type='time-and-materials-nte',contract_amount_cents=10000 WHERE id='t'; INSERT INTO invoices(id,project_id,client_id,invoice_number,source,status,issue_date,due_date,billing_name,project_reference,public_token) VALUES('prior-task','p','c','PRIOR','manual','sent','2026-10-01','2026-10-31','Client','P-1','prior-token'); INSERT INTO invoice_lines(id,invoice_id,project_task_id,kind,description,amount_cents) VALUES('prior-task-line','prior-task','t','manual','Prior',2000);")
+  const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:[]})
+  assert.equal(created.status,201)
+  const invoice=created.body.invoice
+  assert(invoice.reviewTasks.some(task=>task.projectTaskId==='t'))
+  const base={revision:invoice.revision,issueDate:invoice.issueDate,paymentTerm:invoice.paymentTerm,includeHoursBreakdown:false,includeLineItemNotes:false,notes:'',internalNote:'',recipientIds:invoice.recipients.filter(item=>item.selected).map(item=>item.contactId),allocations:[],lines:[{id:'task-charge',kind:'manual',description:'Task billing',amountCents:5000,projectTaskId:'t'}]}
+  const saved=await requestAt('2',`/invoices/${invoice.id}`,'PUT',base)
+  assert.equal(saved.status,200)
+  assert.equal(saved.body.invoice.reviewTasks.find(task=>task.projectTaskId==='t').currentAmountCents,5000)
+  assert.equal((await requestAt('2',`/invoices/${invoice.id}`,'PUT',base)).status,409)
+  sqlite.exec("UPDATE project_tasks SET contract_amount_cents=6000 WHERE id='t'")
+  const current=(await requestAt('2',`/invoices/${invoice.id}`)).body.invoice
+  assert.equal((await requestAt('2',`/invoices/${invoice.id}`,'PUT',{...base,revision:current.revision,lines:[{...base.lines[0],amountCents:5000}]})).status,400)
+  assert.equal((await issueAt('2',invoice.id,'mark-sent')).status,400)
+  const capped=await requestAt('2',`/invoices/${invoice.id}`,'PUT',{...base,revision:current.revision,lines:[{...base.lines[0],amountCents:4000}]})
+  assert.equal(capped.status,200)
+  assert.equal(capped.body.invoice.reviewTasks.find(task=>task.projectTaskId==='t').previouslyInvoicedCents,2000)
+  sqlite.exec("INSERT INTO invoices(id,project_id,client_id,invoice_number,source,status,issue_date,due_date,billing_name,project_reference,public_token) VALUES('competing-task','p','c','COMPETE','manual','draft','2026-10-20','2026-11-19','Client','P-1','compete-token')")
+  assert.throws(()=>sqlite.exec("INSERT INTO invoice_lines(id,invoice_id,project_task_id,kind,description,amount_cents) VALUES('competing-line','competing-task','t','manual','Extra',1)"),/Task exceeds its contract amount/)
+})
+
+test('draft issue requires a current, valid browser PDF',async()=>{
+  const {sqlite,requestAt,issueAt,documents}=fixture()
+  sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'")
+  const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:[]})
+  const invoice=created.body.invoice
+  const saved=await requestAt('2',`/invoices/${invoice.id}`,'PUT',{revision:invoice.revision,issueDate:invoice.issueDate,paymentTerm:invoice.paymentTerm,includeHoursBreakdown:false,includeLineItemNotes:false,notes:'',internalNote:'',recipientIds:invoice.recipients.filter(item=>item.selected).map(item=>item.contactId),allocations:[],lines:[{id:'charge',kind:'manual',description:'Work',amountCents:10000,projectTaskId:null}]})
+  assert.equal(saved.status,200)
+  const stale=new FormData();stale.set('revision',String(invoice.revision));stale.set('packet',new File([new Uint8Array(200).fill(65)],'bad.pdf',{type:'application/pdf'}))
+  assert.equal((await requestAt('2',`/invoices/${invoice.id}/mark-sent`,'POST',stale)).status,409)
+  const invalid=new FormData();invalid.set('revision',String(saved.body.invoice.revision));invalid.set('packet',new File([new Uint8Array(200).fill(65)],'bad.pdf',{type:'application/pdf'}))
+  assert.equal((await requestAt('2',`/invoices/${invoice.id}/mark-sent`,'POST',invalid)).status,409)
+  assert.equal(sqlite.prepare('SELECT status FROM invoices WHERE id=?').get(invoice.id).status,'draft')
+  assert.equal(documents.has(`invoices/${invoice.id}/packet.pdf`),false)
+  assert.equal((await issueAt('2',invoice.id,'mark-sent')).status,200)
+})
+
+test('manual fixed fee task cannot fall below selected billed charges',async()=>{
+  const {sqlite,requestAt}=fixture()
+  sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; UPDATE project_tasks SET contract_amount_cents=10000 WHERE id='t2'; INSERT INTO user_timesheets(id,user_id,week_start,status) VALUES('fixed-floor-week','3','2026-10-19','approved'); INSERT INTO user_timesheet_entries(id,timesheet_id,project_id,project_task_id,entry_date,hours,note,charge_cents,billing_type) VALUES('fixed-floor-entry','fixed-floor-week','p','t2','2026-10-20',1,'Fixed work',3000,'fixed-fee')")
+  const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:['fixed-floor-entry']})
+  assert.equal(created.status,201)
+  const invoice=created.body.invoice
+  const payload={revision:invoice.revision,issueDate:invoice.issueDate,paymentTerm:invoice.paymentTerm,includeHoursBreakdown:false,includeLineItemNotes:false,notes:'',internalNote:'',recipientIds:invoice.recipients.filter(item=>item.selected).map(item=>item.contactId),allocations:invoice.allocations.map(item=>({entryId:item.entryId,disposition:'billed'})),lines:invoice.lines.map(line=>({...line,amountCents:2000}))}
+  const low=await requestAt('2',`/invoices/${invoice.id}`,'PUT',payload)
+  assert.equal(low.status,400)
+  assert.match(low.body.error,/below its billed time charges/)
+  assert.equal((await requestAt('2',`/invoices/${invoice.id}`,'PUT',{...payload,lines:invoice.lines.map(line=>({...line,amountCents:3000}))})).status,200)
+})
+
+test('adding approved time preserves an existing manual task total',async()=>{
+  const {sqlite,requestAt}=fixture()
+  sqlite.exec("UPDATE projects SET manager_user_id='2' WHERE id='p'; UPDATE project_tasks SET bill_type='time-and-materials-nte',contract_amount_cents=10000 WHERE id='t'; INSERT INTO user_timesheets(id,user_id,week_start,status) VALUES('topup-week','3','2026-10-19','approved'); INSERT INTO user_timesheet_entries(id,timesheet_id,project_id,project_task_id,entry_date,hours,note,charge_cents,billing_type) VALUES('topup-entry','topup-week','p','t','2026-10-20',1,'Work',3000,'time-and-materials-nte')")
+  const created=await requestAt('2','/invoices','POST',{projectId:'p',entryIds:[]})
+  const invoice=created.body.invoice
+  const saved=await requestAt('2',`/invoices/${invoice.id}`,'PUT',{revision:invoice.revision,issueDate:invoice.issueDate,paymentTerm:invoice.paymentTerm,includeHoursBreakdown:false,includeLineItemNotes:false,notes:'',internalNote:'',recipientIds:invoice.recipients.filter(item=>item.selected).map(item=>item.contactId),allocations:[],lines:[{id:'task-topup',kind:'manual',projectTaskId:'t',description:'Task total',amountCents:5000}]})
+  assert.equal(saved.status,200)
+  const added=await requestAt('2',`/invoices/${invoice.id}/entries`,'POST',{revision:saved.body.invoice.revision,entryIds:['topup-entry']})
+  assert.equal(added.status,200)
+  assert.equal(added.body.invoice.totalCents,5000)
+  assert.equal(added.body.invoice.lines.find(item=>item.kind==='time').amountCents,3000)
+  assert.equal(added.body.invoice.lines.find(item=>item.kind==='manual').amountCents,2000)
+})
+
+test('super-administrator force posts unmatched Stripe income, fee, and transfer once',async()=>{
+  const {sqlite,requestAt,db}=fixture()
+  sqlite.exec("INSERT INTO qbo_connection(id,realm_id,environment,access_token,refresh_token,token_expires_at,connected_at,updated_at,default_service_item_id,stripe_clearing_account_id,stripe_payout_bank_account_id,stripe_fee_expense_account_id) VALUES(1,'realm','sandbox','token','refresh','2099-01-01T00:00:00Z',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'service','clearing','bank','fees')")
+  const calls=[],timestamp=Math.floor(Date.now()/1000),originalFetch=globalThis.fetch;let payoutAmount=950,failFee=true
+  globalThis.fetch=async(url,init={})=>{
+    const value=String(url),statement=new URL(value).searchParams.get('query')||''
+    if(value.includes('/payouts/po_force'))return Response.json({id:'po_force',amount:payoutAmount,currency:'usd',automatic:true,status:'paid',reconciliation_status:'completed',arrival_date:timestamp})
+    if(value.includes('/balance_transactions'))return Response.json({data:[{id:'txn_force',amount:1000,fee:100,net:900,currency:'usd',type:'charge',source:'ch_force'}],has_more:false})
+    if(value.includes('/charges/ch_force'))return Response.json({id:'ch_force',payment_intent:null})
+    if(statement.includes('from Customer'))return Response.json({QueryResponse:{Customer:[{Id:'customer-1',DisplayName:'Walk-in client'}]}})
+    if(statement.includes('from SalesReceipt'))return Response.json({QueryResponse:{SalesReceipt:calls.some(call=>call.entity==='salesreceipt')?[{Id:'qbo-1',PrivateNote:'V5 Stripe unmatched payout po_force customer customer-1',CustomerRef:{value:'customer-1'},TotalAmt:10}]:[]}})
+    if(statement.includes('from Purchase'))return Response.json({QueryResponse:{Purchase:[]}})
+    if(statement.includes('from Transfer'))return Response.json({QueryResponse:{Transfer:[]}})
+    for(const entity of ['salesreceipt','purchase','transfer'])if(value.includes(`/${entity}?`)){calls.push({entity,body:JSON.parse(init.body)});if(entity==='purchase'&&failFee)return Response.json({Fault:{Error:[{Detail:'Temporary fee failure'}]}},{status:503});return Response.json({[{salesreceipt:'SalesReceipt',purchase:'Purchase',transfer:'Transfer'}[entity]]:{Id:`qbo-${calls.length}`}})}
+    return Response.json({messageId:'mail'})
+  }
+  const env={STRIPE_SECRET_KEY:'sk_test',QBO_CLIENT_ID:'client',QBO_CLIENT_SECRET:'secret',QBO_ENVIRONMENT:'sandbox'}
+  try{
+    assert.equal((await requestAt('2','/invoices/payments/payouts/po_force/force','POST',{customers:[]},env)).status,403)
+    assert.equal((await requestAt('1','/invoices/payments/payouts/po_force/force','POST',{customers:[{balanceTransactionId:'txn_force',customerId:'customer-1'}]},env)).status,409)
+    assert.equal(calls.length,0)
+    payoutAmount=900
+    assert.equal((await requestAt('1','/invoices/payments/payouts/po_force/force','POST',{customers:[{balanceTransactionId:'txn_force',customerId:'customer-1'}]},env)).status,409)
+    assert.deepEqual(calls.map(call=>call.entity),['salesreceipt','purchase'])
+    failFee=false
+    const posted=await requestAt('1','/invoices/payments/payouts/po_force/force','POST',{customers:[{balanceTransactionId:'txn_force',customerId:'customer-1'}]},env)
+    assert.equal(posted.status,200)
+    assert.equal(posted.body.payout.qbo_sync_status,'synced')
+    assert.deepEqual(calls.map(call=>call.entity),['salesreceipt','purchase','purchase','transfer'])
+    assert.equal(calls[0].body.CustomerRef.value,'customer-1')
+    assert.equal(calls[0].body.Line[0].Amount,10)
+    assert.equal(calls[1].body.Line[0].Amount,1)
+    assert.equal(calls[3].body.Amount,9)
+    assert.equal(sqlite.prepare("SELECT qbo_sales_receipt_id,qbo_customer_id FROM stripe_payout_transactions WHERE balance_transaction_id='txn_force'").get().qbo_sales_receipt_id,'qbo-1')
+    await syncPayoutQbo(db,{...env,DB:db},'po_force')
+    assert.equal(calls.length,4)
+  }finally{globalThis.fetch=originalFetch}
+})
+
+test('forced mixed payout retains the linked invoice payment and receipts only unmatched income',async()=>{
+  const {sqlite,requestAt}=fixture()
+  sqlite.exec("UPDATE projects SET qbo_customer_id='matched-customer' WHERE id='p'; INSERT INTO qbo_connection(id,realm_id,environment,access_token,refresh_token,token_expires_at,connected_at,updated_at,default_service_item_id,stripe_clearing_account_id,stripe_payout_bank_account_id,stripe_fee_expense_account_id) VALUES(1,'realm','sandbox','token','refresh','2099-01-01T00:00:00Z',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,'service','clearing','bank','fees'); INSERT INTO invoices(id,project_id,client_id,invoice_number,source,status,issue_date,due_date,billing_name,project_reference,public_token,qbo_invoice_id) VALUES('matched-invoice','p','c','MATCHED','manual','paid','2026-10-10','2026-11-09','Client','P-1','matched-token','qbo-invoice'); INSERT INTO invoice_lines(id,invoice_id,kind,description,amount_cents) VALUES('matched-line','matched-invoice','manual','Work',5000); INSERT INTO invoice_payments(id,invoice_id,source,status,amount_cents,method,paid_at,stripe_payment_intent_id,stripe_charge_id,stripe_balance_transaction_id,stripe_fee_cents,stripe_net_cents) VALUES('matched-payment','matched-invoice','stripe','succeeded',5000,'card','2026-10-23T16:00:00Z','pi_match','ch_match','txn_match',175,4825)")
+  const calls=[],timestamp=Math.floor(Date.now()/1000),originalFetch=globalThis.fetch;let intentLinked=true
+  globalThis.fetch=async(url,init={})=>{
+    const value=String(url),statement=new URL(value).searchParams.get('query')||''
+    if(value.includes('/payouts/po_mixed'))return Response.json({id:'po_mixed',amount:5725,currency:'usd',automatic:true,status:'paid',reconciliation_status:'completed',arrival_date:timestamp})
+    if(value.includes('/balance_transactions'))return Response.json({data:[{id:'txn_match',amount:5000,fee:175,net:4825,currency:'usd',type:'charge',source:'ch_match'},{id:'txn_extra',amount:1000,fee:100,net:900,currency:'usd',type:'charge',source:'ch_extra'}],has_more:false})
+    if(value.includes('/charges/ch_extra'))return Response.json({id:'ch_extra',payment_intent:intentLinked?'pi_link':null})
+    if(value.includes('/payment_intents/pi_link'))return Response.json({id:'pi_link',metadata:{invoice_id:'matched-invoice'}})
+    if(statement.includes('from Customer'))return Response.json({QueryResponse:{Customer:[{Id:'extra-customer',DisplayName:'Extra'}]}})
+    if(statement.includes('from PaymentMethod'))return Response.json({QueryResponse:{PaymentMethod:[{Id:'stripe-method',Name:'Stripe'}]}})
+    if(statement.includes('from Payment'))return Response.json({QueryResponse:{Payment:[]}})
+    if(statement.includes('from SalesReceipt'))return Response.json({QueryResponse:{SalesReceipt:[]}})
+    if(statement.includes('from Purchase'))return Response.json({QueryResponse:{Purchase:[]}})
+    if(statement.includes('from Transfer'))return Response.json({QueryResponse:{Transfer:[]}})
+    for(const entity of ['payment','salesreceipt','purchase','transfer'])if(value.includes(`/${entity}?`)){calls.push({entity,body:JSON.parse(init.body)});return Response.json({[{payment:'Payment',salesreceipt:'SalesReceipt',purchase:'Purchase',transfer:'Transfer'}[entity]]:{Id:`posted-${calls.length}`}})}
+    return Response.json({messageId:'mail'})
+  }
+  try{
+    assert.equal((await requestAt('1','/invoices/payments/payouts/po_mixed/force','POST',{customers:[{balanceTransactionId:'txn_extra',customerId:'extra-customer'}]},{STRIPE_SECRET_KEY:'sk_test',QBO_CLIENT_ID:'client',QBO_CLIENT_SECRET:'secret',QBO_ENVIRONMENT:'sandbox'})).status,409)
+    assert.equal(calls.length,0)
+    intentLinked=false
+    const posted=await requestAt('1','/invoices/payments/payouts/po_mixed/force','POST',{customers:[{balanceTransactionId:'txn_extra',customerId:'extra-customer'}]},{STRIPE_SECRET_KEY:'sk_test',QBO_CLIENT_ID:'client',QBO_CLIENT_SECRET:'secret',QBO_ENVIRONMENT:'sandbox'})
+    assert.equal(posted.status,200)
+    assert.deepEqual(calls.map(call=>call.entity),['payment','purchase','salesreceipt','purchase','transfer'])
+    assert.equal(calls[0].body.Line[0].LinkedTxn[0].TxnId,'qbo-invoice')
+    assert.equal(calls[2].body.CustomerRef.value,'extra-customer')
+    assert.equal(calls[2].body.Line[0].Amount,10)
+    assert.equal(sqlite.prepare("SELECT qbo_payment_id FROM invoice_payments WHERE id='matched-payment'").get().qbo_payment_id,'posted-1')
   }finally{globalThis.fetch=originalFetch}
 })
 

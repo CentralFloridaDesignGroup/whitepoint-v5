@@ -73,20 +73,20 @@ async function invoices(db: D1Database, metric: DashboardDetailMetric, today: st
   const rows = invoiceResult.results || []
   if (metric === 'month') {
     const monthInvoices = rows.filter(row => typeof row.sent_at === 'string' && businessMonth(row.sent_at) === month)
-    const payments = (await db.prepare(`SELECT ip.id,ip.invoice_id,ip.paid_at,ip.method,
+    const payments = (await db.prepare(`SELECT ip.id,ip.invoice_id,ip.paid_at,ip.method,i.sent_at,
       MAX(0,ip.amount_cents-ip.refunded_cents-ip.disputed_cents) AS net_cents,
       i.invoice_number,p.id AS project_id,p.project_number,p.name AS project_name,c.name AS client_name
       FROM invoice_payments ip JOIN invoices i ON i.id=ip.invoice_id JOIN projects p ON p.id=i.project_id JOIN clients c ON c.id=i.client_id
       WHERE ip.status='succeeded' AND i.status IN ('sent','paid') ORDER BY ip.paid_at,i.invoice_number`).all<Row>()).results || []
     const sentRows = monthInvoices.map(row => invoiceRow(row, n(row.total_cents), 'Sent'))
-    const paymentRows = payments.filter(row => typeof row.paid_at === 'string' && businessMonth(row.paid_at) === month).map(row => ({
+    const paymentRows = payments.filter(row => typeof row.sent_at === 'string' && businessMonth(row.sent_at) === month).map(row => ({
       id:s(row.id),kind:'payment' as const,label:s(row.invoice_number),
       description:`${s(row.client_name)} · ${s(row.project_number)} ${s(row.project_name)} · ${s(row.method)}`,
       date:s(row.paid_at),amountCents:n(row.net_cents),amountLabel:'Received',relatedInvoiceId:s(row.invoice_id),
     }))
     return { title:`Invoiced and received · ${month}`, sections:[
       {title:'Invoices sent',rows:sentRows},
-      {title:'Payments received',rows:paymentRows},
+      {title:'Payments received for these invoices',rows:paymentRows},
     ] }
   }
 

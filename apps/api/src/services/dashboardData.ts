@@ -67,7 +67,7 @@ export async function dashboardData(db: D1Database, access: Access, now = new Da
   if (access.financials || access.multiplier) {
     const [invoices, payments] = await Promise.all([
       db.prepare(`SELECT i.id, i.status, i.sent_at, i.due_date, COALESCE(SUM(l.amount_cents),0) AS total_cents FROM invoices i LEFT JOIN invoice_lines l ON l.invoice_id=i.id WHERE i.status IN ('draft','sent','paid') GROUP BY i.id`).all<Row>(),
-      db.prepare(`SELECT ip.invoice_id, ip.paid_at, MAX(0,ip.amount_cents-ip.refunded_cents-ip.disputed_cents) AS net_cents FROM invoice_payments ip JOIN invoices i ON i.id=ip.invoice_id WHERE ip.status='succeeded' AND i.status IN ('sent','paid')`).all<Row>(),
+      db.prepare(`SELECT ip.invoice_id, i.sent_at, MAX(0,ip.amount_cents-ip.refunded_cents-ip.disputed_cents) AS net_cents FROM invoice_payments ip JOIN invoices i ON i.id=ip.invoice_id WHERE ip.status='succeeded' AND i.status IN ('sent','paid')`).all<Row>(),
     ])
     const keys = dashboardMonthKeys(today)
     const buckets = new Map(keys.map(month => [month, { month, sentCents: 0, incomeCents: 0 }]))
@@ -76,7 +76,7 @@ export async function dashboardData(db: D1Database, access: Access, now = new Da
       const amount = money(payment.net_cents)
       const id = String(payment.invoice_id)
       paidByInvoice.set(id, (paidByInvoice.get(id) || 0) + amount)
-      const month = typeof payment.paid_at === 'string' ? businessMonth(payment.paid_at) : null
+      const month = typeof payment.sent_at === 'string' ? businessMonth(payment.sent_at) : null
       const bucket = month ? buckets.get(month) : null
       if (bucket) bucket.incomeCents += amount
     }

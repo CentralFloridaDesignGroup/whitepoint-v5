@@ -24,6 +24,7 @@ import { formatUsdCents as money } from "@whitepoint/utils/currency";
 import {
   defaultSplitValue,
   draftPreview,
+  fixedFeeSuggestedAmount,
   type Choice,
   type Draft,
 } from "./invoiceDraft";
@@ -31,6 +32,7 @@ import { clientView, fromInvoice } from "./invoicePresentation";
 import { Dropdown, Textarea, Textbox, Toggle } from "@whitepoint/ui/input";
 import { ArrowLeft, X } from "lucide-react";
 import { CurrencyField } from "../common/CurrencyField";
+import { LoadingSpinner } from "@whitepoint/ui/layout";
 
 const termOptions = [
   ["due-on-receipt", "Due on receipt"],
@@ -222,6 +224,27 @@ export function InvoiceDetailPage() {
           : draft.fixedFeeOverrides,
     });
   }
+  function setTaskTotal(taskId:string, target:number|undefined) {
+    if (!draft || !invoice || target===undefined) return;
+    const task=invoice.reviewTasks.find(item=>item.projectTaskId===taskId);
+    if(!task || !Number.isSafeInteger(target))return;
+    const floor=task.billingType==='fixed-fee' ? preview?.byTaskCharge.get(taskId)||0 : preview?.byTask.get(taskId)||0;
+    const cap=Math.max(0,task.contractAmountCents-task.previouslyInvoicedCents);
+    if(target<floor || target>cap){setError(`Task amount must be between ${money(floor)} and ${money(cap)}.`);return}
+    setError('');
+    const fixedIndex=draft.lines.findIndex(line=>line.projectTaskId===taskId && line.kind==='fixed-fee');
+    if(fixedIndex>=0){
+      const fixed=draft.lines[fixedIndex];
+      updateDraft({...draft,lines:draft.lines.filter(line=>line.projectTaskId!==taskId||line.kind!=='manual').map(line=>line.id===fixed.id?{...line,amountCents:target}:line),fixedFeeOverrides:[...new Set([...draft.fixedFeeOverrides,fixed.id])]});
+      return;
+    }
+    const extra=target-floor;
+    const existing=draft.lines.find(line=>line.projectTaskId===taskId && line.kind==='manual');
+    const lines=existing
+      ? extra===0 ? draft.lines.filter(line=>line.id!==existing.id) : draft.lines.map(line=>line.id===existing.id?{...line,amountCents:extra}:line)
+      : extra===0 ? draft.lines : [...draft.lines,{id:crypto.randomUUID(),projectTaskId:taskId,kind:'manual' as const,description:task.taskName,amountCents:extra,sortOrder:draft.lines.length}];
+    updateDraft({...draft,lines});
+  }
   async function act(path: string, method: "PUT" | "POST", body?: unknown) {
     setBusy(true);
     setError("");
@@ -277,7 +300,9 @@ export function InvoiceDetailPage() {
         description: line.description,
         amountCents:
           line.kind === "fixed-fee"
-            ? calculation.byTaskAmount.get(line.projectTaskId || "") || 0
+            ? draft.fixedFeeOverrides.includes(line.id)
+              ? line.amountCents
+              : fixedFeeSuggestedAmount(invoice,line.projectTaskId||'',calculation.byTaskCharge.get(line.projectTaskId||'')||0)
             : line.amountCents,
         projectTaskId: line.projectTaskId,
       })),
@@ -305,7 +330,24 @@ export function InvoiceDetailPage() {
     if (!invoice) return;
     const saved = invoice.canEdit ? await save() : invoice;
     if (!saved) return;
-    if (await act(path, "POST")) await reload();
+    if(saved.status!=='draft') {if(await act(path,'POST'))await reload();return}
+    setBusy(true);setError('');
+    try {
+      const nextDraft=fromInvoice(saved), calculation=draftPreview(saved,nextDraft);
+      if(!calculation)throw new Error('Invoice decisions are invalid.');
+      const packet=await localPacket(saved,nextDraft,calculation,true);
+      const form=new FormData();
+      form.set('revision',String(saved.revision));
+      form.set('packet',new File([new Uint8Array(packet)],`${saved.invoiceNumber}.pdf`,{type:'application/pdf'}));
+      await requestJson(`/invoices/${encodeURIComponent(id)}${path}`,{authMode:'session',method:'POST',body:form});
+      await reload();
+    }catch(cause){setError(String(cause))}finally{setBusy(false)}
+  }
+  async function localPacket(source:InvoiceRecord, model:Draft, calculation:NonNullable<ReturnType<typeof draftPreview>>, issuing=false) {
+    const billedHours=new Map([...calculation.byEntry].map(([entryId,allocation])=>[entryId,allocation.billedHoursHundredths/100]));
+    const hourRows=model.includeHoursBreakdown?invoiceHoursBreakdownRows(source.allocations,billedHours,model.includeLineItemNotes):[];
+    const view=clientView(source,model,calculation);
+    return createInvoicePacket(issuing?{...view,status:'sent'}:view,paymentUrl,apiBaseUrl,undefined,hourRows);
   }
   async function addTime(entryId: string) {
     const saved = await save();
@@ -402,26 +444,7 @@ export function InvoiceDetailPage() {
     try {
       let blob: Blob;
       if (invoice.status === "draft") {
-        const billedHours = new Map(
-          [...preview.byEntry].map(([entryId, allocation]) => [
-            entryId,
-            allocation.billedHoursHundredths / 100,
-          ]),
-        );
-        const hourRows = draft.includeHoursBreakdown
-          ? invoiceHoursBreakdownRows(
-              invoice.allocations,
-              billedHours,
-              draft.includeLineItemNotes,
-            )
-          : [];
-        const packet = await createInvoicePacket(
-          clientView(invoice, draft, preview),
-          paymentUrl,
-          apiBaseUrl,
-          undefined,
-          hourRows,
-        );
+        const packet = await localPacket(invoice,draft,preview);
         blob = new Blob([new Uint8Array(packet)], { type: "application/pdf" });
       } else
         blob = await requestBlob(`/invoices/${encodeURIComponent(id)}/packet`, {
@@ -526,6 +549,8 @@ export function InvoiceDetailPage() {
 
   return (
     <main className="mx-auto max-w-[1800px] space-y-4 px-4 pb-10 pt-4 text-slate-900">
+      {previewBusy && <LoadingSpinner title="Generating invoice PDF" />}
+      {busy && <LoadingSpinner title="Preparing invoice" />}
       <header className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
         <div>
           <h1 className="text-2xl font-bold items-center flex">
@@ -1190,6 +1215,15 @@ export function InvoiceDetailPage() {
           )}
         </div>
       </section>
+      {invoice.source==='manual' && invoice.reviewTasks.some(task=>['fixed-fee','time-and-materials-nte'].includes(task.billingType) && task.contractAmountCents>0) && <section className={card}>
+        <h2 className="mb-3 text-lg font-semibold">Bill project tasks</h2>
+        <div className="space-y-3">{invoice.reviewTasks.filter(task=>['fixed-fee','time-and-materials-nte'].includes(task.billingType) && task.contractAmountCents>0).map(task=>{
+          const taskId=task.projectTaskId||'';
+          const floor=task.billingType==='fixed-fee' ? preview?.byTaskCharge.get(taskId)||0 : preview?.byTask.get(taskId)||0;
+          const cap=Math.max(0,task.contractAmountCents-task.previouslyInvoicedCents);
+          return <div key={taskId} className="grid gap-2 border-t pt-3 sm:grid-cols-[1fr_12rem] sm:items-center"><div><strong>{task.taskName}</strong><p className="text-xs text-slate-600">Billed time {money(floor)} · Remaining contract {money(cap)}</p></div><CurrencyField aria-label={`Invoice amount for ${task.taskName}`} disabled={!invoice.canEdit} valueCents={preview?.byTaskAmount.get(taskId)||0} onCentsChange={value=>setTaskTotal(taskId,value??undefined)} /></div>
+        })}</div>
+      </section>}
       {/* Invoice lines section */}
       <section className={card}>
         <div className="mb-3 flex justify-between">
@@ -1218,7 +1252,7 @@ export function InvoiceDetailPage() {
             </button>
           )}
         </div>
-        {draft.lines.map((line, index) => (
+        {draft.lines.map((line, index) => invoice.source==='manual' && line.projectTaskId && (line.kind==='manual' || line.kind==='fixed-fee') && invoice.reviewTasks.some(task=>task.projectTaskId===line.projectTaskId && ['fixed-fee','time-and-materials-nte'].includes(task.billingType) && task.contractAmountCents>0) ? null : (
           <div
             key={line.id}
             className="mb-2 grid gap-2 sm:grid-cols-[1fr_10rem_0fr]"

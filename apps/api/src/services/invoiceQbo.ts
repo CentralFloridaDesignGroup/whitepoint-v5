@@ -2,9 +2,9 @@ import type { ApiEnv } from '../types/apiTypes'
 import { accessToken, qboApiBase } from './qboSync.ts'
 import { invoiceDetail } from './invoiceData.ts'
 
-type QboEntity = {Id:string;Name?:string;SyncToken?:string;DocNumber?:string;PaymentRefNum?:string;PrivateNote?:string;TotalAmt?:number;CustomerRef?:{value?:string};Line?:Array<{LinkedTxn?:Array<{TxnId?:string}>}>}
-type QboResult = { Invoice?: QboEntity; Payment?: QboEntity; Purchase?:QboEntity; Transfer?:QboEntity; QueryResponse?: {Invoice?:QboEntity[];Payment?:QboEntity[];PaymentMethod?:QboEntity[];Purchase?:QboEntity[];Transfer?:QboEntity[]}; Fault?: {Error?:Array<{Detail?:string;Message?:string}>} }
-async function query(db:D1Database,env:ApiEnv,entity:'Invoice'|'Payment'|'PaymentMethod'|'Purchase'|'Transfer',field?:'DocNumber'|'PaymentRefNum',value?:string):Promise<QboEntity[]>{
+type QboEntity = {Id:string;Name?:string;DisplayName?:string;SyncToken?:string;DocNumber?:string;PaymentRefNum?:string;PrivateNote?:string;TotalAmt?:number;CustomerRef?:{value?:string};Line?:Array<{LinkedTxn?:Array<{TxnId?:string}>}>}
+type QboResult = { Invoice?: QboEntity; Payment?: QboEntity; Purchase?:QboEntity; Transfer?:QboEntity; SalesReceipt?:QboEntity; QueryResponse?: {Invoice?:QboEntity[];Payment?:QboEntity[];PaymentMethod?:QboEntity[];Purchase?:QboEntity[];Transfer?:QboEntity[];SalesReceipt?:QboEntity[];Customer?:QboEntity[]}; Fault?: {Error?:Array<{Detail?:string;Message?:string}>} }
+async function query(db:D1Database,env:ApiEnv,entity:'Invoice'|'Payment'|'PaymentMethod'|'Purchase'|'Transfer'|'SalesReceipt'|'Customer',field?:'DocNumber'|'PaymentRefNum',value?:string):Promise<QboEntity[]>{
   const {realmId,token}=await accessToken(db,env)
   const all:QboEntity[]=[]
   for(let start=1;start<=10001;start+=1000){
@@ -18,6 +18,7 @@ async function query(db:D1Database,env:ApiEnv,entity:'Invoice'|'Payment'|'Paymen
   }
   throw new Error(`QuickBooks ${entity} lookup exceeded 10,000 records; review before retrying.`)
 }
+export async function qboPayoutCustomers(db:D1Database,env:ApiEnv){return (await query(db,env,'Customer')).map(item=>({id:item.Id,name:item.DisplayName||item.Name||item.Id}))}
 async function request(db:D1Database,env:ApiEnv,path:string,body:unknown):Promise<QboResult>{
   const {realmId,token}=await accessToken(db,env)
   const response=await fetch(`${qboApiBase(env,realmId)}/${path}${path.includes('?')?'&':'?'}minorversion=${encodeURIComponent(env.QBO_MINOR_VERSION||'75')}`,{method:'POST',headers:{Accept:'application/json','Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify(body)})
@@ -75,8 +76,8 @@ export async function syncPaymentQbo(db:D1Database,env:ApiEnv,paymentId:string){
   if(!payment||payment.qbo_payment_id)return
   if(payment.source==='stripe'){
     if(!payment.stripe_payout_id)return
-    const payout=await db.prepare('SELECT paid,reconciled,review_error FROM stripe_payouts WHERE id=?').bind(payment.stripe_payout_id).first<{paid:number;reconciled:number;review_error:string|null}>()
-    if(!payout?.paid||!payout.reconciled||payout.review_error)return
+    const payout=await db.prepare('SELECT paid,reconciled,review_error,qbo_force_unmatched FROM stripe_payouts WHERE id=?').bind(payment.stripe_payout_id).first<{paid:number;reconciled:number;review_error:string|null;qbo_force_unmatched:number}>()
+    if(!payout?.paid||!payout.reconciled||(payout.review_error&&!(payout.qbo_force_unmatched&&/^\d+ payout transactions have no matching invoice payment or adjustment\.$/.test(payout.review_error))))return
   }
   const invoiceId=String(payment.invoice_id)
   const current=await db.prepare('SELECT qbo_invoice_id FROM invoices WHERE id=?').bind(invoiceId).first<{qbo_invoice_id:string|null}>()
@@ -108,11 +109,21 @@ export async function syncPaymentQbo(db:D1Database,env:ApiEnv,paymentId:string){
 
 export async function syncPayoutQbo(db:D1Database,env:ApiEnv,payoutId:string){
   const payout=await db.prepare('SELECT * FROM stripe_payouts WHERE id=?').bind(payoutId).first<Record<string,unknown>>()
-  if(!payout||!payout.paid||!payout.reconciled||payout.review_error)return
+  if(!payout||!payout.paid||!payout.reconciled||(payout.review_error&&!payout.qbo_force_unmatched))return
+  if(payout.qbo_force_unmatched){
+    if(!/^\d+ payout transactions have no matching invoice payment or adjustment\.$/.test(String(payout.review_error||'')))return
+    const transactions=(await db.prepare('SELECT * FROM stripe_payout_transactions WHERE payout_id=?').bind(payoutId).all<Record<string,unknown>>()).results||[]
+    if(transactions.filter(item=>item.type!=='payout').reduce((sum,item)=>sum+Number(item.net_cents),0)!==Number(payout.amount_cents))return
+    if(transactions.some(item=>!item.payment_id&&!item.adjustment_id&&item.type!=='payout'&&(!['charge','payment'].includes(String(item.type))||Number(item.amount_cents)<=0||!item.qbo_customer_id)))return
+    for(const item of transactions.filter(item=>item.payment_id)){
+      const payment=await db.prepare('SELECT amount_cents,stripe_balance_transaction_id,stripe_fee_cents,stripe_net_cents FROM invoice_payments WHERE id=?').bind(item.payment_id).first<{amount_cents:number;stripe_balance_transaction_id:string|null;stripe_fee_cents:number;stripe_net_cents:number|null}>()
+      if(!payment||payment.amount_cents!==item.amount_cents||payment.stripe_balance_transaction_id!==item.balance_transaction_id||payment.stripe_fee_cents!==item.fee_cents||payment.stripe_net_cents!==item.net_cents)return
+    }
+  }
   const claimed=await db.prepare("UPDATE stripe_payouts SET qbo_sync_status='posting',qbo_posting_started_at=CURRENT_TIMESTAMP WHERE id=? AND qbo_sync_status<>'synced' AND (qbo_sync_status<>'posting' OR qbo_posting_started_at<datetime('now','-5 minutes'))").bind(payoutId).run()
   if(!claimed.meta.changes)return
   try{
-    const settings=await db.prepare('SELECT stripe_clearing_account_id,stripe_payout_bank_account_id,stripe_fee_expense_account_id FROM qbo_connection WHERE id=1').first<{stripe_clearing_account_id:string|null;stripe_payout_bank_account_id:string|null;stripe_fee_expense_account_id:string|null}>()
+    const settings=await db.prepare('SELECT stripe_clearing_account_id,stripe_payout_bank_account_id,stripe_fee_expense_account_id,default_service_item_id FROM qbo_connection WHERE id=1').first<{stripe_clearing_account_id:string|null;stripe_payout_bank_account_id:string|null;stripe_fee_expense_account_id:string|null;default_service_item_id:string|null}>()
     if(!settings?.stripe_clearing_account_id||!settings.stripe_payout_bank_account_id||!settings.stripe_fee_expense_account_id)throw new Error('Configure Stripe clearing, payout bank, and fee expense accounts in QuickBooks settings.')
     const unresolved=await db.prepare("SELECT p.id FROM stripe_payout_transactions t JOIN stripe_payment_adjustments a ON a.id=t.adjustment_id JOIN invoice_payments p ON p.id=a.payment_id WHERE t.payout_id=? AND p.qbo_payment_id IS NOT NULL AND p.qbo_posted_amount_cents>MAX(0,p.amount_cents-p.refunded_cents-p.disputed_cents) LIMIT 1").bind(payoutId).first<{id:string}>()
     if(unresolved)throw new Error(`Review and post the QuickBooks correction for payment ${unresolved.id} before posting this payout.`)
@@ -122,6 +133,7 @@ export async function syncPayoutQbo(db:D1Database,env:ApiEnv,payoutId:string){
       await syncPaymentQbo(db,env,String(payment.id))
       const current=await db.prepare('SELECT qbo_sync_error,qbo_payment_id,qbo_posted_amount_cents,qbo_fee_purchase_id FROM invoice_payments WHERE id=?').bind(payment.id).first<{qbo_sync_error:string|null;qbo_payment_id:string|null;qbo_posted_amount_cents:number|null;qbo_fee_purchase_id:string|null}>()
       if(current?.qbo_sync_error)throw new Error(`Invoice payment ${payment.id}: ${current.qbo_sync_error}`)
+      if(!current?.qbo_payment_id&&Math.max(0,Number(payment.amount_cents)-Number(payment.refunded_cents||0)-Number(payment.disputed_cents||0))>0)throw new Error(`Invoice payment ${payment.id} was not posted to QuickBooks.`)
       if(Number(payment.stripe_fee_cents)>0&&!current?.qbo_fee_purchase_id){
         const note=`V5 Stripe fee ${String(payment.stripe_charge_id)} payment ${String(payment.id)}`
         const matches=(await query(db,env,'Purchase')).filter(item=>item.PrivateNote===note)
@@ -129,6 +141,34 @@ export async function syncPayoutQbo(db:D1Database,env:ApiEnv,payoutId:string){
         const result=matches[0]?{Purchase:matches[0]}:await request(db,env,'purchase',{PaymentType:'Cash',AccountRef:{value:settings.stripe_clearing_account_id},TxnDate:String(payment.paid_at).slice(0,10),PrivateNote:note,Line:[{Amount:Number(payment.stripe_fee_cents)/100,DetailType:'AccountBasedExpenseLineDetail',Description:`Stripe processing fee for ${String(payment.stripe_charge_id)}`,AccountBasedExpenseLineDetail:{AccountRef:{value:settings.stripe_fee_expense_account_id}}}]})
         if(!result.Purchase?.Id)throw new Error('QuickBooks returned no fee purchase ID.')
         await db.prepare('UPDATE invoice_payments SET qbo_fee_purchase_id=? WHERE id=?').bind(result.Purchase.Id,payment.id).run()
+      }
+    }
+    if(payout.qbo_force_unmatched){
+      if(!settings.default_service_item_id)throw new Error('Choose a QuickBooks service item before posting unmatched payments.')
+      const unmatched=(await db.prepare("SELECT balance_transaction_id,amount_cents,fee_cents,source_id,qbo_customer_id,qbo_sales_receipt_id,qbo_fee_purchase_id FROM stripe_payout_transactions WHERE payout_id=? AND payment_id IS NULL AND adjustment_id IS NULL AND type IN ('charge','payment') ORDER BY balance_transaction_id").bind(payoutId).all<{balance_transaction_id:string;amount_cents:number;fee_cents:number;source_id:string|null;qbo_customer_id:string|null;qbo_sales_receipt_id:string|null;qbo_fee_purchase_id:string|null}>()).results||[]
+      if(!unmatched.length||unmatched.some(item=>!item.qbo_customer_id))throw new Error('Select a QuickBooks customer for every unmatched payment.')
+      const byCustomer=new Map<string,typeof unmatched>()
+      for(const item of unmatched)byCustomer.set(item.qbo_customer_id!,[...(byCustomer.get(item.qbo_customer_id!)||[]),item])
+      for(const [customerId,items] of byCustomer){
+        const note=`V5 Stripe unmatched payout ${payoutId} customer ${customerId}`
+        const amount=items.reduce((sum,item)=>sum+item.amount_cents,0)
+        const matches=(await query(db,env,'SalesReceipt')).filter(item=>item.PrivateNote===note)
+        if(matches.length>1)throw new Error(`Multiple QuickBooks sales receipts match payout ${payoutId} customer ${customerId}.`)
+        const existing=matches[0]
+        if(existing&&(existing.CustomerRef?.value!==customerId||Math.round(Number(existing.TotalAmt||0)*100)!==amount))throw new Error('QuickBooks sales receipt differs from this payout.')
+        const result=existing?{SalesReceipt:existing}:await request(db,env,'salesreceipt',{CustomerRef:{value:customerId},DepositToAccountRef:{value:settings.stripe_clearing_account_id},TxnDate:String(payout.arrival_date||new Date().toISOString()).slice(0,10),PrivateNote:note,Line:items.map(item=>({DetailType:'SalesItemLineDetail',Description:`Stripe payment ${item.source_id||item.balance_transaction_id}`,Amount:item.amount_cents/100,SalesItemLineDetail:{ItemRef:{value:settings.default_service_item_id},Qty:1,UnitPrice:item.amount_cents/100}}))})
+        if(!result.SalesReceipt?.Id)throw new Error('QuickBooks returned no sales receipt ID.')
+        for(const item of items)await db.prepare('UPDATE stripe_payout_transactions SET qbo_sales_receipt_id=? WHERE balance_transaction_id=?').bind(result.SalesReceipt.Id,item.balance_transaction_id).run()
+      }
+      for(const item of unmatched){
+        if(item.fee_cents<0)throw new Error(`Stripe fee credit ${item.balance_transaction_id} needs finance review.`)
+        if(!item.fee_cents||item.qbo_fee_purchase_id)continue
+        const note=`V5 Stripe unmatched fee ${item.balance_transaction_id}`
+        const matches=(await query(db,env,'Purchase')).filter(value=>value.PrivateNote===note)
+        if(matches.length>1)throw new Error(`Multiple QuickBooks fee purchases match ${item.balance_transaction_id}.`)
+        const result=matches[0]?{Purchase:matches[0]}:await request(db,env,'purchase',{PaymentType:'Cash',AccountRef:{value:settings.stripe_clearing_account_id},TxnDate:String(payout.arrival_date||new Date().toISOString()).slice(0,10),PrivateNote:note,Line:[{Amount:item.fee_cents/100,DetailType:'AccountBasedExpenseLineDetail',Description:`Stripe processing fee for ${item.source_id||item.balance_transaction_id}`,AccountBasedExpenseLineDetail:{AccountRef:{value:settings.stripe_fee_expense_account_id}}}]})
+        if(!result.Purchase?.Id)throw new Error('QuickBooks returned no fee purchase ID.')
+        await db.prepare('UPDATE stripe_payout_transactions SET qbo_fee_purchase_id=? WHERE balance_transaction_id=?').bind(result.Purchase.Id,item.balance_transaction_id).run()
       }
     }
     const adjustmentFees=(await db.prepare('SELECT balance_transaction_id,fee_cents,qbo_fee_purchase_id FROM stripe_payout_transactions WHERE payout_id=? AND adjustment_id IS NOT NULL AND fee_cents<>0 ORDER BY balance_transaction_id').bind(payoutId).all<{balance_transaction_id:string;fee_cents:number;qbo_fee_purchase_id:string|null}>()).results||[]

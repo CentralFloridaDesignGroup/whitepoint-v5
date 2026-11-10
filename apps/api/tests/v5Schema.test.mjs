@@ -6,7 +6,7 @@ import { DatabaseSync } from 'node:sqlite'
 test('fresh V5 migrations include weekly hours without V4 accounting objects', () => {
   const db = new DatabaseSync(':memory:')
   db.exec('PRAGMA foreign_keys=ON')
-  for (const number of ['0001_company_initialization', '0002_roles_permissions', '0003_user_init_auth_seed', '0004_client_init', '0005_project_init', '0006_timesheet_init', '0007_invoice_init']) {
+  for (const number of ['0001_company_initialization', '0002_roles_permissions', '0003_user_init_auth_seed', '0004_client_init', '0005_project_init', '0006_timesheet_init', '0007_invoice_init', '0009_invoice_void_and_pm_copy', '0010_unmatched_stripe_payouts']) {
     db.exec(readFileSync(new URL(`../migrations/${number}.sql`, import.meta.url), 'utf8'))
   }
   const userColumns = db.prepare('PRAGMA table_info(users)').all()
@@ -20,5 +20,7 @@ test('fresh V5 migrations include weekly hours without V4 accounting objects', (
     assert.equal(columns.includes('origin'), false)
     assert.equal(columns.includes('legacy_qbo_deposit_id'), false)
   }
+  assert(db.prepare('PRAGMA table_info(stripe_payouts)').all().some(column=>column.name==='qbo_force_unmatched'))
+  assert(db.prepare('PRAGMA table_info(stripe_payout_transactions)').all().some(column=>column.name==='qbo_sales_receipt_id'))
   db.close()
 })

@@ -30,9 +30,9 @@ import { sendEmail } from "../services/brevo.ts";
 import { clientInvoiceEmail } from "../emails/invoice.ts";
 import {
   base64Bytes,
-  buildInvoicePacket,
   storedInvoicePacket,
 } from "../services/invoicePacket.ts";
+import { validatePoPdf } from '@whitepoint/utils/invoice-pdf';
 import { clientOnHold, projectOnHold } from "../services/paymentHold.ts";
 import { stripeGet, stripePost } from "../services/stripeApi.ts";
 import { syncPayoutQbo } from "../services/invoiceQbo.ts";
@@ -244,6 +244,7 @@ async function issueInvoice(
   c: ApiContext,
   invoiceId: string,
   invoice: NonNullable<Awaited<ReturnType<typeof invoiceDetail>>>,
+  packet: Uint8Array,
 ) {
   if (invoice.totalCents <= 0) return "A positive invoice total is required.";
   if (
@@ -255,6 +256,13 @@ async function issueInvoice(
     )
   )
     return "Set an amount for every fixed fee task with billed hours.";
+  if(invoice.source==='manual')for(const task of invoice.reviewTasks){
+    if(!task.projectTaskId||!['fixed-fee','time-and-materials-nte'].includes(task.billingType)||task.contractAmountCents<=0)continue;
+    const previous=await c.env.DB.prepare("SELECT COALESCE(SUM(l.amount_cents),0) AS amount FROM invoice_lines l JOIN invoices i ON i.id=l.invoice_id WHERE l.project_task_id=? AND i.id<>? AND i.status<>'void'").bind(task.projectTaskId,invoiceId).first<{amount:number}>();
+    const minimum=task.currentChargeCents;
+    const maximum=Math.max(0,task.contractAmountCents-(previous?.amount||0));
+    if(task.currentAmountCents<minimum||task.currentAmountCents>maximum)return `Task ${task.taskName} must be between its billed charges and remaining contract amount.`;
+  }
   const poRows =
     (
       await c.env.DB.prepare(
@@ -263,15 +271,6 @@ async function issueInvoice(
         .bind(invoice.projectId)
         .all<{ id: string; name: string; r2_key: string }>()
     ).results || [];
-  const project = await c.env.DB.prepare(
-    "SELECT po_number FROM projects WHERE id=?",
-  )
-    .bind(invoice.projectId)
-    .first<{ po_number: string }>();
-  const packet = await buildInvoicePacket(c.env, {
-    ...invoice,
-    poNumber: project?.po_number || "",
-  });
   const key = `invoices/${invoiceId}/packet.pdf`;
   await c.env.RECORD_DOCUMENTS.put(key, packet, {
     httpMetadata: { contentType: "application/pdf" },
@@ -300,6 +299,16 @@ async function issueInvoice(
     throw error;
   }
   return null;
+}
+async function uploadedInvoicePacket(c:ApiContext, revision:number):Promise<Uint8Array>{
+  const form=await c.req.raw.formData();
+  if(Number(form.get('revision'))!==revision)throw new Error('Invoice changed. Reload before sending.');
+  const file=form.get('packet');
+  if(!(file instanceof File) || file.size<100 || file.size>10_000_000 || file.type!=='application/pdf')throw new Error('Upload a valid invoice PDF under 10 MB.');
+  const bytes=new Uint8Array(await file.arrayBuffer());
+  if(new TextDecoder().decode(bytes.subarray(0,5))!=='%PDF-')throw new Error('Invoice PDF is invalid.');
+  await validatePoPdf(bytes);
+  return bytes;
 }
 export function createInvoicesApi() {
   const api = new Hono<HonoEnv>();
@@ -764,6 +773,12 @@ export function createInvoicesApi() {
       const existing = current.lines.find(
         (item) => item.projectTaskId === line.taskId && item.kind === line.kind,
       );
+      const manual = current.source==='manual' ? current.lines.find(item=>item.projectTaskId===line.taskId&&item.kind==='manual') : null;
+      if(manual){
+        const priorTotal=current.lines.filter(item=>item.projectTaskId===line.taskId).reduce((sum,item)=>sum+item.amountCents,0);
+        const nextBase=line.kind==='time' ? (existing?.amountCents||0)+line.amount : Math.max(existing?.amountCents||0,(current.reviewTasks.find(item=>item.projectTaskId===line.taskId)?.currentChargeCents||0)+line.amount);
+        write.push(c.env.DB.prepare('UPDATE invoice_lines SET amount_cents=? WHERE id=? AND invoice_id=?').bind(Math.max(0,priorTotal-nextBase),manual.id,invoiceId));
+      }
       if (existing) {
         if (line.kind === "time")
           write.push(
@@ -771,7 +786,10 @@ export function createInvoicesApi() {
               "UPDATE invoice_lines SET amount_cents=amount_cents+? WHERE id=? AND invoice_id=?",
             ).bind(line.amount, existing.id, invoiceId),
           );
-        else {
+        else if(current.source==='manual'){
+          const billed=(current.reviewTasks.find(item=>item.projectTaskId===line.taskId)?.currentChargeCents||0)+line.amount;
+          write.push(c.env.DB.prepare('UPDATE invoice_lines SET amount_cents=? WHERE id=? AND invoice_id=?').bind(Math.max(existing.amountCents,billed),existing.id,invoiceId));
+        } else {
           const task = current.reviewTasks.find(
             (item) => item.projectTaskId === line.taskId,
           );
@@ -988,6 +1006,8 @@ export function createInvoicesApi() {
       );
       if (new Set(body.lines.map((line) => line.id)).size !== body.lines.length)
         throw new Error("Invoice line IDs must be unique.");
+      const taskManualLines=body.lines.filter(line=>line.kind==='manual'&&line.projectTaskId).map(line=>line.projectTaskId);
+      if(new Set(taskManualLines).size!==taskManualLines.length)throw new Error('Use one editable total per task.');
       const sourceTime = new Set(
         current.lines.filter((l) => l.kind === "time").map((l) => l.id),
       );
@@ -1002,6 +1022,13 @@ export function createInvoicesApi() {
           throw new Error("Invalid line type.");
         if (!text(line.description, 500) || cents(line.amountCents) === null)
           throw new Error("Line descriptions and amounts are required.");
+        if (line.kind === "manual" && line.projectTaskId) {
+          if (current.source !== "manual") throw new Error("Task billing is available only on manual invoices.");
+          const task = await c.env.DB.prepare("SELECT bill_type,contract_amount_cents FROM project_tasks WHERE id=? AND project_id=? AND archived_at IS NULL")
+            .bind(line.projectTaskId, current.projectId).first<{bill_type:string;contract_amount_cents:number}>();
+          if (!task || !["fixed-fee", "time-and-materials-nte"].includes(task.bill_type) || task.contract_amount_cents <= 0)
+            throw new Error("Choose an active contracted task on this project.");
+        }
       }
       if (
         body.lines.filter((l) => l.kind === "time").length !== sourceTime.size
@@ -1038,6 +1065,7 @@ export function createInvoicesApi() {
           ...current.lines
             .filter((l) => l.kind === "fixed-fee")
             .map((l) => l.projectTaskId || ""),
+          ...body.lines.filter(l=>l.kind==='manual').map(l=>l.projectTaskId||''),
         ].filter(Boolean),
       );
       for (const taskId of taskIds) {
@@ -1053,13 +1081,13 @@ export function createInvoicesApi() {
           .bind(taskId, invoiceId)
           .first<{ total: number }>();
         const currentAmount =
-          task.bill_type === "fixed-fee"
-            ? body.lines
-                .filter(
-                  (l) => l.kind === "fixed-fee" && l.projectTaskId === taskId,
-                )
-                .reduce((sum, l) => sum + (fixedAmounts.get(l.id) || 0), 0)
-            : amounts.get(taskId) || 0;
+          body.lines.filter(l=>l.projectTaskId===taskId && l.kind==='manual').reduce((sum,l)=>sum+l.amountCents,0)
+          + (task.bill_type === "fixed-fee"
+            ? body.lines.filter(l=>l.kind==='fixed-fee' && l.projectTaskId===taskId).reduce((sum,l)=>sum+(fixedAmounts.get(l.id)||0),0)
+            : amounts.get(taskId)||0);
+        const billedFloor = task.bill_type === 'fixed-fee' ? fixedCharges.get(taskId)||0 : amounts.get(taskId)||0;
+        if (current.source === 'manual' && currentAmount < billedFloor)
+          throw new Error(`Task ${taskId} is below its billed time charges.`);
         if (
           ["fixed-fee", "time-and-materials-nte"].includes(task.bill_type) &&
           currentAmount >
@@ -1118,17 +1146,17 @@ export function createInvoicesApi() {
           Number(selectedIds.has(recipient.contactId)),
         ),
       );
+    write.push(
+      c.env.DB.prepare(
+        "DELETE FROM invoice_lines WHERE invoice_id=? AND kind='manual'",
+      ).bind(invoiceId),
+    );
     for (const line of current.lines.filter((l) => l.kind === "time"))
       write.push(
         c.env.DB.prepare(
           "UPDATE invoice_lines SET amount_cents=? WHERE id=? AND invoice_id=?",
         ).bind(amounts.get(line.projectTaskId || "") || 0, line.id, invoiceId),
       );
-    write.push(
-      c.env.DB.prepare(
-        "DELETE FROM invoice_lines WHERE invoice_id=? AND kind='manual'",
-      ).bind(invoiceId),
-    );
     for (const line of body.lines.filter((l) => l.kind === "fixed-fee"))
       write.push(
         c.env.DB.prepare(
@@ -1144,10 +1172,11 @@ export function createInvoicesApi() {
     for (const line of body.lines.filter((l) => l.kind === "manual"))
       write.push(
         c.env.DB.prepare(
-          "INSERT INTO invoice_lines(id,invoice_id,kind,description,amount_cents,sort_order) VALUES(?,?,'manual',?,?,?)",
+          "INSERT INTO invoice_lines(id,invoice_id,project_task_id,kind,description,amount_cents,sort_order) VALUES(?,?,?,'manual',?,?,?)",
         ).bind(
           uid(),
           invoiceId,
+          line.projectTaskId,
           text(line.description, 500),
           line.amountCents,
           order++,
@@ -1189,7 +1218,8 @@ export function createInvoicesApi() {
         409,
       );
     try {
-      const error = await issueInvoice(c, invoiceId, invoice);
+      const packet=await uploadedInvoicePacket(c,invoice.revision);
+      const error = await issueInvoice(c, invoiceId, invoice,packet);
       if (error) return c.json({ error }, 400);
     } catch (error) {
       return c.json(
@@ -1249,7 +1279,8 @@ export function createInvoicesApi() {
       );
     if (invoice.status === "draft")
       try {
-        const error = await issueInvoice(c, invoiceId, invoice);
+        const packet=await uploadedInvoicePacket(c,invoice.revision);
+        const error = await issueInvoice(c, invoiceId, invoice,packet);
         if (error) return c.json({ error }, 400);
       } catch (error) {
         return c.json(

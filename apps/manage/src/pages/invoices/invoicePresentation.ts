@@ -71,8 +71,9 @@ export function clientView(
         : line.kind === "fixed-fee"
           ? {
               ...line,
-              amountCents:
-                preview.byTaskAmount.get(line.projectTaskId || "") || 0,
+              amountCents: draft.fixedFeeOverrides.includes(line.id)
+                ? line.amountCents
+                : fixedFeeSuggestedAmount(invoice,line.projectTaskId||'',preview.byTaskCharge.get(line.projectTaskId||'')||0),
             }
           : line,
     ),

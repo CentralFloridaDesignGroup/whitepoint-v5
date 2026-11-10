@@ -76,14 +76,15 @@ test('month drilldown returns the selected month sent invoices and receipts', as
     invoices:[{id:'i1',invoice_number:'I-1',status:'sent',sent_at:'2026-10-15 14:00:00',due_date:'2026-11-15',project_id:'p1',project_number:'P-1',project_name:'A',client_name:'Client',total_cents:10000}],
     paid:[],
     monthPayments:[
-      {id:'pay1',invoice_id:'i1',invoice_number:'I-1',paid_at:'2026-10-20 15:00:00',method:'check',net_cents:3000,project_id:'p1',project_number:'P-1',project_name:'A',client_name:'Client'},
-      {id:'pay2',invoice_id:'i1',invoice_number:'I-1',paid_at:'2026-11-01 05:00:00',method:'card',net_cents:2000,project_id:'p1',project_number:'P-1',project_name:'A',client_name:'Client'},
+      {id:'pay1',invoice_id:'i1',invoice_number:'I-1',sent_at:'2026-10-15 14:00:00',paid_at:'2026-10-20 15:00:00',method:'check',net_cents:3000,project_id:'p1',project_number:'P-1',project_name:'A',client_name:'Client'},
+      {id:'pay2',invoice_id:'i1',invoice_number:'I-1',sent_at:'2026-10-15 14:00:00',paid_at:'2026-11-01 05:00:00',method:'card',net_cents:2000,project_id:'p1',project_number:'P-1',project_name:'A',client_name:'Client'},
     ],
   })
   const result = await dashboardDetails(db,'month',access,'2026-10',now)
   assert.equal(result.sections[0].rows.length,1)
-  assert.equal(result.sections[1].rows.length,1)
+  assert.equal(result.sections[1].rows.length,2)
   assert.equal(result.sections[1].rows[0].amountCents,3000)
+  assert.equal(result.sections[1].rows[1].amountCents,2000)
   await assert.rejects(dashboardDetails(db,'month',access,'2025-01',now),/INVALID_MONTH/)
 })
 

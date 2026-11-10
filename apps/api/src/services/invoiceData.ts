@@ -253,9 +253,10 @@ export async function reserveInvoiceEntries(
       if (remaining === undefined) {
         const previous = await db
           .prepare(
-            `SELECT COALESCE(SUM(l.amount_cents),0) AS amount FROM invoice_lines l JOIN invoices i ON i.id=l.invoice_id WHERE l.project_task_id=? AND i.status<>'void'`,
+            `SELECT COALESCE((SELECT SUM(l.amount_cents) FROM invoice_lines l JOIN invoices i ON i.id=l.invoice_id WHERE l.project_task_id=? AND i.id<>? AND i.status<>'void'),0)
+              + COALESCE((SELECT SUM(a.billed_charge_cents) FROM invoice_entry_allocations a JOIN user_timesheet_entries e ON e.id=a.entry_id WHERE a.invoice_id=? AND e.project_task_id=?),0) AS amount`,
           )
-          .bind(taskId)
+          .bind(taskId,invoiceId,invoiceId,taskId)
           .first<{ amount: number }>();
         remaining = Math.max(
           0,

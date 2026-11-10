@@ -42,8 +42,8 @@ test('dashboard counts deadlines, payment splits, approved time, and zero-filled
       { id: 'four', status: 'sent', sent_at: '2026-10-29 14:00:00', due_date: '2026-10-29', total_cents: 4000 },
     ],
     payments: [
-      { invoice_id: 'one', paid_at: '2026-10-20', net_cents: 3000 },
-      { invoice_id: 'two', paid_at: '2026-10-25', net_cents: 2000 },
+      { invoice_id: 'one', sent_at: '2026-10-15 14:00:00', net_cents: 3000 },
+      { invoice_id: 'two', sent_at: '2026-10-01 14:00:00', net_cents: 2000 },
     ],
     users: [{ id: 'staff-one', weekly_hours: null }],
     worked: [
@@ -63,6 +63,16 @@ test('dashboard counts deadlines, payment splits, approved time, and zero-filled
   assert.equal(result.staff.incomeMultiplier, 2)
   assert.ok(db.calls[0].includes('archived_at IS NULL AND active=1'))
   assert.ok(db.calls.at(-1).includes("w.status='approved'"))
+})
+
+test('payments received later stay with the invoice sent month', async () => {
+  const db = database({
+    invoices: [{ id: 'one', status: 'paid', sent_at: '2026-09-30 14:00:00', due_date: '2026-10-30', total_cents: 10000 }],
+    payments: [{ invoice_id: 'one', sent_at: '2026-09-30 14:00:00', paid_at: '2026-10-15', net_cents: 10000 }],
+  })
+  const result = await dashboardData(db, { projects: false, financials: true, utilization: false, multiplier: false }, new Date('2026-10-29T16:00:00Z'))
+  assert.deepEqual(result.financials.months.at(-2), { month: '2026-09', sentCents: 10000, incomeCents: 10000 })
+  assert.deepEqual(result.financials.months.at(-1), { month: '2026-10', sentCents: 0, incomeCents: 0 })
 })
 
 test('weekly targets distinguish default, missing, exempt, and individual hours', async () => {
