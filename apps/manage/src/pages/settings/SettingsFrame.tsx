@@ -16,6 +16,7 @@ const links = [
     permission: "company.roles.view",
   },
   { to: "/settings/rates", label: "Billing rates", permission: "timesheets.rates.view" },
+  { to: "/settings/subdivision-templates", label: "Subdivision phases", permission: "subdivisions.view" },
   { to: "/settings/qbo", label: "QBO Integration", permission: "company.qbo.view" },
 ];
 export function SettingsFrame({ children }: { children: ReactNode }) {

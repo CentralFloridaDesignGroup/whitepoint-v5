@@ -24,6 +24,8 @@ const ProjectRecordPage = lazy(() =>
     default: module.ProjectRecordPage,
   })),
 );
+const SubdivisionPage = lazy(() => import('./pages/subdivision/SubdivisionPage').then(module => ({default:module.SubdivisionPage})));
+const PhaseTemplates = lazy(() => import('./pages/settings/subdivisions/PhaseTemplates').then(module => ({default:module.PhaseTemplates})));
 const ApplicationSettings = lazy(() =>
   import("./pages/settings/application/ApplicationSettings").then((module) => ({
     default: module.ApplicationSettings,
@@ -115,7 +117,7 @@ const router = createBrowserRouter([
       { element: <ProtectedRoutes />, children: [{ path: "me", element: <MePage /> }] },
       {
         element: (
-          <ProtectedRoutes permissions={["projects.view", "clients.view"]} />
+          <ProtectedRoutes permissions={["projects.view", "clients.view", "subdivisions.view"]} />
         ),
         children: [{ path: "search", element: <SearchResults /> }],
       },
@@ -139,6 +141,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoutes permission="company.qbo.view" />,
         children: [{ path: "settings/qbo", element: <QboSettings /> }],
       },
+      { element: <ProtectedRoutes permission="subdivisions.view" />, children: [{path:'settings/subdivision-templates',element:<PhaseTemplates/>}] },
       {
         element: <ProtectedRoutes permission="timesheets.rates.view" />,
         children: [{ path: "settings/rates", element: <RateSettings /> }],
@@ -177,6 +180,7 @@ const router = createBrowserRouter([
         element: <ProtectedRoutes permission="projects.create" />,
         children: [{ path: "project/new", element: <ProjectRecordPage /> }],
       },
+      { element: <ProtectedRoutes permission="subdivisions.view" />, children: [{path:'subdivision',element:<SubdivisionPage/>},{path:'subdivision/:id',element:<SubdivisionPage/>}] },
       {
         element: <ProtectedRoutes />,
         children: [{ path: "invoices", element: <InvoicesPage /> }, { path: "invoices/:id", element: <InvoiceDetailPage /> }],

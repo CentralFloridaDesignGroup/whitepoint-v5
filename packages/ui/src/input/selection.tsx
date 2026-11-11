@@ -252,8 +252,17 @@ export function LinkedDropdown({
 export type SearchableDropdownProps = SelectProps &
   Omit<
     InputHTMLAttributes<HTMLInputElement>,
-    "onChange" | "value" | "defaultValue" | "children" | "name" | "size"
-  > & { emptyText?: string };
+    | "onChange"
+    | "onSearch"
+    | "value"
+    | "defaultValue"
+    | "children"
+    | "name"
+    | "size"
+  > & {
+    emptyText?: string;
+    onSearch?: (query: string) => void;
+  };
 export function SearchableDropdown({
   id,
   name,
@@ -270,6 +279,7 @@ export function SearchableDropdown({
   required,
   className,
   emptyText = "No matches found",
+  onSearch,
   "aria-describedby": ariaDescribedBy,
   ...inputProps
 }: SearchableDropdownProps) {
@@ -315,7 +325,11 @@ export function SearchableDropdown({
             {...inputProps}
             id={inputId}
             displayValue={() => selectedLabel}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              const nextQuery = event.target.value;
+              setQuery(nextQuery);
+              onSearch?.(nextQuery);
+            }}
             placeholder={placeholder}
             autoComplete="off"
             aria-required={required}
@@ -359,7 +373,10 @@ export function SearchableDropdown({
   );
 }
 
-export type LinkedSearchableDropdownProps = SearchableDropdownProps & {
+export type LinkedSearchableDropdownProps = Omit<
+  SearchableDropdownProps,
+  "onSearch"
+> & {
   /** Link to navigate to when the dropdown is readonly and clicked */
   linkRef: string;
 };

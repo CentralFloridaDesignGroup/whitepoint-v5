@@ -23,6 +23,7 @@ export type { Contact, ContactMetadata } from './contact';
 export type { Project, ProjectInput, ProjectUpdateInput, ProjectStage, ProjectAddress, ProjectContactRole, ProjectContact, ProjectAccounting } from './project';
 export type { RecordTask } from './task';
 export type { ProjectInvoiceReference } from './invoicing';
-export type { ClientSearchResult, ProjectSearchResult, SearchResults } from './search';
+export type { ClientSearchResult, ProjectSearchResult, SubdivisionSearchResult, SearchResults } from './search';
 export type { AppSettings } from './settings';
+export type { ParcelType, SubdivisionParcel, SubdivisionParent, Subdivision, SubdivisionListItem, PhaseTemplate, SubdivisionBatchRow, SubdivisionBatch } from './subdivision';
 export type { DashboardResponse, DashboardDetailMetric, DashboardDetailRow, DashboardDetailResponse } from './dashboard';

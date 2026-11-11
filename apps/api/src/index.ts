@@ -8,6 +8,7 @@ import { createPublicApi } from './routes/publicApi'
 import { createClientApi } from './routes/clientApi'
 import { createContactApi } from './routes/contactApi'
 import { createProjectApi } from './routes/projectApi'
+import { createSubdivisionApi, createSubdivisionTemplateApi } from './routes/subdivisionApi'
 import { createRecordLookupsApi } from './routes/recordLookupsApi'
 import { createQboApi } from './routes/qboApi'
 import { createSearchApi } from './routes/searchApi'
@@ -60,8 +61,10 @@ app.route('/records', createRecordLookupsApi())
 app.route('/records', createContactApi())
 app.route('/records', createClientApi())
 app.route('/records', createProjectApi())
+app.route('/records', createSubdivisionApi())
 app.route('/qbo', createQboApi())
 app.route('/settings', createSettingsApi())
+app.route('/settings', createSubdivisionTemplateApi())
 app.route('/search', createSearchApi())
 app.route('/timesheets', createTimesheetsApi())
 app.route('/invoices', createInvoicesApi())

@@ -59,4 +59,4 @@ Both of these files are yours to maintain, add, edit, correct, and change as nee
 
 # Deployment Status
 
-**CURRENT DEVELOPMENT**: Git commit 4b55a0254c6798750562031e631f0a3afbd6da77 and migration 0008 are the current latest and greatest production code. Any code developed moving forward must adapt from this code.
+**CURRENT DEVELOPMENT**: Git commit d919d3c65bf6de9593c5598c046d2822f1a97517 and migration 0009 are the current latest and greatest production code. Any code developed moving forward must adapt from this code.

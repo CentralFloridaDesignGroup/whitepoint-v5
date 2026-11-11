@@ -16,7 +16,7 @@ const MIN_QUERY = 2;
 
 type Option = {
   key: string;
-  group: "Projects" | "Clients";
+  group: "Projects" | "Clients" | "Subdivisions";
   label: string;
   detail: string;
   path: string;
@@ -49,6 +49,7 @@ export function GlobalSearch() {
           detail: p.client_name || "",
           path: `/project/${p.id}`,
         })),
+      ...(results?.subdivisions ?? []).slice(0, MAX_PER_GROUP).map(s => ({key:`s-${s.id}`,group:'Subdivisions' as const,label:s.name,detail:s.location||s.plat_reference,path:`/subdivision/${s.id}`})),
       ...(results?.clients ?? [])
         .slice(0, MAX_PER_GROUP)
         .map((c) => ({
@@ -62,7 +63,7 @@ export function GlobalSearch() {
     [results],
   );
   const total =
-    (results?.projects.length ?? 0) + (results?.clients.length ?? 0);
+    (results?.projects.length ?? 0) + (results?.clients.length ?? 0) + (results?.subdivisions.length ?? 0);
   const viewAllIndex = options.length;
 
   useEffect(() => {
@@ -250,7 +251,7 @@ export function GlobalSearch() {
             aria-label="Search results"
             aria-busy={loading}
           >
-            {(["Projects", "Clients"] as const).map((group) => {
+            {(["Projects", "Subdivisions", "Clients"] as const).map((group) => {
               const items = options.filter((option) => option.group === group);
               if (!items.length) return null;
               return (

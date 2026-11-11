@@ -27,6 +27,15 @@
     ]
   },
   {
+    "key": "subdivisions",
+    "displayName": "Subdivisions",
+    "description": "Shared plat phase and parcel inventory.",
+    "permissions": [
+      { "key": "subdivisions.view", "displayName": "View Subdivisions", "description": "View shared subdivision records and parcel inventory without accessing builder projects." },
+      { "key": "subdivisions.manage", "displayName": "Manage Subdivisions", "description": "Create and edit subdivisions, parcels, parent links, and builder assignments." }
+    ]
+  },
+  {
     "key": "projects",
     "displayName": "Projects",
     "description": "Permissions related to managing and viewing project records, statuses, and associated details.",

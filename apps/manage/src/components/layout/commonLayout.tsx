@@ -3,6 +3,7 @@ import { GlobalSearch } from "../../pages/search/GlobalSearch";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   BriefcaseBusiness,
+  MapPinned,
   ChevronDown,
   FileText,
   Clock3,
@@ -45,6 +46,7 @@ function CommonLayoutContent() {
       permission: "projects.view",
       icon: BriefcaseBusiness,
     },
+    { label: "Subdivisions", path: "/subdivision", permission: "subdivisions.view", icon: MapPinned },
     {
       label: "Clients",
       path: "/client",

@@ -16,6 +16,7 @@ export const bad = (c: C, error: string) => c.json({ error }, 400);
 export const conflict = (c: C) => c.json({ error: 'This record changed since it was opened. Reload before saving.' }, 409);
 export const emailOk = (value: string) => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 export const money = (value: unknown) => Number.isSafeInteger(value) && Number(value) >= 0 ? Number(value) : null;
+export function taskLetters(index:number){let n=index,result='';do{result=String.fromCharCode(65+(n-1)%26)+result;n=Math.floor((n-1)/26);}while(n>0);return result;}
 
 const projectManagerPermission = `EXISTS (
   SELECT 1 FROM json_each(r.permissions) permission
@@ -51,12 +52,22 @@ export async function audit(c: C, type: 'client' | 'project', recordId: string) 
 export async function qboSave(c: C, kind: 'clients' | 'projects', row: Row, parentId = '') {
   let value: { id: string; syncToken: string } | null = null, error: string | null = null;
   if (c.env.QBO_CLIENT_ID && c.env.QBO_CLIENT_SECRET && c.env.QBO_REDIRECT_URI) {
-    try { value = kind === 'clients' ? await syncQboClient(c.env.DB,c.env,row) : await syncQboProject(c.env.DB,c.env,row,parentId); }
+    try {
+      const transferred=kind==='projects'&&row.active===0&&!row.archived_at&&await c.env.DB.prepare('SELECT 1 FROM subdivision_assignments WHERE project_id=? AND ended_at IS NOT NULL').bind(row.id).first();
+      value = kind === 'clients' ? await syncQboClient(c.env.DB,c.env,row) : await syncQboProject(c.env.DB,c.env,transferred?{...row,active:1}:row,parentId);
+    }
     catch (caught) { error = String(caught instanceof Error ? caught.message : caught).slice(0,1000); }
   }
   const status = value ? 'synced' : error ? 'failed' : 'not_configured';
   await c.env.DB.prepare(`UPDATE ${kind} SET qbo_customer_id=COALESCE(?,qbo_customer_id),qbo_sync_token=COALESCE(?,qbo_sync_token),qbo_sync_status=?,qbo_sync_error=? WHERE id=?`).bind(value?.id ?? null,value?.syncToken ?? null,status,error,row.id).run();
   return { status, error };
+}
+
+export async function qboProjectParent(db:D1Database, row:Row) {
+  const child=await db.prepare('SELECT parent_project_id FROM subdivision_assignments WHERE project_id=?').bind(row.id).first<{parent_project_id:string}>();
+  if(child){const parent=await db.prepare('SELECT qbo_customer_id FROM projects WHERE id=?').bind(child.parent_project_id).first<{qbo_customer_id:string|null}>();return parent?.qbo_customer_id||'';}
+  const client=await db.prepare('SELECT qbo_customer_id FROM clients WHERE id=?').bind(row.client_id).first<{qbo_customer_id:string|null}>();
+  return client?.qbo_customer_id||'';
 }
 
 export function guard(c: C, id: string) { return dbGuard(c.env.DB, id); }

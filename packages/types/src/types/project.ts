@@ -15,6 +15,7 @@ export type Project = {
   stage: ProjectStage; active: boolean; contactId: string; address: ProjectAddress
   payTableId: string | null
   poNumber: string; poDocuments: { id: string; name: string; sizeBytes: number; createdAt: string }[]
+  subdivision?: { id: string; name: string; parentProjectId: string | null; parcelLabel: string | null }
   contacts: ProjectContact[]; tasks: RecordTask[]; accounting: ProjectAccounting
   archivedAt: string | null; capabilities: RecordCapabilities
 }

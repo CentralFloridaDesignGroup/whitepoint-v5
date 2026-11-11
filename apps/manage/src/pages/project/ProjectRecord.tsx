@@ -107,6 +107,7 @@ export function ProjectRecordPage() {
     auth = useAuth();
   const isNew = !id,
     copyId = params.get("copy"),
+    subdivisionId = params.get('subdivision'),
     startingClient = params.get("client") || "";
   const [record, setRecord] = useState<Project | null>(null),
     [draft, setDraft] = useState<ProjectInput & { revision?: number }>(() =>
@@ -295,11 +296,12 @@ export function ProjectRecordPage() {
         },
       );
       setRecord(value);
+      if(!id && subdivisionId){try{await requestJson(`/records/subdivisions/${encodeURIComponent(subdivisionId)}/parents`,{authMode:'session',method:'POST',body:JSON.stringify({projectId:value.id})});}catch(linkError){window.alert(`Project ${value.projectNumber} was created, but could not be linked to the subdivision: ${String(linkError)}. Link it from the subdivision page.`);allowNextNavigation();navigate(`/project/${value.id}`,{replace:true});return;}}
       const next = toDraft(value);
       setDraft(next);
       setSaved(next);
       setEditing(false);
-      if (!id) { allowNextNavigation(); navigate(`/project/${value.id}`, { replace: true }); }
+      if (!id) { allowNextNavigation(); navigate(subdivisionId?`/subdivision/${subdivisionId}`:`/project/${value.id}`, { replace: true }); }
     } catch (e) {
       setError(String(e));
     } finally {
@@ -366,6 +368,7 @@ export function ProjectRecordPage() {
             {record?.stage || "Opportunity"}{" "}
             {record && `· QBO ${record.qboSyncStatus}`}
           </p>
+          {record?.subdivision&&auth.hasPermission('subdivisions.view')&&<p className="mt-1 text-sm"><Link className="text-sky-800 underline" to={`/subdivision/${record.subdivision.id}`}>{record.subdivision.name}</Link>{record.subdivision.parcelLabel&&` · ${record.subdivision.parcelLabel}`}{record.subdivision.parentProjectId&&<> · <Link className="text-sky-800 underline" to={`/project/${record.subdivision.parentProjectId}`}>Builder parent</Link></>}</p>}
         </div>
         <div className="flex flex-wrap gap-2">
           {record && (
