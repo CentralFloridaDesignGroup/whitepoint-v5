@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { createAuthApi } from './routes/authApi'
+import { createNativeAuthApi } from './routes/nativeAuthApi'
 import { createIdentityApi } from './routes/identityApi'
 import { createRolesApi } from './routes/rolesApi'
 import { createFavoritesApi } from './routes/favoritesApi'
@@ -20,6 +21,7 @@ import { createStripeInvoiceWebhook } from './webhooks/stripeInvoiceWebhook'
 import { generateMonthlyInvoices } from './services/monthlyInvoices'
 import { sendTimesheetReminders } from './services/timesheetReminders'
 import { readSession, requireSession } from './auth/session'
+import { requireNative } from './auth/nativeAuth'
 import { findRoutePolicy } from './security/routePolicies'
 import { serverError, type HonoEnv } from './types/apiTypes'
 
@@ -42,18 +44,20 @@ app.use('/*', async (c, next) => {
   const origin = c.req.header('Origin') || ''
   if (origin && !origins(c.env.AUTH_ORIGINS).includes(origin)) return c.json({ error: 'Origin not allowed.' }, 403)
   if (!['GET','HEAD'].includes(method)) {
-    if (!origin || !origins(c.env.AUTH_ORIGINS).includes(origin)) return c.json({ error: 'Origin required.' }, 403)
+    if (!policy.nativeCredential && (!origin || !origins(c.env.AUTH_ORIGINS).includes(origin))) return c.json({ error: 'Origin required.' }, 403)
     if (!policy.csrfExempt) {
       const session = await readSession(c.env.DB, c.req.raw)
       if (!session || c.req.header('X-CSRF-Token') !== session.csrfToken) return c.json({ error: 'CSRF check failed.' }, 403)
     }
   }
   if (policy.access === 'public' || policy.access === 'pending-session') return next()
+  if (policy.access === 'native') return requireNative(policy.permission)(c, next)
   return requireSession(policy.access === 'permission' ? policy.permission : undefined)(c, next)
 })
 app.get('/health/status', c => c.json({ status: 'ok' }))
 app.route('/public', createPublicApi())
 app.route('/identity', createAuthApi())
+app.route('/identity', createNativeAuthApi())
 app.route('/identity', createIdentityApi())
 app.route('/identity', createRolesApi())
 app.route('/identity', createFavoritesApi())

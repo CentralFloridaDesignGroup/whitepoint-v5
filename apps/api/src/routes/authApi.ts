@@ -5,6 +5,7 @@ import type { ApiContext, HonoEnv } from '../types/apiTypes'
 import { decryptTotp, encryptTotp, hashPassword, issueRecoveryCodes, newTotpSecret, validPassword, verifyPassword, verifyTotp } from '../auth/credentials'
 import { issueAccessLink, sendAccessEmail } from '../auth/mail'
 import { clearSessionCookie, cookie, issueSession, readSession, revokeUserSessions, setSessionCookie, sha256 } from '../auth/session'
+import { revokeNativeGrants } from '../auth/nativeAuth'
 import { allowRequest, type RateLimitDecision } from '../services/rateLimit.ts'
 
 const emailOf = (value: unknown) => String(value ?? '').trim().toLowerCase().slice(0, 320)
@@ -151,6 +152,7 @@ export function createAuthApi() {
     if (Number(result.meta.changes) !== 1) return c.json({ error: 'Link was already used.' }, 409)
     await c.env.DB.prepare('INSERT INTO user_credentials(user_id,password_hash) VALUES(?,?) ON CONFLICT(user_id) DO UPDATE SET password_hash=excluded.password_hash').bind(row.user_id, passwordHash).run()
     await revokeUserSessions(c.env.DB, row.user_id)
+    await revokeNativeGrants(c.env.DB, row.user_id)
     const hasMfa = await c.env.DB.prepare('SELECT totp_enabled FROM user_credentials WHERE user_id=?').bind(row.user_id).first<{totp_enabled:number}>()
     const session = await issueSession(c.env.DB, row.user_id, true)
     return response({ next: hasMfa?.totp_enabled ? 'mfa' : 'enroll', csrfToken: session.csrf }, 200, setSessionCookie(session.token, c.req.raw))
@@ -176,6 +178,7 @@ export function createAuthApi() {
       c.env.DB.prepare('UPDATE user_credentials SET password_hash=?,updated_at=CURRENT_TIMESTAMP WHERE user_id=?').bind(hash, session.userId),
       c.env.DB.prepare('UPDATE user_sessions SET revoked_at=? WHERE user_id=? AND token_hash<>? AND revoked_at IS NULL').bind(Date.now(), session.userId, await sha256(cookie(c.req.raw) || '')),
     ])
+    await revokeNativeGrants(c.env.DB, session.userId)
     return c.json({ changed: true })
   })
   api.post('/passkey/register/options', async c => {

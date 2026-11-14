@@ -5,7 +5,7 @@
  * - `public`: No authentication required.
  * - `session`: Self-hosted staff session.
  */
-export type AuthMode = 'public' | 'session'
+export type AuthMode = 'public' | 'session' | 'native'
 
 /** Represents the authentication context for a request. */
 export type AuthContext = {

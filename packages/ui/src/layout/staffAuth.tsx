@@ -23,6 +23,7 @@ import {
 } from "@whitepoint/types/constants";
 import { Button, OTPInput, Textbox } from "../input";
 import { KeyRound, UserKey } from "lucide-react";
+import { safeStaffReturnPath } from "./staffReturnPath";
 
 const NUMBER_WORDS = ["zero", "one", "two", "three", "four"];
 
@@ -244,9 +245,11 @@ async function post(
 export function StaffLogin({
   title = "Sign in to White Point",
   logo = null,
+  defaultRedirect = "/dashboard",
 }: {
   title?: string;
   logo?: React.ReactNode;
+  defaultRedirect?: string;
 }) {
   const auth = useContext(Context),
     location = useLocation();
@@ -385,13 +388,8 @@ export function StaffLogin({
       );
     });
   if (auth.isLoaded && auth.isAuthenticated && codes.length === 0) {
-    const from = (location.state as { from?: string } | null)?.from || "";
-    const isSafeDestination =
-      from.startsWith("/") &&
-      !from.startsWith("//") &&
-      !from.startsWith("/login") &&
-      new URL(from, window.location.origin).pathname !== "/";
-    return <Navigate to={isSafeDestination ? from : "/dashboard"} replace />;
+    const from = (location.state as { from?: unknown } | null)?.from;
+    return <Navigate to={safeStaffReturnPath(from, window.location.origin) ?? defaultRedirect} replace />;
   }
   return (
     <div
@@ -549,7 +547,7 @@ export function StaffLogin({
                       password,
                     }),
                   );
-                  window.history.replaceState({}, "", "/login");
+                  window.history.replaceState(window.history.state, "", "/login");
                 }
               });
             }}

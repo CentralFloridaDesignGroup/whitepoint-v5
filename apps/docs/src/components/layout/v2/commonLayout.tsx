@@ -65,7 +65,7 @@ function CommonLayoutContent() {
                 </MenuItems>
               </Menu>
             ) : (
-              <Link to="/login" className="my-2 inline-flex items-center gap-2 rounded bg-blue-700 px-4 py-2 text-white"><LogIn className="h-4 w-4" />Sign in</Link>
+              <Link to="/login" state={{ from: location.pathname + location.search + location.hash }} className="my-2 inline-flex items-center gap-2 rounded bg-blue-700 px-4 py-2 text-white"><LogIn className="h-4 w-4" />Sign in</Link>
             )}
           </header>
           <div className="min-h-0 flex-1 overflow-auto p-4"><Outlet /></div>

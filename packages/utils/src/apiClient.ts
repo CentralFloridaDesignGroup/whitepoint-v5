@@ -6,7 +6,7 @@ import type { AuthMode } from "@whitepoint/types";
  * @param headers Optional headers to include in the request.
  */
 type ApiRequestOptions = Omit<RequestInit, "headers"> & {
-  authMode: AuthMode;
+  authMode: Exclude<AuthMode, "native">;
   headers?: Record<string, string>;
 };
 
@@ -31,7 +31,7 @@ export function resolveApiBaseUrl(
  * @param baseUrl The base URL for the API.
  */
 export function createApiClient({ baseUrl }: { baseUrl: string }) {
-  const getUrl = (pathOrUrl: string, mode: AuthMode) => {
+  const getUrl = (pathOrUrl: string, mode: Exclude<AuthMode, "native">) => {
     const url = /^https?:\/\//i.test(pathOrUrl)
       ? new URL(pathOrUrl)
       : new URL(baseUrl + pathOrUrl);

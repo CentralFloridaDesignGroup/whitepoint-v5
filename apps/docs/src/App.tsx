@@ -29,7 +29,7 @@ function Loading() {
 }
 
 const router = createBrowserRouter([
-  { path: "/login", element: <><RouteMetadata /><StaffLogin /></>, errorElement: <RouteError /> },
+  { path: "/login", element: <><RouteMetadata /><StaffLogin defaultRedirect="/" /></>, errorElement: <RouteError /> },
   {
     path: "/",
     element: <><RouteMetadata /><CommonLayout /></>,

@@ -57,6 +57,7 @@ const SearchResults = lazy(() =>
   })),
 );
 const MePage = lazy(() => import('./pages/me/MePage').then(module => ({ default: module.MePage })));
+const DesktopConnect = lazy(() => import('./pages/me/DesktopConnect').then(module => ({ default: module.DesktopConnect })));
 const TimesheetsPage = lazy(() => import('./pages/timesheets/TimesheetsPage').then(module => ({default:module.TimesheetsPage})));
 const TimesheetDetailPage = lazy(() => import('./pages/timesheets/TimesheetDetailPage').then(module => ({default:module.TimesheetDetailPage})));
 const TimesheetReviewPage = lazy(() => import('./pages/timesheets/TimesheetReviewPage').then(module => ({default:module.TimesheetReviewPage})));
@@ -106,15 +107,19 @@ const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <><RouteMetadata /><CommonLayout /></>,
+    element: <><RouteMetadata /><ProtectedRoutes /></>,
     errorElement: <RouteError />,
     children: [
+      {
+        element: <CommonLayout />,
+        children: [
       { index: true, element: <RootRedirect /> },
       {
         element: <ProtectedRoutes />,
         children: [{ path: "dashboard", element: <BusinessDashboard /> }],
       },
       { element: <ProtectedRoutes />, children: [{ path: "me", element: <MePage /> }] },
+      { path: "desktop/connect", element: <DesktopConnect /> },
       {
         element: (
           <ProtectedRoutes permissions={["projects.view", "clients.view", "subdivisions.view"]} />
@@ -187,6 +192,8 @@ const router = createBrowserRouter([
       },
       { element: <ProtectedRoutes permission="invoices.manage" />, children: [{ path: "invoices/payments", element: <PaymentReconciliationPage /> }] },
       { path: "*", element: <ErrorPage /> },
+        ],
+      },
     ],
   },
 ]);

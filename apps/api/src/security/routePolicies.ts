@@ -1,6 +1,6 @@
 export type RouteMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
-export type RouteConsumer = 'manage' | 'docs' | 'payment' | 'main' | 'monitoring' | 'qbo' | 'stripe'
-export type RouteAccess = 'public' | 'pending-session' | 'session' | 'permission' | 'signed-webhook'
+export type RouteConsumer = 'manage' | 'docs' | 'payment' | 'main' | 'monitoring' | 'qbo' | 'stripe' | 'desktop'
+export type RouteAccess = 'public' | 'pending-session' | 'session' | 'permission' | 'signed-webhook' | 'native'
 
 export type RoutePolicy = {
   method: RouteMethod
@@ -9,10 +9,11 @@ export type RoutePolicy = {
   access: RouteAccess
   permission?: string
   csrfExempt?: boolean
+  nativeCredential?: boolean
   handlerOwnership?: boolean
 }
 
-const p = (method: RouteMethod, path: string, consumers: RouteConsumer[], access: RouteAccess, permission?: string, options: Pick<RoutePolicy, 'csrfExempt' | 'handlerOwnership'> = {}): RoutePolicy =>
+const p = (method: RouteMethod, path: string, consumers: RouteConsumer[], access: RouteAccess, permission?: string, options: Pick<RoutePolicy, 'csrfExempt' | 'nativeCredential' | 'handlerOwnership'> = {}): RoutePolicy =>
   ({ method, path, consumers, access, ...(permission ? { permission } : {}), ...options })
 const publicPost = (path: string, consumers: RouteConsumer[]) => p('POST', path, consumers, 'public', undefined, { csrfExempt: true })
 const session = (method: RouteMethod, path: string, consumers: RouteConsumer[], handlerOwnership = false) => p(method, path, consumers, 'session', undefined, { handlerOwnership })
@@ -26,6 +27,11 @@ export const ROUTE_POLICIES: readonly RoutePolicy[] = [
   p('POST', '/identity/mfa', ['manage', 'docs'], 'pending-session'), p('POST', '/identity/totp/start', ['manage', 'docs'], 'pending-session'), p('POST', '/identity/totp/confirm', ['manage', 'docs'], 'pending-session'),
   publicPost('/identity/password/reset', ['manage', 'docs']), publicPost('/identity/password/set', ['manage', 'docs']),
   session('GET', '/identity/me/security', ['manage']), session('POST', '/identity/me/password', ['manage']),
+  session('POST', '/identity/native/authorize', ['manage']),
+  p('POST', '/identity/native/token', ['desktop'], 'public', undefined, { csrfExempt: true, nativeCredential: true }),
+  p('POST', '/identity/native/revoke', ['desktop'], 'public', undefined, { csrfExempt: true, nativeCredential: true }),
+  p('GET', '/identity/native/me', ['desktop'], 'native'),
+  session('GET', '/identity/native/grants', ['manage']), session('POST', '/identity/native/grants/:id/revoke', ['manage']),
   p('POST', '/identity/passkey/register/options', ['manage'], 'pending-session'), p('POST', '/identity/passkey/register/verify', ['manage'], 'pending-session'),
   session('DELETE', '/identity/me/passkeys/:id', ['manage'], true), publicPost('/identity/passkey/login/options', ['manage', 'docs']), publicPost('/identity/passkey/login/verify', ['manage', 'docs']),
   session('GET', '/identity/me/favorites', ['docs']), session('PUT', '/identity/me/favorites', ['docs']),

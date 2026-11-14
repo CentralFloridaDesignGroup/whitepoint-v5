@@ -1,7 +1,7 @@
 import type { PageMetadata } from '@whitepoint/utils';
 
 const pages: Record<string, string> = {
-  '/login': 'Sign in', '/dashboard': 'Dashboard', '/search': 'Search', '/me': 'My account',
+  '/login': 'Sign in', '/dashboard': 'Dashboard', '/search': 'Search', '/me': 'My account', '/desktop/connect': 'Connect Desktop',
   '/client': 'Clients', '/client/new': 'New client', '/project': 'Projects', '/project/new': 'New project',
   '/subdivision': 'Subdivisions', '/subdivision/new': 'New subdivision', '/settings/subdivision-templates': 'Subdivision phases',
   '/timesheets': 'Timesheets', '/timesheets/review': 'Timesheet review', '/timesheets/invoice-pool': 'Invoice pool',

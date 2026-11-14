@@ -1,6 +1,4 @@
-import type { AuthMode } from '@whitepoint/types'
-
-type JsonRequester = <T>(path: string, options: { method: string; authMode: AuthMode; body?: string }) => Promise<T>
+type JsonRequester = <T>(path: string, options: { method: string; authMode: 'session'; body?: string }) => Promise<T>
 
 function normalizeFavoritePaths(value: unknown): string[] {
   const items = Array.isArray(value) ? value : []

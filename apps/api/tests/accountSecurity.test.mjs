@@ -28,7 +28,7 @@ const secretKey = randomBytes(32).toString('base64')
 
 function database() {
   const sqlite = new DatabaseSync(':memory:')
-  for (const migration of ['0001_company_initialization.sql', '0002_roles_permissions.sql', '0003_user_init_auth_seed.sql']) {
+  for (const migration of ['0001_company_initialization.sql', '0002_roles_permissions.sql', '0003_user_init_auth_seed.sql', '0011_native_staff_auth.sql']) {
     sqlite.exec(readFileSync(new URL(`../migrations/${migration}`, import.meta.url), 'utf8'))
   }
   const statement = (sql, args = []) => ({
@@ -117,8 +117,11 @@ test('account security routes enforce ownership, password, CSRF and staged authe
   const replacementConfirm = await request('/identity/totp/confirm', 'POST', { code: totp(replacement.result.secret) })
   assert.equal(replacementConfirm.status, 200)
   assert.equal(replacementConfirm.result.recoveryCodes.length, 10)
+  db.sqlite.prepare(`INSERT INTO native_grants(id,user_id,client_id,installation_label,refresh_hash,created_at,last_used_at,inactive_expires_at,expires_at)
+    VALUES(?,?,?,?,?,?,?,?,?)`).run('test-native-grant', '1', 'northstar-desktop', 'Test PC', 'test-refresh-hash', Date.now(), Date.now(), Date.now() + 60_000, Date.now() + 60_000)
   assert.equal((await request('/identity/me/password', 'POST', { currentPassword: 'wrong', newPassword })).status, 403)
   assert.equal((await request('/identity/me/password', 'POST', { currentPassword: oldPassword, newPassword })).status, 200)
+  assert.ok(db.sqlite.prepare('SELECT revoked_at FROM native_grants WHERE id=?').get('test-native-grant').revoked_at)
   assert.equal((await request('/identity/me/security')).status, 200)
   cookie = firstCookie; csrf = firstCsrf
   assert.equal((await request('/identity/me/security')).status, 401)

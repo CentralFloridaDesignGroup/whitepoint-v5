@@ -3,6 +3,7 @@ import { issueAccessLink, sendAccessEmail } from "../auth/mail";
 import { validateReportingManagers } from '../services/reportingHierarchy'
 import { userDetail } from './userDetail'
 import { revokeUserSessions } from "../auth/session";
+import { revokeNativeGrants } from "../auth/nativeAuth";
 import { activeRoleAccess, canAssignRole, canManageUser, isSuperAdministrator } from '../security/permissionCeiling'
 import type { HonoEnv } from "../types/apiTypes";
 
@@ -216,7 +217,7 @@ export function createIdentityApi() {
     const deliveries: Array<{ id: string; sent: boolean }> = [];
     for (const user of body.users) {
       if ((!user.active || user.archived) && !user.isNew)
-        await revokeUserSessions(c.env.DB, user.id);
+        { await revokeUserSessions(c.env.DB, user.id); await revokeNativeGrants(c.env.DB, user.id); }
       if (user.isNew && user.active) {
         try {
           await sendAccessEmail(
@@ -266,6 +267,7 @@ export function createIdentityApi() {
       .run();
     if (!result.meta.changes) return c.json({ error: "User not found." }, 404);
     await revokeUserSessions(c.env.DB, id);
+    await revokeNativeGrants(c.env.DB, id);
     await audit(c.env.DB, id, c.get("auth").internalUserId!, "archived", {});
     return c.json({ id, archived: true });
   });
@@ -290,6 +292,7 @@ export function createIdentityApi() {
           );
           if (purpose === "reset") {
             await revokeUserSessions(c.env.DB, user.id);
+            await revokeNativeGrants(c.env.DB, user.id);
             await c.env.DB.prepare("DELETE FROM user_passkeys WHERE user_id=?")
               .bind(user.id)
               .run();

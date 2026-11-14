@@ -9,6 +9,7 @@ import { Card } from '../common/RecordControls'
 type Passkey = { id: string; name: string; createdAt: string; lastUsedAt: string | null }
 type SecurityStatus = { passwordSet: boolean; authenticatorEnabled: boolean; passkeys: Passkey[] }
 type Setup = { secret: string; uri: string }
+type NativeGrant = { id: string; installation_label: string; created_at: number; last_used_at: number; inactive_expires_at: number; expires_at: number }
 const inputClass = 'mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-100'
 const message = (error: unknown) => error instanceof Error ? error.message : 'The request failed.'
 const when = (value: string | null) => value ? new Date(value.includes('T') ? value : `${value.replace(' ', 'T')}Z`).toLocaleString() : 'Never'
@@ -16,6 +17,7 @@ const when = (value: string | null) => value ? new Date(value.includes('T') ? va
 export function MePage() {
   const auth = useAuth()
   const [status, setStatus] = useState<SecurityStatus | null>(null)
+  const [nativeGrants, setNativeGrants] = useState<NativeGrant[]>([])
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
@@ -29,8 +31,10 @@ export function MePage() {
   const [passkeyPassword, setPasskeyPassword] = useState('')
 
   const refresh = async () => setStatus(await requestJson<SecurityStatus>('/identity/me/security', { authMode: 'session' }))
+  const refreshNativeGrants = async () => setNativeGrants((await requestJson<{ grants: NativeGrant[] }>('/identity/native/grants', { authMode: 'session' })).grants)
   useEffect(() => {
     void refresh().catch(cause => setError(message(cause)))
+    void refreshNativeGrants().catch(cause => setError(message(cause)))
   }, [])
   const run = async (work: () => Promise<void>) => {
     setBusy(true); setError(''); setNotice('')
@@ -73,6 +77,14 @@ export function MePage() {
     await refresh()
     setNotice('Passkey removed.')
   })
+  const revokeNativeGrant = (grant: NativeGrant) => {
+    if (!window.confirm(`Sign out the Desktop installation "${grant.installation_label}"?`)) return
+    void run(async () => {
+      await requestJson(`/identity/native/grants/${encodeURIComponent(grant.id)}/revoke`, { authMode: 'session', method: 'POST' })
+      await refreshNativeGrants()
+      setNotice('Desktop access revoked for that installation.')
+    })
+  }
 
   return <main className="mx-auto max-w-4xl space-y-5 pb-10">
     <header><h1 className="text-3xl font-semibold text-slate-900">My account</h1><p className="mt-1 text-sm text-slate-600">{auth.userName} · {auth.userEmail}</p></header>
@@ -101,6 +113,10 @@ export function MePage() {
       <Card title="Passkeys"><div className="space-y-4"><p className="text-sm text-slate-600">Add a new passkey before removing an old one. Passkeys are optional.</p>
         <div className="flex flex-wrap items-end gap-3"><label className="min-w-64 text-sm font-medium">Current password<input className={inputClass} type="password" autoComplete="current-password" value={passkeyPassword} onChange={event => setPasskeyPassword(event.target.value)} /></label><Button onClick={addPasskey} disabled={busy || !passkeyPassword}>Add passkey</Button></div>
         {status.passkeys.length ? <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200">{status.passkeys.map(key => <li key={key.id} className="flex flex-wrap items-center justify-between gap-3 p-3"><div><p className="font-medium">{key.name}</p><p className="text-xs text-slate-600">Added {when(key.createdAt)} · Last used {when(key.lastUsedAt)}</p></div><Button variant="secondary" disabled={busy || !passkeyPassword} onClick={() => removePasskey(key.id)}>Remove</Button></li>)}</ul> : <p className="text-sm text-slate-600">No passkeys registered.</p>}
+      </div></Card>
+      <Card title="Desktop installations"><div className="space-y-3">
+        <p className="text-sm text-slate-600">Each Windows sign-in has its own authorization. Remove access if an installation is lost or no longer used.</p>
+        {nativeGrants.length ? <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200">{nativeGrants.map(grant => <li key={grant.id} className="flex flex-wrap items-center justify-between gap-3 p-3"><div><p className="font-medium">{grant.installation_label}</p><p className="text-xs text-slate-600">Added {new Date(grant.created_at).toLocaleString()} · Last used {new Date(grant.last_used_at).toLocaleString()}</p></div><Button variant="secondary" disabled={busy} onClick={() => revokeNativeGrant(grant)}>Revoke</Button></li>)}</ul> : <p className="text-sm text-slate-600">No active Desktop installations.</p>}
       </div></Card>
     </>}
   </main>
